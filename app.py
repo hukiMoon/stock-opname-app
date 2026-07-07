@@ -71,17 +71,16 @@ else:
         with col_f2:
             filter_status = st.selectbox("📊 Filter Status Selisih:", ["Tampilkan Semua", "🟢 Sesuai", "🔴 Kurang", "🟡 Lebih"])
         with col_f3:
-            filter_stok = st.selectbox("📦 Filter Kondisi Stok:", ["Tampilkan Semua", "Hanya Stok Kosong (0)", "Hanya Stok Tersedia (> 0)"])
+            # FIX: Mengubah pilihan filter stok menjadi jangkauan 0 - 5
+            filter_stok = st.selectbox("📦 Filter Kondisi Stok:", ["Tampilkan Semua", "Hanya Stok Kritis (0 - 5)", "Hanya Stok Banyak (> 5)"])
             
         st.write("---")
         
         # --- LOGIKA SINKRONISASI DATA EDITOR ---
         st.write("Isi jumlah fisik hasil pengecekan di kolom **Stok Fisik** bawah ini:")
         
-        # Tampilkan data editor utama (menggunakan dataframe dasar agar user bisa input fisik kapan saja)
         df_edit = st.data_editor(df, disabled=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"], hide_index=True, use_container_width=True, key="ed_opname")
         
-        # Hitung Selisih & Status setelah user melakukan editing fisik
         df_edit["Selisih"] = df_edit["Stok Fisik (Hasil Hitung)"] - df_edit["Stok Sistem"]
         def tentukan_status(selisih):
             if selisih == 0: return "🟢 Sesuai"
@@ -101,10 +100,11 @@ else:
         if filter_status != "Tampilkan Semua":
             df_download = df_download[df_download["Status"] == filter_status]
             
-        if filter_stok == "Hanya Stok Kosong (0)":
-            df_download = df_download[df_download["Stok Sistem"] == 0]
-        elif filter_stok == "Hanya Stok Tersedia (> 0)":
-            df_download = df_download[df_download["Stok Sistem"] > 0]
+        # FIX: Logika penyaringan angka 0 sampai 5 menggunakan <= 5
+        if filter_stok == "Hanya Stok Kritis (0 - 5)":
+            df_download = df_download[(df_download["Stok Sistem"] >= 0) & (df_download["Stok Sistem"] <= 5)]
+        elif filter_stok == "Hanya Stok Banyak (> 5)":
+            df_download = df_download[df_download["Stok Sistem"] > 5]
             
         # --- TAMPILKAN PRATINJAU DATA YANG AKAN DI-DOWNLOAD ---
         if df_download.empty:
@@ -124,7 +124,7 @@ else:
                 st.download_button(
                     label=f"📥 Download Laporan Terfilter ({len(df_download)} Barang) ke Excel", 
                     data=buffer.getvalue(), 
-                    file_name=f"Laporan_Opname_Custom_{datetime.now().strftime('%Y%m%d')}.xlsx", 
+                    file_name=f"Laporan_Opname_Kritis_{datetime.now().strftime('%Y%m%d')}.xlsx", 
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
                     use_container_width=True
                 )
