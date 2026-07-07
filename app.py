@@ -2,6 +2,7 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 from datetime import datetime
+import io # Library bawaan untuk memproses file di dalam memori
 
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
@@ -62,7 +63,6 @@ def jalankan_query(sql, param=(), commit=False):
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 st.title("📦 Sistem Stock Opname Persediaan (Online)")
 
-# MENU NAVIGASI (DITAMBAH: Manajemen Barang)
 menu = ["Barang Masuk", "Barang Keluar", "Laporan Stock Opname", "Riwayat Transaksi", "Manajemen Barang"]
 pilihan = st.sidebar.selectbox("Pilih Menu Navigasi", menu)
 
@@ -136,7 +136,7 @@ elif pilihan == "Barang Keluar":
                     st.rerun()
 
 # ------------------------------------------
-# HALAMAN: LAPORAN STOCK OPNAME
+# HALAMAN: LAPORAN STOCK OPNAME (DENGAN DOWNLOAD EXCEL)
 # ------------------------------------------
 elif pilihan == "Laporan Stock Opname":
     st.header("📊 Laporan & Hasil Stock Opname")
@@ -165,6 +165,23 @@ elif pilihan == "Laporan Stock Opname":
         st.subheader("📋 Hasil Analisis Selisih")
         st.dataframe(df_edit, hide_index=True)
         
+        # --- FITUR DOWNLOAD EXCEL BARU ---
+        # Membuat buffer memori untuk menampung file Excel tanpa menyimpannya ke hardisk server
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+            # Mengonversi DataFrame hasil analisis ke sheet Excel bernama 'Laporan Opname'
+            df_edit.to_excel(writer, index=False, sheet_name='Laporan Opname')
+        
+        # Menyiapkan tombol download di antarmuka web
+        st.download_button(
+            label="📥 Download Laporan ke Excel",
+            data=buffer.getvalue(),
+            file_name=f"Laporan_Stock_Opname_{datetime.now().strftime('%Y%m%d')}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        # ----------------------------------
+        
+        st.write("---")
         if st.button("Update Stok Sistem Berdasarkan Stok Fisik"):
             for index, row in df_edit.iterrows():
                 jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", 
@@ -194,7 +211,7 @@ elif pilihan == "Riwayat Transaksi":
         st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
 
 # ------------------------------------------
-# HALAMAN BARU: MANAJEMEN BARANG (EDIT/HAPUS)
+# HALAMAN: MANAJEMEN BARANG (EDIT/HAPUS)
 # ------------------------------------------
 elif pilihan == "Manajemen Barang":
     st.header("⚙️ Manajemen Master Barang")
@@ -205,10 +222,8 @@ elif pilihan == "Manajemen Barang":
     if not daftar_barang:
         st.info("Belum ada data barang di database.")
     else:
-        # Pilihan Aksi: Edit atau Hapus
         aksi = st.radio("Pilih Tindakan:", ["Edit Nama Barang", "Hapus Barang Dari Sistem"], horizontal=True)
         
-        # 1. LOGIKA EDIT NAMA BARANG
         if aksi == "Edit Nama Barang":
             st.subheader("✏️ Edit Nama Barang")
             barang_dipilih = st.selectbox("Pilih Barang yang Ingin Diubah:", daftar_barang, key="edit_sel")
@@ -216,41 +231,28 @@ elif pilihan == "Manajemen Barang":
             
             if st.button("Simpan Perubahan Nama"):
                 if nama_baru and nama_baru != barang_dipilih:
-                    # Cek apakah nama baru sudah ada untuk menghindari duplikat
                     cek_duplikat = jalankan_query("SELECT id FROM barang WHERE nama_barang = %s", (nama_baru,))
                     if cek_duplikat:
                         st.error(f"Gagal! Nama barang '{nama_baru}' sudah terdaftar di sistem.")
                     else:
-                        # Update di tabel master barang
                         jalankan_query("UPDATE barang SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, barang_dipilih), commit=True)
-                        # Update juga di tabel riwayat agar sinkron
                         jalankan_query("UPDATE riwayat SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, barang_dipilih), commit=True)
-                        
                         st.success(f"Berhasil mengubah nama '{barang_dipilih}' menjadi '{nama_baru}'!")
                         st.rerun()
                 else:
                     st.warning("Nama baru tidak boleh kosong atau sama dengan nama lama.")
                     
-        # 2. LOGIKA HAPUS BARANG
         elif aksi == "Hapus Barang Dari Sistem":
             st.subheader("❌ Hapus Barang")
             barang_dipilih = st.selectbox("Pilih Barang yang Ingin Dihapus:", daftar_barang, key="hapus_sel")
-            
-            # Ambil detail stok saat ini sebagai info konfirmasi
             stok_saat_ini = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (barang_dipilih,))[0][0]
             st.warning(f"Tindakan ini akan menghapus barang **'{barang_dipilih}'** (Stok Saat Ini: {stok_saat_ini}) dari database.")
             
-            # Checkbox pengaman tambahan agar tidak sengaja tertekan
             konfirmasi = st.checkbox("Saya benar-benar ingin menghapus barang ini secara permanen.")
             
-            if st.button("Hapus Permanen", type="primary"): # type="primary" membuat tombol berwarna merah/menonjol
+            if st.button("Hapus Permanen", type="primary"):
                 if konfirmasi:
-                    # Hapus dari tabel master barang
                     jalankan_query("DELETE FROM barang WHERE nama_barang = %s", (barang_dipilih,), commit=True)
-                    # Catatan: Kita tidak menghapus riwayat lamanya agar log audit tetap aman, 
-                    # tetapi jika ingin menghapus riwayatnya juga, hilangkan tanda komentar (#) di bawah ini:
-                    # jalankan_query("DELETE FROM riwayat WHERE nama_barang = %s", (barang_dipilih,), commit=True)
-                    
                     st.success(f"Barang '{barang_dipilih}' telah berhasil dihapus dari sistem!")
                     st.rerun()
                 else:
