@@ -18,8 +18,8 @@ def generate_kode_otomatis():
     data = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
     return f"STM-{(data[0][0] + 1):02d}" if data else "STM-01"
 
-if st.query_params.get("session") != "loggedin":
-    st.warning("Silakan login terlebih dahulu di halaman utama!")
+if "loggedin" not in st.session_state or not st.session_state["loggedin"]:
+    st.warning("⚠️ Silakan login terlebih dahulu di halaman utama (app.py)!")
 else:
     st.title("📥 Input Barang Masuk")
     st.write("---")
