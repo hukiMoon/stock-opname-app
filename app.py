@@ -59,17 +59,20 @@ st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 
 st.markdown("""
     <style>
-    /* Menghilangkan tombol tiga titik (Menu Utama) di kanan atas */
+    /* 1. Menghilangkan seluruh bar navigasi atas (Share, Manage app, GitHub, dll.) */
+    [data-testid="stHeader"] {display: none !important;}
+    
+    /* 2. Menghilangkan tombol tiga titik (Menu Utama) di kanan atas */
     #MainMenu {visibility: hidden;}
     
-    /* Menghilangkan tulisan "Made with Streamlit" di bawah */
+    /* 3. Menghilangkan tulisan "Made with Streamlit" di paling bawah */
     footer {visibility: hidden;}
     
-    /* Menghilangkan tombol Deploy bawaan Streamlit */
-    .stAppDeployButton {display:none;}
+    /* 4. Menghilangkan tombol Deploy jika masih tersisa */
+    .stAppDeployButton {display: none !important;}
     
-    /* Menghilangkan tombol bantuan (?) tanpa mengganggu tombol sidebar PC */
-    [data-testid="stActionButton"] {display: none;}
+    /* 5. Mengatur jarak atas konten aplikasi agar tidak terlalu menempel ke layar setelah header hilang */
+    .stAppViewContainer {padding-top: 2rem;}
     </style>
     """, unsafe_allow_html=True)
 
