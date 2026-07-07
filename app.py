@@ -171,7 +171,7 @@ else:
     ])
 
     # ------------------------------------------
-    # TAB 1: BARANG MASUK
+    # TAB 1: BARANG MASUK (Dengan Tampilan Sisa Stok Sebelah Kiri)
     # ------------------------------------------
     with tab1:
         st.subheader("📥 Input Barang Masuk")
@@ -182,14 +182,19 @@ else:
             opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"], key="r_masuk")
             
             with st.form("form_masuk", clear_on_submit=True):
+                # Variabel penampung default
+                stok_sekarang_tampil = 0
+                satuan_tampil = "PCS"
+                
                 if opsi_input == "Barang Baru (Belum Terdaftar)":
                     kode_otomatis = generate_kode_otomatis()
                     st.info(f"📋 **Kode Barang Baru Otomatis:** {kode_otomatis}")
                     
                     nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
-                    
-                    # --- BERUBAH DI SINI: Ditambahkan pilihan "SET" dan "RIM" ---
                     satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "SET", "RIM", "LEMBAR", "ROLL", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
+                    
+                    # Kolom biasa untuk barang baru karena belum ada stok lama
+                    jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1, key="n_masuk_baru")
                 else:
                     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
                     daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
@@ -197,7 +202,20 @@ else:
                     pilihan_barang = st.selectbox("Pilih Barang:", daftar_barang) if daftar_barang else "Belum ada barang"
                     nama_barang = pilihan_barang.split(" - ")[1] if daftar_barang else "Belum ada barang"
                     
-                jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1, key="n_masuk")
+                    # Ambil sisa stok sistem real-time untuk ditampilkan di form
+                    if daftar_barang and nama_barang != "Belum ada barang":
+                        data_stok = jalankan_query("SELECT stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))
+                        if data_stok:
+                            stok_sekarang_tampil = data_stok[0][0]
+                            satuan_tampil = data_stok[0][1]
+                    
+                    # MEMBUAT DUA KOLOM BERDAMPINGAN (Stok Tersedia vs Jumlah Masuk)
+                    col_stok_kiri, col_input_kanan = st.columns(2)
+                    with col_stok_kiri:
+                        st.text_input("Stok Tersedia Saat Ini:", value=f"{stok_sekarang_tampil} {satuan_tampil}", disabled=True, key="t_stok_lama")
+                    with col_input_kanan:
+                        jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1, key="n_masuk_lama")
+                    
                 tanggal_pilihan = st.date_input("Tanggal Barang Masuk:", value=datetime.now().date())
                 input_keterangan = st.text_input("Keterangan (Opsional):", placeholder="Contoh: Dari Supplier A / No Faktur 123 / Retur").strip()
                 
@@ -215,7 +233,7 @@ else:
                                            (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
                             jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
                                            (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang, tanggal_str, txt_ket), commit=True)
-                        else: # Barang Lama
+                        else: # Barang Lama (BUG KODE_BARANG FIX!)
                             kd_brg, stk_skrg, sat_brg = cek_barang[0]
                             stok_baru = stk_skrg + jumlah_masuk
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
@@ -226,7 +244,7 @@ else:
                         st.rerun()
         
         with col_info:
-            st.info("💡 **Informasi Tambahan:**\n\nSatuan 'SET' dapat digunakan untuk produk paket bundling/peralatan, sedangkan 'RIM' mempermudah pencatatan stok jenis kertas atau ATK kantor.")
+            st.info("💡 **Informasi Tampilan Baru:**\n\nSekarang Anda bisa melihat jumlah sisa stok di gudang secara langsung berdampingan sebelum memutuskan untuk menambahkan unit barang baru.")
 
     # ------------------------------------------
     # TAB 2: BARANG KELUAR
