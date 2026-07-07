@@ -16,22 +16,40 @@ def init_db():
     try:
         conn = psycopg2.connect(DB_URL)
         cursor = conn.cursor()
+        
+        # Tabel Master Barang (Ditambahkan kode_barang dan satuan)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS barang (
                 id SERIAL PRIMARY KEY,
+                kode_barang TEXT UNIQUE NOT NULL,
                 nama_barang TEXT UNIQUE NOT NULL,
-                stok_sistem INTEGER DEFAULT 0
+                stok_sistem INTEGER DEFAULT 0,
+                satuan TEXT DEFAULT 'PCS'
             )
         """)
+        
+        # Tabel Riwayat Transaksi (Ditambahkan kode_barang dan satuan)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS riwayat (
                 id SERIAL PRIMARY KEY,
+                kode_barang TEXT,
                 nama_barang TEXT,
                 jenis_transaksi TEXT,
                 jumlah INTEGER,
+                satuan TEXT,
                 tanggal TEXT
             )
         """)
+        
+        # JALANKAN ALTER TABLE JIKA TABEL SUDAH PERNAH ADA SEBELUMNYA (Agar tidak error)
+        try:
+            cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS kode_barang TEXT UNIQUE;")
+            cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS satuan TEXT DEFAULT 'PCS';")
+            cursor.execute("ALTER TABLE riwayat ADD COLUMN IF NOT EXISTS kode_barang TEXT;")
+            cursor.execute("ALTER TABLE riwayat ADD COLUMN IF NOT EXISTS satuan TEXT;")
+        except:
+            pass
+            
         conn.commit()
         conn.close()
     except Exception as e:
@@ -51,36 +69,40 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
+# Fungsi Generate Kode Barang Otomatis (STM-01, STM-02, dst)
+def generate_kode_otomatis():
+    data = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
+    if not data:
+        return "STM-01"
+    else:
+        id_terakhir = data[0][0]
+        id_baru = id_terakhir + 1
+        return f"STM-{id_baru:02d}"
+
 # ==========================================
-# 2. ATUR TAMPILAN DINAMIS & RESPONSIF (PC & HP)
+# 2. ATUR TAMPILAN & BLOKIR SIDEBAR TOTAL
 # ==========================================
-# Mengubah layout dari "centered" ke "wide" agar memanfaatkan lebar layar PC/Tablet sepenuhnya
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
     <style>
-    /* Hapus komponen sidebar bawaan Streamlit */
     [data-testid="stSidebar"] {display: none !important;}
     [data-testid="stSidebarCollapseButton"] {display: none !important;}
-    
-    /* Lenyapkan toolbar atas (Share, Manage app, GitHub, dll.) */
     [data-testid="stHeader"] {display: none !important;}
     [data-testid="stToolbar"] {display: none !important;}
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .stAppDeployButton {display: none !important;}
     
-    /* Mengatur kontainer utama agar pas di HP maupun PC */
     .block-container {
         padding-top: 2rem;
         padding-bottom: 2rem;
-        max-width: 1200px; /* Membatasi agar di PC super lebar tidak terlalu melar, pas di mata */
+        max-width: 1200px;
     }
     
-    /* Desain Tab Navigasi Atas Responsif */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        flex-wrap: wrap; /* Menjadikan menu otomatis turun ke bawah jika layar HP terlalu sempit */
+        flex-wrap: wrap;
     }
     .stTabs [data-baseweb="tab"] {
         padding: 10px 16px;
@@ -90,7 +112,6 @@ st.markdown("""
         font-size: 14px;
         margin-bottom: 4px;
     }
-    /* Warna tab aktif */
     .stTabs [data-baseweb="tab"][aria-selected="true"] {
         background-color: #ff4b4b;
         color: white;
@@ -104,7 +125,6 @@ st.markdown("""
 is_authenticated = st.query_params.get("session") == "loggedin"
 
 def halaman_login():
-    # Menempatkan kotak login di tengah jika di PC lebar
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.subheader("🔐 Login Sistem Stock Opname")
@@ -128,12 +148,11 @@ if not is_authenticated:
     halaman_login()
 
 else:
-    # Header Dashboard Utama (Responsif)
+    # Header Dashboard Utama
     col_title, col_logout = st.columns([5, 1])
     with col_title:
         st.title("📦 Sistem Stock Opname Persediaan")
     with col_logout:
-        # Tombol logout otomatis menyesuaikan ukuran kolom
         if st.button("🚪 Keluar", use_container_width=True):
             st.query_params.clear()
             st.rerun()
@@ -150,46 +169,56 @@ else:
     ])
 
     # ------------------------------------------
-    # TAB 1: BARANG MASUK (Dinamis PC & HP)
+    # TAB 1: BARANG MASUK
     # ------------------------------------------
     with tab1:
         st.subheader("📥 Input Barang Masuk")
         
-        # Di PC membagi form dan petunjuk jadi 2 kolom berdampingan, di HP otomatis menumpuk vertikal
         col_form, col_info = st.columns([3, 2])
         
         with col_form:
             opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"], key="r_masuk")
+            
             with st.form("form_masuk", clear_on_submit=True):
                 if opsi_input == "Barang Baru (Belum Terdaftar)":
+                    kode_otomatis = generate_kode_otomatis()
+                    st.info(f"📋 **Kode Barang Baru Otomatis:** {kode_otomatis}")
+                    
                     nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
+                    satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
                 else:
-                    daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
-                    nama_barang = st.selectbox("Pilih Barang:", daftar_barang) if daftar_barang else "Belum ada barang"
-                
+                    # Ambil daftar gabungan nama dan kode agar admin tidak salah pilih
+                    daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
+                    daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
+                    
+                    pilihan_barang = st.selectbox("Pilih Barang:", daftar_barang) if daftar_barang else "Belum ada barang"
+                    nama_barang = pilihan_barang.split(" - ")[1] if daftar_barang else "Belum ada barang"
+                    
                 jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1, key="n_masuk")
                 tombol_masuk = st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True)
                 
                 if tombol_masuk:
                     if nama_barang and nama_barang != "Belum ada barang":
-                        cek_barang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nama_barang,))
-                        if len(cek_barang) == 0:
-                            jalankan_query("INSERT INTO barang (nama_barang, stok_sistem) VALUES (%s, %s)", (nama_barang, jumlah_masuk), commit=True)
-                        else:
-                            stok_baru = cek_barang[0][0] + jumlah_masuk
-                            jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
-                        
+                        cek_barang = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))
                         tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        jalankan_query("INSERT INTO riwayat (nama_barang, jenis_transaksi, jumlah, tanggal) VALUES (%s, 'MASUK', %s, %s)", 
-                                       (nama_barang, jumlah_masuk, tanggal_sekarang), commit=True)
+                        
+                        if len(cek_barang) == 0: # Barang Baru
+                            jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", 
+                                           (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal) VALUES (%s, %s, 'MASUK', %s, %s, %s)", 
+                                           (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang, tanggal_sekarang), commit=True)
+                        else: # Barang Lama
+                            kd_brg, stk_skrg, sat_brg = cek_barang[0]
+                            stok_baru = stk_skrg + jumlah_masuk
+                            jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal) VALUES (%s, %s, 'MASUK', %s, %s, %s)", 
+                                           (kd_brg, nama_barang, jumlah_masuk, sat_brg, tanggal_sekarang), commit=True)
+                        
                         st.success(f"Berhasil mencatat transaksi masuk!")
                         st.rerun()
-        
-        with col_info:
-            st.info("💡 **Petunjuk Input Masuk:**\n\nGunakan opsi *Barang Baru* jika item belum pernah didaftarkan ke database. Pastikan jumlah fisik yang diinput sudah sesuai dengan surat jalan/faktur.")
 
     # ------------------------------------------
-    # TAB 2: BARANG KELUAR (Dinamis PC & HP)
+    # TAB 2: BARANG KELUAR
     # ------------------------------------------
     with tab2:
         st.subheader("📤 Input Barang Keluar")
@@ -197,47 +226,50 @@ else:
         col_form_k, col_info_k = st.columns([3, 2])
         
         with col_form_k:
-            daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
+            daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
+            daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
+            
             if not daftar_barang:
                 st.info("Belum ada data barang di sistem.")
             else:
                 with st.form("form_keluar", clear_on_submit=True):
-                    nama_barang = st.selectbox("Pilih Barang Keluar:", daftar_barang, key="s_keluar")
+                    pilihan_barang = st.selectbox("Pilih Barang Keluar:", daftar_barang, key="s_keluar")
+                    nama_barang_keluar = pilihan_barang.split(" - ")[1]
+                    
                     jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1, key="n_keluar")
                     tombol_keluar = st.form_submit_button("Simpan Transaksi Keluar", use_container_width=True)
                     
                     if tombol_keluar:
-                        stok_sekarang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nama_barang,))[0][0]
+                        cek_barang = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang_keluar,))[0]
+                        kd_brg, stok_sekarang, sat_brg = cek_barang
+                        
                         if jumlah_keluar > stok_sekarang:
-                            st.error(f"Gagal! Stok tidak mencukupi (Sisa: {stok_sekarang}).")
+                            st.error(f"Gagal! Stok tidak mencukupi (Sisa: {stok_sekarang} {sat_brg}).")
                         else:
                             stok_baru = stok_sekarang - jumlah_keluar
-                            jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
+                            jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang_keluar), commit=True)
                             
                             tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            jalankan_query("INSERT INTO riwayat (nama_barang, jenis_transaksi, jumlah, tanggal) VALUES (%s, 'KELUAR', %s, %s)", 
-                                           (nama_barang, jumlah_keluar, tanggal_sekarang), commit=True)
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal) VALUES (%s, %s, 'KELUAR', %s, %s, %s)", 
+                                           (kd_brg, nama_barang_keluar, jumlah_keluar, sat_brg, tanggal_sekarang), commit=True)
                             st.success(f"Berhasil mencatat transaksi keluar!")
                             st.rerun()
-        with col_info_k:
-            st.warning("⚠️ **Perhatian:**\n\nSistem akan otomatis menolak transaksi jika jumlah pengeluaran melebihi sisa stok sistem saat ini.")
 
     # ------------------------------------------
-    # TAB 3: LAPORAN STOCK OPNAME (Lebar Maksimal di PC)
+    # TAB 3: LAPORAN STOCK OPNAME
     # ------------------------------------------
     with tab3:
         st.subheader("📊 Laporan & Analisis Selisih")
-        data_db = jalankan_query("SELECT nama_barang, stok_sistem FROM barang ORDER BY nama_barang ASC")
+        data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY kode_barang ASC")
         
         if not data_db:
             st.info("Belum ada data barang untuk dilaporkan.")
         else:
             st.write("Isi jumlah fisik hasil pengecekan di kolom **Stok Fisik** bawah ini:")
-            df = pd.DataFrame(data_db, columns=["Nama Barang", "Stok Sistem"])
+            df = pd.DataFrame(data_db, columns=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"])
             df["Stok Fisik (Hasil Hitung)"] = df["Stok Sistem"]
             
-            # Editor tabel otomatis melebar di PC, pas di genggaman di HP
-            df_edit = st.data_editor(df, disabled=["Nama Barang", "Stok Sistem"], hide_index=True, use_container_width=True, key="ed_opname")
+            df_edit = st.data_editor(df, disabled=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"], hide_index=True, use_container_width=True, key="ed_opname")
             df_edit["Selisih"] = df_edit["Stok Fisik (Hasil Hitung)"] - df_edit["Stok Sistem"]
             
             def tentukan_status(selisih):
@@ -255,7 +287,6 @@ else:
             with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
                 df_edit.to_excel(writer, index=False, sheet_name='Laporan Opname')
             
-            # Tombol aksi dibuat berdampingan di PC agar tidak memakan tempat vertikal
             col_dl, col_sync = st.columns(2)
             with col_dl:
                 st.download_button(
@@ -275,16 +306,16 @@ else:
                     st.rerun()
 
     # ------------------------------------------
-    # TAB 4: RIWAYAT TRANSAKSI (Lebar & Bersih)
+    # TAB 4: RIWAYAT TRANSAKSI (LOG)
     # ------------------------------------------
     with tab4:
         st.subheader("📜 Log Aktivitas Gudang Real-time")
-        data_riwayat = jalankan_query("SELECT nama_barang, jenis_transaksi, jumlah, tanggal FROM riwayat ORDER BY id DESC")
+        data_riwayat = jalankan_query("SELECT kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal FROM riwayat ORDER BY id DESC")
         
         if not data_riwayat:
             st.info("Belum ada riwayat transaksi.")
         else:
-            df_riwayat = pd.DataFrame(data_riwayat, columns=["Nama Barang", "Jenis Transaksi", "Jumlah", "Waktu Transaksi"])
+            df_riwayat = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Waktu Transaksi"])
             st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
 
     # ------------------------------------------
@@ -292,7 +323,8 @@ else:
     # ------------------------------------------
     with tab5:
         st.subheader("⚙️ Manajemen Master Data")
-        daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
+        daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
+        daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
         
         if not daftar_barang:
             st.info("Belum ada data barang di database.")
@@ -303,28 +335,28 @@ else:
             if aksi == "Edit Nama Barang":
                 col_e1, col_e2 = st.columns(2)
                 with col_e1:
-                    barang_dipilih = st.selectbox("Pilih Barang:", daftar_barang, key="e_sel")
-                    nama_baru = st.text_input("Masukkan Nama Baru:", value=barang_dipilih, key="i_new").strip().upper()
+                    pilihan_barang = st.selectbox("Pilih Barang:", daftar_barang, key="e_sel")
+                    nama_barang_terpilih = pilihan_barang.split(" - ")[1]
+                    
+                    nama_baru = st.text_input("Masukkan Nama Baru:", value=nama_barang_terpilih, key="i_new").strip().upper()
                     if st.button("Simpan Perubahan Nama", use_container_width=True, key="b_edit"):
-                        if nama_baru and nama_baru != barang_dipilih:
-                            jalankan_query("UPDATE barang SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, barang_dipilih), commit=True)
-                            jalankan_query("UPDATE riwayat SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, barang_dipilih), commit=True)
+                        if nama_baru and nama_baru != nama_barang_terpilih:
+                            jalankan_query("UPDATE barang SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, nama_barang_terpilih), commit=True)
+                            jalankan_query("UPDATE riwayat SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, nama_barang_terpilih), commit=True)
                             st.success("Nama barang berhasil diubah!")
                             st.rerun()
-                        else:
-                            st.warning("Nama baru tidak boleh sama dengan nama lama.")
                             
             elif aksi == "Hapus Barang Dari Sistem":
                 col_h1, col_h2 = st.columns(2)
                 with col_h1:
-                    barang_dipilih = st.selectbox("Pilih Barang Dihapus:", daftar_barang, key="h_sel")
-                    st.warning(f"Anda akan menghapus secara permanen barang: **{barang_dipilih}**")
+                    pilihan_barang = st.selectbox("Pilih Barang Dihapus:", daftar_barang, key="h_sel")
+                    nama_barang_hapus = pilihan_barang.split(" - ")[1]
+                    
+                    st.warning(f"Anda akan menghapus secara permanen barang: **{pilihan_barang}**")
                     konfirmasi = st.checkbox("Saya menyetujui penghapusan data ini.", key="c_del")
                     
                     if st.button("Hapus Permanen", type="primary", use_container_width=True, key="b_del"):
                         if konfirmasi:
-                            jalankan_query("DELETE FROM barang WHERE nama_barang = %s", (barang_dipilih,), commit=True)
+                            jalankan_query("DELETE FROM barang WHERE nama_barang = %s", (nama_barang_hapus,), commit=True)
                             st.success("Barang berhasil dihapus.")
                             st.rerun()
-                        else:
-                            st.error("Centang kotak konfirmasi terlebih dahulu.")
