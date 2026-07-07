@@ -171,7 +171,7 @@ else:
     ])
 
     # ------------------------------------------
-    # TAB 1: BARANG MASUK (Dengan Tampilan Sisa Stok Sebelah Kiri)
+    # TAB 1: BARANG MASUK
     # ------------------------------------------
     with tab1:
         st.subheader("📥 Input Barang Masuk")
@@ -182,7 +182,6 @@ else:
             opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"], key="r_masuk")
             
             with st.form("form_masuk", clear_on_submit=True):
-                # Variabel penampung default
                 stok_sekarang_tampil = 0
                 satuan_tampil = "PCS"
                 
@@ -193,7 +192,6 @@ else:
                     nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
                     satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "SET", "RIM", "LEMBAR", "ROLL", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
                     
-                    # Kolom biasa untuk barang baru karena belum ada stok lama
                     jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1, key="n_masuk_baru")
                 else:
                     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
@@ -202,14 +200,12 @@ else:
                     pilihan_barang = st.selectbox("Pilih Barang:", daftar_barang) if daftar_barang else "Belum ada barang"
                     nama_barang = pilihan_barang.split(" - ")[1] if daftar_barang else "Belum ada barang"
                     
-                    # Ambil sisa stok sistem real-time untuk ditampilkan di form
                     if daftar_barang and nama_barang != "Belum ada barang":
                         data_stok = jalankan_query("SELECT stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))
                         if data_stok:
                             stok_sekarang_tampil = data_stok[0][0]
                             satuan_tampil = data_stok[0][1]
                     
-                    # MEMBUAT DUA KOLOM BERDAMPINGAN (Stok Tersedia vs Jumlah Masuk)
                     col_stok_kiri, col_input_kanan = st.columns(2)
                     with col_stok_kiri:
                         st.text_input("Stok Tersedia Saat Ini:", value=f"{stok_sekarang_tampil} {satuan_tampil}", disabled=True, key="t_stok_lama")
@@ -233,7 +229,7 @@ else:
                                            (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
                             jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
                                            (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang, tanggal_str, txt_ket), commit=True)
-                        else: # Barang Lama (BUG KODE_BARANG FIX!)
+                        else: # Barang Lama
                             kd_brg, stk_skrg, sat_brg = cek_barang[0]
                             stok_baru = stk_skrg + jumlah_masuk
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
@@ -244,10 +240,10 @@ else:
                         st.rerun()
         
         with col_info:
-            st.info("💡 **Informasi Tampilan Baru:**\n\nSekarang Anda bisa melihat jumlah sisa stok di gudang secara langsung berdampingan sebelum memutuskan untuk menambahkan unit barang baru.")
+            st.info("💡 **Informasi Tambahan:**\n\nSistem mencatat data barang masuk ke database awan (Supabase) secara aman.")
 
     # ------------------------------------------
-    # TAB 2: BARANG KELUAR
+    # TAB 2: BARANG KELUAR (Dengan Proteksi Real-Time Warning)
     # ------------------------------------------
     with tab2:
         st.subheader("📤 Input Barang Keluar")
@@ -261,33 +257,48 @@ else:
             if not daftar_barang:
                 st.info("Belum ada data barang di sistem.")
             else:
+                # Ambil data stok di luar form agar tampilan warning bisa mendeteksi perubahan dinamis
+                pilihan_barang_luar = st.selectbox("Pilih Barang Keluar:", daftar_barang, key="s_keluar_select")
+                nama_barang_keluar = pilihan_barang_luar.split(" - ")[1]
+                
+                # Query detail stok saat ini
+                cek_stok_db = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang_keluar,))[0]
+                kd_brg, stok_sekarang_k, sat_brg_k = cek_stok_db
+                
                 with st.form("form_keluar", clear_on_submit=True):
-                    pilihan_barang = st.selectbox("Pilih Barang Keluar:", daftar_barang, key="s_keluar")
-                    nama_barang_keluar = pilihan_barang.split(" - ")[1]
+                    # MEMBUAT DUA KOLOM BERDAMPINGAN (Stok Tersedia vs Jumlah Keluar)
+                    col_stok_k_kiri, col_input_k_kanan = st.columns(2)
+                    with col_stok_k_kiri:
+                        st.text_input("Stok Tersedia Saat Ini:", value=f"{stok_sekarang_k} {sat_brg_k}", disabled=True, key="t_stok_keluar_view")
+                    with col_input_k_kanan:
+                        jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1, key="n_keluar")
                     
-                    jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1, key="n_keluar")
+                    # --- FITUR WARNING REAL-TIME JIKA OVERSTOK OUT ---
+                    if jumlah_keluar > stok_sekarang_k:
+                        st.warning(f"⚠️ **Peringatan:** Jumlah yang diinput ({jumlah_keluar} {sat_brg_k}) melebihi stok tersedia ({stok_sekarang_k} {sat_brg_k})!")
+                        
                     tanggal_keluar_pilihan = st.date_input("Tanggal Barang Keluar:", value=datetime.now().date(), key="t_keluar")
                     input_keterangan_keluar = st.text_input("Keterangan Keluar (Opsional):", placeholder="Contoh: Pembeli B / Untuk Divisi IT / Project C").strip()
                     
                     tombol_keluar = st.form_submit_button("Simpan Transaksi Keluar", use_container_width=True)
                     
                     if tombol_keluar:
-                        cek_barang = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang_keluar,))[0]
-                        kd_brg, stok_sekarang, sat_brg = cek_barang
-                        
-                        if jumlah_keluar > stok_sekarang:
-                            st.error(f"Gagal! Stok tidak mencukupi (Sisa: {stok_sekarang} {sat_brg}).")
+                        # Validasi akhir saat tombol ditekan
+                        if jumlah_keluar > stok_sekarang_k:
+                            st.error(f"Gagal menyimpan! Stok tidak mencukupi (Sisa: {stok_sekarang_k} {sat_brg_k}).")
                         else:
-                            stok_baru = stok_sekarang - jumlah_keluar
+                            stok_baru = stok_sekarang_k - jumlah_keluar
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang_keluar), commit=True)
                             
                             tanggal_k_str = tanggal_keluar_pilihan.strftime("%Y-%m-%d")
                             txt_ket_k = input_keterangan_keluar if input_keterangan_keluar else "-"
                             
                             jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'KELUAR', %s, %s, %s, %s)", 
-                                           (kd_brg, nama_barang_keluar, jumlah_keluar, sat_brg, tanggal_k_str, txt_ket_k), commit=True)
+                                           (kd_brg, nama_barang_keluar, jumlah_keluar, sat_brg_k, tanggal_k_str, txt_ket_k), commit=True)
                             st.success(f"Berhasil mencatat transaksi keluar!")
                             st.rerun()
+        with col_info_k:
+            st.info("💡 **Sistem Validasi:**\n\nSistem secara cerdas memblokir penyimpanan transaksi dan menampilkan teks peringatan apabila jumlah pengeluaran melampaui sisa barang di gudang.")
 
     # ------------------------------------------
     # TAB 3: LAPORAN STOCK OPNAME
@@ -349,7 +360,7 @@ else:
         if not data_riwayat:
             st.info("Belum ada riwayat transaksi.")
         else:
-            df_riwayat = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal Transaksi", "Keterangan"])
+            df_riwayat = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal Transaksi", "Kermbali"])
             st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
 
     # ------------------------------------------
