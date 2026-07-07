@@ -199,7 +199,8 @@ else:
                             st.success("Berhasil mendaftarkan barang baru!")
                             st.rerun()
             else:
-                daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
+                # FIX: Diurutkan berdasarkan kode_barang (LENGTH & Teks agar STM-01, STM-02, dst konsisten)
+                daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
                 daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
                 
                 if not daftar_barang:
@@ -211,7 +212,6 @@ else:
                     data_stok = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))[0]
                     kd_brg, stok_sekarang_tampil, satuan_tampil = data_stok
                     
-                    # Form dinamis dikunci menggunakan KEY berbasis nama barang agar tidak menumpuk di memori browser
                     with st.form(f"form_masuk_lama_{nama_barang.replace(' ', '_')}", clear_on_submit=True):
                         col_stok_kiri, col_input_kanan = st.columns(2)
                         with col_stok_kiri:
@@ -231,17 +231,18 @@ else:
                             st.success("Stok berhasil ditambahkan!")
                             st.rerun()
         with col_info:
-            st.info("💡 **Informasi Tambahan:**\n\nSistem mencatat data barang masuk ke database awan (Supabase) secara aman.")
+            st.info("💡 **Informasi Urutan:**\n\nDaftar pilihan barang sekarang otomatis diurutkan rapi berdasarkan Kode Barang terendah (STM-01, STM-02, dst).")
 
     # ------------------------------------------
-    # TAB 2: BARANG KELUAR (SISTEM FORM FORCED-RELOAD)
+    # TAB 2: BARANG KELUAR
     # ------------------------------------------
     with tab2:
         st.subheader("📤 Input Barang Keluar")
         col_form_k, col_info_k = st.columns([3, 2])
         
         with col_form_k:
-            daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
+            # FIX: Diurutkan berdasarkan kode_barang
+            daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
             daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
             
             if not daftar_barang:
@@ -250,11 +251,9 @@ else:
                 pilihan_barang_luar = st.selectbox("Pilih Barang Keluar:", daftar_barang, key="s_keluar_select")
                 nama_barang_keluar = pilihan_barang_luar.split(" - ")[1]
                 
-                # Menarik data paling segar dari Database cloud
                 cek_stok_db = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang_keluar,))[0]
                 kd_brg, stok_sekarang_k, sat_brg_k = cek_stok_db
                 
-                # KRITIKAL: Nama Form dibuat unik mengikuti nama barang agar cache reload otomatis
                 with st.form(f"form_keluar_dinamis_{nama_barang_keluar.replace(' ', '_')}", clear_on_submit=True):
                     col_stok_k_kiri, col_input_k_kanan = st.columns(2)
                     with col_stok_k_kiri:
@@ -281,14 +280,14 @@ else:
                             st.success(f"Berhasil mencatat transaksi keluar!")
                             st.rerun()
         with col_info_k:
-            st.info("💡 **Sistem Validasi:**\n\nSistem memantau sisa barang secara dinamis berdasarkan barang yang Anda pilih di menu dropdown.")
+            st.info("💡 **Kemudahan Pencarian:**\n\nUrutan berdasarkan kode mempermudah admin mencocokkan dokumen fisik faktur gudang.")
 
     # ------------------------------------------
     # TAB 3: LAPORAN STOCK OPNAME
     # ------------------------------------------
     with tab3:
         st.subheader("📊 Laporan & Analisis Selisih")
-        data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY kode_barang ASC")
+        data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
         
         if not data_db:
             st.info("Belum ada data barang untuk dilaporkan.")
@@ -350,7 +349,8 @@ else:
     # ------------------------------------------
     with tab5:
         st.subheader("⚙️ Manajemen Master Data")
-        daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
+        # FIX: Diurutkan berdasarkan kode_barang
+        daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
         daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
         
         if not daftar_barang:
