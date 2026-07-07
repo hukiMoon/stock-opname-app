@@ -18,127 +18,127 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
-    st.title("📥 Input Barang Masuk")
-    st.write("---")
+st.title("📥 Input Barang Masuk")
+st.write("---")
     
-    opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
+opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
     
-    # --- FORM INPUT ---
-    if opsi_input == "Barang Baru (Belum Terdaftar)":
-        with st.form("form_masuk_baru", clear_on_submit=True):
-            data_kd = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
-            kode_otomatis = f"STM-{(data_kd[0][0] + 1):02d}" if data_kd else "STM-01"
+# --- FORM INPUT ---
+if opsi_input == "Barang Baru (Belum Terdaftar)":
+    with st.form("form_masuk_baru", clear_on_submit=True):
+        data_kd = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
+        kode_otomatis = f"STM-{(data_kd[0][0] + 1):02d}" if data_kd else "STM-01"
             
-            st.info(f"📋 **Kode Barang Baru Otomatis:** {kode_otomatis}")
-            nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
-            satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "SET", "RIM", "BOX", "PACK"])
-            jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1)
+        st.info(f"📋 **Kode Barang Baru Otomatis:** {kode_otomatis}")
+        nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
+        satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "SET", "RIM", "BOX", "PACK"])
+        jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1)
+        tanggal_pilihan = st.date_input("Tanggal Masuk:")
+        input_keterangan = st.text_input("Keterangan:").strip()
+            
+        if st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True):
+            if nama_barang:
+                jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
+                jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang, tanggal_pilihan.strftime("%Y-%m-%d"), input_keterangan if input_keterangan else "-"), commit=True)
+                st.success("Barang baru berhasil didaftarkan!")
+                st.rerun()
+else:
+    daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
+    daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
+        
+    if not daftar_barang:
+        st.info("Belum ada data barang lama.")
+    else:
+        pilihan_barang = st.selectbox("Pilih Barang:", daftar_barang)
+        nama_barang = pilihan_barang.split(" - ")[1]
+        kd_brg, stok_sekarang, satuan_tampil = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))[0]
+            
+        with st.form(f"form_masuk_lama_{nama_barang.replace(' ', '_')}", clear_on_submit=True):
+            col1, col2 = st.columns(2)
+            with col1: st.text_input("Stok Tersedia Saat Ini:", value=f"{stok_sekarang} {satuan_tampil}", disabled=True)
+            with col2: jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1)
             tanggal_pilihan = st.date_input("Tanggal Masuk:")
             input_keterangan = st.text_input("Keterangan:").strip()
-            
-            if st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True):
-                if nama_barang:
-                    jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
-                    jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang, tanggal_pilihan.strftime("%Y-%m-%d"), input_keterangan if input_keterangan else "-"), commit=True)
-                    st.success("Barang baru berhasil didaftarkan!")
-                    st.rerun()
-    else:
-        daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
-        daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
-        
-        if not daftar_barang:
-            st.info("Belum ada data barang lama.")
-        else:
-            pilihan_barang = st.selectbox("Pilih Barang:", daftar_barang)
-            nama_barang = pilihan_barang.split(" - ")[1]
-            kd_brg, stok_sekarang, satuan_tampil = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))[0]
-            
-            with st.form(f"form_masuk_lama_{nama_barang.replace(' ', '_')}", clear_on_submit=True):
-                col1, col2 = st.columns(2)
-                with col1: st.text_input("Stok Tersedia Saat Ini:", value=f"{stok_sekarang} {satuan_tampil}", disabled=True)
-                with col2: jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1)
-                tanggal_pilihan = st.date_input("Tanggal Masuk:")
-                input_keterangan = st.text_input("Keterangan:").strip()
                 
-                if st.form_submit_button("Simpan Tambah Stok", use_container_width=True):
-                    jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_sekarang + jumlah_masuk, nama_barang), commit=True)
-                    jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", (kd_brg, nama_barang, jumlah_masuk, satuan_tampil, tanggal_pilihan.strftime("%Y-%m-%d"), input_keterangan if input_keterangan else "-"), commit=True)
-                    st.success("Stok berhasil ditambahkan!")
-                    st.rerun()
+            if st.form_submit_button("Simpan Tambah Stok", use_container_width=True):
+                jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_sekarang + jumlah_masuk, nama_barang), commit=True)
+                jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", (kd_brg, nama_barang, jumlah_masuk, satuan_tampil, tanggal_pilihan.strftime("%Y-%m-%d"), input_keterangan if input_keterangan else "-"), commit=True)
+                st.success("Stok berhasil ditambahkan!")
+                st.rerun()
 
-    # --- TABEL RIWAYAT + FITUR FILTER, EDIT & DELETE ---
-    st.write("---")
-    st.subheader("📜 Riwayat Khusus Barang Masuk")
+# --- TABEL RIWAYAT + FITUR FILTER, EDIT & DELETE ---
+st.write("---")
+st.subheader("📜 Riwayat Khusus Barang Masuk")
     
-    raw_riwayat = jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'MASUK' ORDER BY id DESC")
+raw_riwayat = jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'MASUK' ORDER BY id DESC")
     
-    if not raw_riwayat:
-        st.info("Belum ada riwayat transaksi masuk.")
-    else:
-        df_riwayat = pd.DataFrame(raw_riwayat, columns=["ID Transaksi", "Kode Barang", "Nama Barang", "Jumlah", "Tanggal", "Keterangan"])
+if not raw_riwayat:
+    st.info("Belum ada riwayat transaksi masuk.")
+else:
+    df_riwayat = pd.DataFrame(raw_riwayat, columns=["ID Transaksi", "Kode Barang", "Nama Barang", "Jumlah", "Tanggal", "Keterangan"])
         
-        # --- PANEL FILTER KODE/NAMA BARANG ---
-        st.write("🔍 **Filter Riwayat:**")
-        col_f1, col_f2 = st.columns([2, 1])
-        with col_f1:
-            search_query = st.text_input("Cari Kode / Nama Barang:", placeholder="Ketik kata kunci...", key="search_masuk").strip().upper()
-        with col_f2:
-            filter_date = st.date_input("Filter Berdasarkan Tanggal:", value=None, key="date_masuk")
+# --- PANEL FILTER KODE/NAMA BARANG ---
+st.write("🔍 **Filter Riwayat:**")
+    col_f1, col_f2 = st.columns([2, 1])
+    with col_f1:
+        search_query = st.text_input("Cari Kode / Nama Barang:", placeholder="Ketik kata kunci...", key="search_masuk").strip().upper()
+    with col_f2:
+        filter_date = st.date_input("Filter Berdasarkan Tanggal:", value=None, key="date_masuk")
         
-        # Proses Logika Filter pada DataFrame Pandas
-        if search_query:
-            df_riwayat = df_riwayat[
-                df_riwayat["Nama Barang"].str.contains(search_query, na=False) | 
-                df_riwayat["Kode Barang"].str.contains(search_query, na=False)
-            ]
-        if filter_date:
-            date_str = filter_date.strftime("%Y-%m-%d")
-            df_riwayat = df_riwayat[df_riwayat["Tanggal"] == date_str]
+    # Proses Logika Filter pada DataFrame Pandas
+    if search_query:
+        df_riwayat = df_riwayat[
+            df_riwayat["Nama Barang"].str.contains(search_query, na=False) | 
+            df_riwayat["Kode Barang"].str.contains(search_query, na=False)
+        ]
+    if filter_date:
+        date_str = filter_date.strftime("%Y-%m-%d")
+        df_riwayat = df_riwayat[df_riwayat["Tanggal"] == date_str]
             
-        st.caption("💡 *Klik ganda untuk Edit Jumlah/Keterangan. Pilih baris lalu tekan Delete pada keyboard untuk menghapus.*")
+    st.caption("💡 *Klik ganda untuk Edit Jumlah/Keterangan. Pilih baris lalu tekan Delete pada keyboard untuk menghapus.*")
         
-        # Tampilkan editor data hasil filter
-        edited_df = st.data_editor(
-            df_riwayat,
-            disabled=["ID Transaksi", "Kode Barang", "Nama Barang", "Tanggal"],
-            num_rows="dynamic",
-            hide_index=True,
-            use_container_width=True,
-            key="editor_masuk"
-        )
+    # Tampilkan editor data hasil filter
+    edited_df = st.data_editor(
+        df_riwayat,
+        disabled=["ID Transaksi", "Kode Barang", "Nama Barang", "Tanggal"],
+        num_rows="dynamic",
+        hide_index=True,
+        use_container_width=True,
+        key="editor_masuk"
+    )
         
-        if st.button("SINKRONISASI PERUBAHAN & PENGHAPUSAN MASUK", type="primary", use_container_width=True):
-            set_id_sekarang = set(edited_df["ID Transaksi"].tolist())
+    if st.button("SINKRONISASI PERUBAHAN & PENGHAPUSAN MASUK", type="primary", use_container_width=True):
+        set_id_sekarang = set(edited_df["ID Transaksi"].tolist())
             
-            # Jika sedang difilter, kita hanya memproses data yang saat ini terlihat di layar
-            id_terlihat = df_riwayat["ID Transaksi"].tolist()
+        # Jika sedang difilter, kita hanya memproses data yang saat ini terlihat di layar
+        id_terlihat = df_riwayat["ID Transaksi"].tolist()
             
-            # 1. Cek Data yang Dihapus dari yang terlihat
-            for baris in raw_riwayat:
-                id_asal = baris[0]
-                if id_asal in id_terlihat and id_asal not in set_id_sekarang:
-                    nm_b, jml_lama = baris[2], baris[3]
-                    stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))
-                    if stok_skrg:
-                        stok_baru = max(0, stok_skrg[0][0] - jml_lama)
-                        jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nm_b), commit=True)
-                    jalankan_query("DELETE FROM riwayat WHERE id = %s", (id_asal,), commit=True)
+        # 1. Cek Data yang Dihapus dari yang terlihat
+        for baris in raw_riwayat:
+            id_asal = baris[0]
+            if id_asal in id_terlihat and id_asal not in set_id_sekarang:
+                nm_b, jml_lama = baris[2], baris[3]
+                stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))
+                if stok_skrg:
+                    stok_baru = max(0, stok_skrg[0][0] - jml_lama)
+                    jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nm_b), commit=True)
+                jalankan_query("DELETE FROM riwayat WHERE id = %s", (id_asal,), commit=True)
             
-            # 2. Cek Data yang Diedit
-            for _, row in edited_df.iterrows():
-                id_cek = row["ID Transaksi"]
-                jml_baru = int(row["Jumlah"])
-                ket_baru = str(row["Keterangan"])
+        # 2. Cek Data yang Diedit
+        for _, row in edited_df.iterrows():
+            id_cek = row["ID Transaksi"]
+            jml_baru = int(row["Jumlah"])
+            ket_baru = str(row["Keterangan"])
                 
-                data_lama = [b for b in raw_riwayat if b[0] == id_cek][0]
-                jml_lama = data_lama[3]
-                nm_b = data_lama[2]
+            data_lama = [b for b in raw_riwayat if b[0] == id_cek][0]
+            jml_lama = data_lama[3]
+            nm_b = data_lama[2]
                 
-                if jml_baru != jml_lama or ket_baru != data_lama[5]:
-                    selisih = jml_baru - jml_lama
-                    stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))[0][0]
-                    jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg + selisih, nm_b), commit=True)
-                    jalankan_query("UPDATE riwayat SET jumlah = %s, keterangan = %s WHERE id = %s", (jml_baru, ket_baru, id_cek), commit=True)
+            if jml_baru != jml_lama or ket_baru != data_lama[5]:
+                selisih = jml_baru - jml_lama
+                stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))[0][0]
+                jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg + selisih, nm_b), commit=True)
+                jalankan_query("UPDATE riwayat SET jumlah = %s, keterangan = %s WHERE id = %s", (jml_baru, ket_baru, id_cek), commit=True)
             
-            st.success("Perubahan riwayat masuk berhasil disimpan!")
-            st.rerun()
+        st.success("Perubahan riwayat masuk berhasil disimpan!")
+        st.rerun()
