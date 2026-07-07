@@ -188,8 +188,8 @@ else:
                     
                     nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
                     
-                    # --- BERUBAH DI SINI: Ditambahkan pilihan "LEMBAR" ---
-                    satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "LEMBAR", "ROLL", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
+                    # --- BERUBAH DI SINI: Ditambahkan pilihan "SET" dan "RIM" ---
+                    satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "SET", "RIM", "LEMBAR", "ROLL", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
                 else:
                     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
                     daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
@@ -226,7 +226,7 @@ else:
                         st.rerun()
         
         with col_info:
-            st.info("💡 **Informasi Tambahan:**\n\nSatuan 'LEMBAR' sangat ideal untuk mencatat material lembaran tipis seperti seng, triplek, kertas hvs, plastik mika, stiker, atau akrilik.")
+            st.info("💡 **Informasi Tambahan:**\n\nSatuan 'SET' dapat digunakan untuk produk paket bundling/peralatan, sedangkan 'RIM' mempermudah pencatatan stok jenis kertas atau ATK kantor.")
 
     # ------------------------------------------
     # TAB 2: BARANG KELUAR
