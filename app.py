@@ -42,7 +42,7 @@ def init_db():
             )
         """)
         
-        # JALANKAN ALTER TABLE JIKA TABEL SUDAH PERNAH ADA
+        # JALANKAN ALTER TABLE JIKA TABEL SUDAH PERNAH ADA (Perlindungan Struktur Kolom)
         try:
             cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS kode_barang TEXT UNIQUE;")
             cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS satuan TEXT DEFAULT 'PCS';")
@@ -187,8 +187,6 @@ else:
                     st.info(f"📋 **Kode Barang Baru Otomatis:** {kode_otomatis}")
                     
                     nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
-                    
-                    # --- BERUBAH DI SINI: Ditambahkan pilihan "ROLL" ---
                     satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "ROLL", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
                 else:
                     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
@@ -219,17 +217,17 @@ else:
                             kd_brg, stk_skrg, sat_brg = cek_barang[0]
                             stok_baru = stk_skrg + jumlah_masuk
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
-                            jalankan_query("INSERT INTO riwayat (generik_kode, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
                                            (kd_brg, nama_barang, jumlah_masuk, sat_brg, tanggal_str, txt_ket), commit=True)
                         
                         st.success(f"Berhasil mencatat transaksi masuk!")
                         st.rerun()
         
         with col_info:
-            st.info("💡 **Informasi Tambahan:**\n\nSatuan 'ROLL' sekarang siap dipilih untuk item material gulungan/roll seperti kabel, kain, plastik wrap, lembaran seng, dll.")
+            st.info("💡 **Informasi Tambahan:**\n\nSistem mencatat data barang masuk ke database awan (Supabase) secara aman dan dapat diakses bersamaan oleh tim admin gudang lainnya.")
 
     # ------------------------------------------
-    # TAB 2: BARANG KELUAR
+    # TAB 2: BARANG KELUAR (Keterangan & Tanggal Aktif)
     # ------------------------------------------
     with tab2:
         st.subheader("📤 Input Barang Keluar")
@@ -248,7 +246,12 @@ else:
                     nama_barang_keluar = pilihan_barang.split(" - ")[1]
                     
                     jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1, key="n_keluar")
+                    
+                    # --- BERUBAH DI SINI: TANGGAL MANUAL UNTUK KELUAR ---
                     tanggal_keluar_pilihan = st.date_input("Tanggal Barang Keluar:", value=datetime.now().date(), key="t_keluar")
+                    
+                    # --- BERUBAH DI SINI: KETERANGAN BARANG KELUAR ---
+                    input_keterangan_keluar = st.text_input("Keterangan Keluar (Opsional):", placeholder="Contoh: Pembeli B / Untuk Divisi IT / Project C").strip()
                     
                     tombol_keluar = st.form_submit_button("Simpan Transaksi Keluar", use_container_width=True)
                     
@@ -263,10 +266,15 @@ else:
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang_keluar), commit=True)
                             
                             tanggal_k_str = tanggal_keluar_pilihan.strftime("%Y-%m-%d")
-                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'KELUAR', %s, %s, %s, 'TRANSAKSI KELUAR')", 
-                                           (kd_brg, nama_barang_keluar, jumlah_keluar, sat_brg, tanggal_k_str), commit=True)
+                            txt_ket_k = input_keterangan_keluar if input_keterangan_keluar else "-"
+                            
+                            # Memasukkan tanggal pilihan & keterangan khusus pengeluaran ke dalam database
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'KELUAR', %s, %s, %s, %s)", 
+                                           (kd_brg, nama_barang_keluar, jumlah_keluar, sat_brg, tanggal_k_str, txt_ket_k), commit=True)
                             st.success(f"Berhasil mencatat transaksi keluar!")
                             st.rerun()
+        with col_info_k:
+            st.warning("⚠️ **Catatan Keluar:**\n\nPastikan kolom keterangan diisi dengan jelas (seperti nama pelanggan atau nomor DO) untuk memudahkan penelusuran jika terjadi selisih stock opname bulanan.")
 
     # ------------------------------------------
     # TAB 3: LAPORAN STOCK OPNAME
