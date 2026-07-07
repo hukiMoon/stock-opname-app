@@ -3,6 +3,11 @@ import psycopg2
 import pandas as pd
 from datetime import datetime
 
+if st.query_params.get("session") != "loggedin":
+    # Jika tidak ada session=loggedin, paksa arahkan kembali ke app.py
+    st.switch_page("app.py") 
+    st.stop()
+
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
 # ==========================================
