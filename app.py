@@ -11,7 +11,6 @@ DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-a
 
 st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
 
-# Fungsi global jalankan query agar bisa dipakai aman
 def jalankan_query(sql, param=(), commit=False):
     conn = psycopg2.connect(DB_URL)
     cursor = conn.cursor()
@@ -24,10 +23,11 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
-# Manajemen Login
-is_authenticated = st.query_params.get("session") == "loggedin"
+# FIX: Gunakan session_state agar status login terbaca di semua halaman sidebar
+if "loggedin" not in st.session_state:
+    st.session_state["loggedin"] = False
 
-if not is_authenticated:
+if not st.session_state["loggedin"]:
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -37,19 +37,18 @@ if not is_authenticated:
             password = st.text_input("Password:", type="password")
             if st.form_submit_button("Masuk", use_container_width=True):
                 if username == "admin" and password == "gudang123":
-                    st.query_params["session"] = "loggedin"
+                    st.session_state["loggedin"] = True
                     st.success("Login Berhasil!")
                     st.rerun()
                 else:
                     st.error("Username atau Password salah!")
 else:
-    # ISI HALAMAN UTAMA: LAPORAN OPNAME
     col_title, col_logout = st.columns([5, 1])
     with col_title:
         st.title("📊 Laporan Stock Opname & Analisis")
     with col_logout:
         if st.button("🚪 Keluar", use_container_width=True):
-            st.query_params.clear()
+            st.session_state["loggedin"] = False
             st.rerun()
             
     st.write("---")
