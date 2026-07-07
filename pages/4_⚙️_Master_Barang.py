@@ -13,6 +13,9 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
+def check_login():
+    return st.query_params.get("session") == "loggedin"
+
 if st.query_params.get("session") != "loggedin":
     st.warning("⚠️ Silakan login terlebih dahulu di halaman utama (app.py)!")
     st.stop() # Menghentikan sisa kode agar tidak muncul jika belum login
