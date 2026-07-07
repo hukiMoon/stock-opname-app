@@ -3,6 +3,7 @@ import psycopg2
 import pandas as pd
 from datetime import datetime
 import io
+from streamlit_cookies_controller import CookieController # Library baru untuk Cookies
 
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
@@ -58,26 +59,28 @@ def jalankan_query(sql, param=(), commit=False):
     return data
 
 # ==========================================
-# 2. SISTEM LOGIN KEAMANAN (STREAMLIT)
+# 2. ATUR TAMPILAN (HILANGKAN MENU STREAMLIT)
 # ==========================================
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 
-# --- KODE BARU: MENGHILANGKAN MENU BAWAAN STREAMLIT & GITHUB ---
 st.markdown("""
     <style>
-    #MainMenu {visibility: hidden;}      /* Menghilangkan tombol tiga titik (Menu Utama) */
-    footer {visibility: hidden;}         /* Menghilangkan tulisan "Made with Streamlit" di bawah */
-    header {visibility: hidden;}         /* Menghilangkan bar atas (termasuk tombol Deploy/GitHub) */
-    .stAppDeployButton {display:none;}   /* Memastikan tombol deploy benar-benar hilang */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stAppDeployButton {display:none;}
     </style>
     """, unsafe_allow_html=True)
-# ---------------------------------------------------------------
 
-# Inisialisasi status login awal jika belum ada
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
+# ==========================================
+# 3. MANAJEMEN LOGIN MENGGUNAKAN COOKIES
+# ==========================================
+controller = CookieController()
 
-# FUNGSI UNTUK HALAMAN LOGIN
+# Baca status cookie bernama 'login_gudang' dari browser
+cookie_login = controller.get('login_gudang')
+
+# Fungsi Form Login
 def halaman_login():
     st.subheader("🔐 Login Sistem Stock Opname")
     st.write("Silakan masukkan akun admin gudang untuk mengakses sistem.")
@@ -88,24 +91,25 @@ def halaman_login():
         tombol_login = st.form_submit_button("Masuk")
         
         if tombol_login:
-            # UBAH USERNAME & PASSWORD DI SINI Sesuai Keinginanmu
             if username == "admin" and password == "gudang123":
-                st.session_state["logged_in"] = True
-                st.success("Login Berhasil!")
+                # Simpan cookie di browser berlaku selama beberapa hari ke depan
+                controller.set('login_gudang', 'true')
+                st.success("Login Berhasil! Memuat ulang sistem...")
                 st.rerun()
             else:
                 st.error("Username atau Password salah! Silakan coba lagi.")
 
-# JIKA BELUM LOGIN, PAKSA TAMPILKAN HALAMAN LOGIN SAJA
-if not st.session_state["logged_in"]:
+# JIKA COOKIE TIDAK DITEMUKAN / BUKAN 'true', TAMPILKAN FORM LOGIN
+if cookie_login != 'true':
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
     halaman_login()
 
-# JIKA SUDAH LOGIN, TAMPILKAN SELURUH APLIKASI UTAMA
+# JIKA COOKIE SUDAH ADA DI BROWSER, LANGSUNG MASUK KE APLIKASI
 else:
     # Tombol Logout di paling atas Sidebar
     if st.sidebar.button("🚪 Logout / Keluar"):
-        st.session_state["logged_in"] = False
+        # Hapus cookie dari browser
+        controller.remove('login_gudang')
         st.rerun()
 
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
@@ -133,7 +137,7 @@ else:
             
             if tombol_masuk:
                 if nama_barang and nama_barang != "Belum ada barang":
-                    cek_barang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = ?", (nama_barang,))
+                    cek_barang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nama_barang,))
                     
                     if len(cek_barang) == 0:
                         jalankan_query("INSERT INTO barang (nama_barang, stok_sistem) VALUES (%s, %s)", (nama_barang, jumlah_masuk), commit=True)
