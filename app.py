@@ -17,7 +17,7 @@ def init_db():
         conn = psycopg2.connect(DB_URL)
         cursor = conn.cursor()
         
-        # Tabel Master Barang (Ditambahkan kode_barang dan satuan)
+        # Tabel Master Barang
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS barang (
                 id SERIAL PRIMARY KEY,
@@ -28,7 +28,7 @@ def init_db():
             )
         """)
         
-        # Tabel Riwayat Transaksi (Ditambahkan kode_barang dan satuan)
+        # Tabel Riwayat Transaksi
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS riwayat (
                 id SERIAL PRIMARY KEY,
@@ -37,16 +37,18 @@ def init_db():
                 jenis_transaksi TEXT,
                 jumlah INTEGER,
                 satuan TEXT,
-                tanggal TEXT
+                tanggal TEXT,
+                keterangan TEXT
             )
         """)
         
-        # JALANKAN ALTER TABLE JIKA TABEL SUDAH PERNAH ADA SEBELUMNYA (Agar tidak error)
+        # JALANKAN ALTER TABLE JIKA TABEL SUDAH PERNAH ADA (Agar struktur kolom aman)
         try:
             cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS kode_barang TEXT UNIQUE;")
             cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS satuan TEXT DEFAULT 'PCS';")
             cursor.execute("ALTER TABLE riwayat ADD COLUMN IF NOT EXISTS kode_barang TEXT;")
             cursor.execute("ALTER TABLE riwayat ADD COLUMN IF NOT EXISTS satuan TEXT;")
+            cursor.execute("ALTER TABLE riwayat ADD COLUMN IF NOT EXISTS keterangan TEXT;")
         except:
             pass
             
@@ -169,7 +171,7 @@ else:
     ])
 
     # ------------------------------------------
-    # TAB 1: BARANG MASUK
+    # TAB 1: BARANG MASUK (Ditambahkan Kalender Pilihan Tanggal)
     # ------------------------------------------
     with tab1:
         st.subheader("📥 Input Barang Masuk")
@@ -187,7 +189,6 @@ else:
                     nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
                     satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
                 else:
-                    # Ambil daftar gabungan nama dan kode agar admin tidak salah pilih
                     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
                     daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
                     
@@ -195,30 +196,42 @@ else:
                     nama_barang = pilihan_barang.split(" - ")[1] if daftar_barang else "Belum ada barang"
                     
                 jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1, key="n_masuk")
+                
+                # --- INPUT BARU: TANGGAL MANUAL ---
+                tanggal_pilihan = st.date_input("Tanggal Barang Masuk:", value=datetime.now().date())
+                
+                input_keterangan = st.text_input("Keterangan (Opsional):", placeholder="Contoh: Dari Supplier A / No Faktur 123 / Retur").strip()
+                
                 tombol_masuk = st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True)
                 
                 if tombol_masuk:
                     if nama_barang and nama_barang != "Belum ada barang":
                         cek_barang = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))
-                        tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        
+                        # Format tanggal yang dipilih admin menjadi string YYYY-MM-DD
+                        tanggal_str = tanggal_pilihan.strftime("%Y-%m-%d")
+                        txt_ket = input_keterangan if input_keterangan else "-"
                         
                         if len(cek_barang) == 0: # Barang Baru
                             jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", 
                                            (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
-                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal) VALUES (%s, %s, 'MASUK', %s, %s, %s)", 
-                                           (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang, tanggal_sekarang), commit=True)
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
+                                           (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang, tanggal_str, txt_ket), commit=True)
                         else: # Barang Lama
                             kd_brg, stk_skrg, sat_brg = cek_barang[0]
                             stok_baru = stk_skrg + jumlah_masuk
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
-                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal) VALUES (%s, %s, 'MASUK', %s, %s, %s)", 
-                                           (kd_brg, nama_barang, jumlah_masuk, sat_brg, tanggal_sekarang), commit=True)
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
+                                           (kd_brg, nama_barang, jumlah_masuk, sat_brg, tanggal_str, txt_ket), commit=True)
                         
                         st.success(f"Berhasil mencatat transaksi masuk!")
                         st.rerun()
+        
+        with col_info:
+            st.info("💡 **Informasi Tambahan:**\n\nFitur tanggal manual mempermudah Anda melakukan pencatatan mundur (*backdate*) apabila ada dokumen nota barang masuk dari hari kemarin yang terlambat diinput oleh admin gudang.")
 
     # ------------------------------------------
-    # TAB 2: BARANG KELUAR
+    # TAB 2: BARANG KELUAR (Juga menggunakan Tanggal Hari Ini secara otomatis)
     # ------------------------------------------
     with tab2:
         st.subheader("📤 Input Barang Keluar")
@@ -237,6 +250,10 @@ else:
                     nama_barang_keluar = pilihan_barang.split(" - ")[1]
                     
                     jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1, key="n_keluar")
+                    
+                    # Kalender untuk Barang Keluar
+                    tanggal_keluar_pilihan = st.date_input("Tanggal Barang Keluar:", value=datetime.now().date(), key="t_keluar")
+                    
                     tombol_keluar = st.form_submit_button("Simpan Transaksi Keluar", use_container_width=True)
                     
                     if tombol_keluar:
@@ -249,9 +266,9 @@ else:
                             stok_baru = stok_sekarang - jumlah_keluar
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang_keluar), commit=True)
                             
-                            tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal) VALUES (%s, %s, 'KELUAR', %s, %s, %s)", 
-                                           (kd_brg, nama_barang_keluar, jumlah_keluar, sat_brg, tanggal_sekarang), commit=True)
+                            tanggal_k_str = tanggal_keluar_pilihan.strftime("%Y-%m-%d")
+                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'KELUAR', %s, %s, %s, 'TRANSAKSI KELUAR')", 
+                                           (kd_brg, nama_barang_keluar, jumlah_keluar, sat_brg, tanggal_k_str), commit=True)
                             st.success(f"Berhasil mencatat transaksi keluar!")
                             st.rerun()
 
@@ -306,16 +323,16 @@ else:
                     st.rerun()
 
     # ------------------------------------------
-    # TAB 4: RIWAYAT TRANSAKSI (LOG)
+    # TAB 4: RIWAYAT TRANSAKSI
     # ------------------------------------------
     with tab4:
         st.subheader("📜 Log Aktivitas Gudang Real-time")
-        data_riwayat = jalankan_query("SELECT kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal FROM riwayat ORDER BY id DESC")
+        data_riwayat = jalankan_query("SELECT kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan FROM riwayat ORDER BY id DESC")
         
         if not data_riwayat:
             st.info("Belum ada riwayat transaksi.")
         else:
-            df_riwayat = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Waktu Transaksi"])
+            df_riwayat = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal Transaksi", "Keterangan"])
             st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
 
     # ------------------------------------------
