@@ -3,7 +3,6 @@ import psycopg2
 import pandas as pd
 from datetime import datetime
 import io
-from streamlit_cookies_controller import CookieController
 
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
@@ -53,57 +52,35 @@ def jalankan_query(sql, param=(), commit=False):
     return data
 
 # ==========================================
-# 2. ATUR TAMPILAN (REVISI CSS AMAN)
-# ==========================================
-st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
-
-# ==========================================
 # 2. ATUR TAMPILAN (SOLUSI FINAL PANAH SIDEBAR)
 # ==========================================
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 
 st.markdown("""
     <style>
-    /* 1. Sembunyikan isi container tombol kanan (Share, Manage app, dll) dengan menyetel opacity ke 0 */
+    /* 1. Sembunyikan isi container tombol kanan (Share, Manage app, dll) */
     [data-testid="stHeader"] > div:first-child {
         opacity: 0 !important;
-        pointer-events: none !important; /* Membuat tombol tidak bisa diklik secara gaib */
+        pointer-events: none !important;
     }
-    
-    /* 2. Selamatkan tombol panah sidebar agar tetap terlihat 100% dan bisa diklik */
+    /* 2. Selamatkan tombol panah sidebar agar tetap terlihat 100% */
     [data-testid="stSidebarCollapseButton"] {
         opacity: 1 !important;
         pointer-events: auto !important;
-        z-index: 999999 !important; /* Memaksa panah berada di lapisan paling depan */
+        z-index: 999999 !important;
     }
-    
-    /* 3. Menghilangkan toolbar/ikon bantuan di pojok kanan atas */
     [data-testid="stToolbar"] {display: none !important;}
-    
-    /* 4. Menghilangkan tombol tiga titik (Menu Utama) */
     #MainMenu {visibility: hidden;}
-    
-    /* 5. Menghilangkan tulisan "Made with Streamlit" di paling bawah */
     footer {visibility: hidden;}
-    
-    /* 6. Menghilangkan tombol Deploy jika masih tersisa */
     .stAppDeployButton {display: none !important;}
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. MANAJEMEN LOGIN (COOKIES + SESSION STATE)
+# 3. MANAJEMEN LOGIN MENGGUNAKAN URL PARAMETER
 # ==========================================
-controller = CookieController()
-
-# Inisialisasi session state jika belum ada
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-
-# Cek cookie browser untuk otomatisasi login setelah refresh
-cookie_login = controller.get('login_gudang')
-if cookie_login == 'true':
-    st.session_state["logged_in"] = True
+# Cek apakah di URL browser terdapat token session 'loggedin'
+is_authenticated = st.query_params.get("session") == "loggedin"
 
 # Fungsi Form Login
 def halaman_login():
@@ -117,24 +94,24 @@ def halaman_login():
         
         if tombol_login:
             if username == "admin" and password == "gudang123":
-                controller.set('login_gudang', 'true')
-                st.session_state["logged_in"] = True
+                # Kunci status login langsung pada alamat URL browser
+                st.query_params["session"] = "loggedin"
                 st.success("Login Berhasil!")
                 st.rerun()
             else:
                 st.error("Username atau Password salah! Silakan coba lagi.")
 
-# JIKA BELUM LOGIN, TAMPILKAN FORM LOGIN
-if not st.session_state["logged_in"]:
+# JIKA TOKEN URL TIDAK COCOK, TAMPILKAN FORM LOGIN
+if not is_authenticated:
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
     halaman_login()
 
-# JIKA SUDAH LOGIN, TAMPILKAN MENU UTAMA SECARA STABIL
+# JIKA TOKEN URL ADA, LANGSUNG MASUK KE APLIKASI UTAMA (KEBAL REFRESH)
 else:
     # Tombol Logout diletakkan di dalam Sidebar paling atas
     if st.sidebar.button("🚪 Logout / Keluar"):
-        controller.remove('login_gudang')
-        st.session_state["logged_in"] = False
+        # Bersihkan token dari URL browser
+        st.query_params.clear()
         st.rerun()
 
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
