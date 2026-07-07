@@ -1,0 +1,172 @@
+import streamlit as st
+import psycopg2
+import pandas as pd
+from datetime import datetime
+
+# ==========================================
+# GANTI DENGAN CONNECTION STRING SUPABASE-MU
+# ==========================================
+DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+
+# ==========================================
+# 1. KONEKSI & INISIALISASI DATABASE ONLINE
+# ==========================================
+def init_db():
+    try:
+        conn = psycopg2.connect(DB_URL)
+        cursor = conn.cursor()
+        
+        # Tabel Master Barang (PostgreSQL menggunakan SERIAL)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS barang (
+                id SERIAL PRIMARY KEY,
+                nama_barang TEXT UNIQUE NOT NULL,
+                stok_sistem INTEGER DEFAULT 0
+            )
+        """)
+        
+        # Tabel Riwayat Transaksi
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS riwayat (
+                id SERIAL PRIMARY KEY,
+                nama_barang TEXT,
+                jenis_transaksi TEXT,
+                jumlah INTEGER,
+                tanggal TEXT
+            )
+        """)
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        st.error(f"Gagal terhubung ke Database Supabase: {e}")
+
+init_db()
+
+def jalankan_query(sql, param=(), commit=False):
+    conn = psycopg2.connect(DB_URL)
+    cursor = conn.cursor()
+    cursor.execute(sql, param)
+    
+    data = None
+    if not commit:
+        data = cursor.fetchall()
+    else:
+        conn.commit()
+        
+    conn.close()
+    return data
+
+# ==========================================
+# 2. TAMPILAN ANTARMUKA (STREAMLIT)
+# ==========================================
+st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
+st.title("📦 Sistem Stock Opname Persediaan (Online)")
+
+menu = ["Barang Masuk", "Barang Keluar", "Laporan Stock Opname"]
+pilihan = st.sidebar.selectbox("Pilih Menu Navigasi", menu)
+
+# ------------------------------------------
+# HALAMAN: BARANG MASUK
+# ------------------------------------------
+if pilihan == "Barang Masuk":
+    st.header("📥 Input Barang Masuk")
+    
+    opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
+    
+    with st.form("form_masuk", clear_on_submit=True):
+        if opsi_input == "Barang Baru (Belum Terdaftar)":
+            nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
+        else:
+            daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang")]
+            nama_barang = st.selectbox("Pilih Barang:", daftar_barang) if daftar_barang else "Belum ada barang"
+        
+        jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1)
+        tombol_masuk = st.form_submit_button("Simpan Transaksi Masuk")
+        
+        if tombol_masuk:
+            if nama_barang and nama_barang != "Belum ada barang":
+                cek_barang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = ?", (nama_barang,))
+                
+                if len(cek_barang) == 0:
+                    jalankan_query("INSERT INTO barang (nama_barang, stok_sistem) VALUES (%s, %s)", (nama_barang, jumlah_masuk), commit=True)
+                else:
+                    stok_baru = cek_barang[0][0] + jumlah_masuk
+                    jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
+                
+                tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                jalankan_query("INSERT INTO riwayat (nama_barang, jenis_transaksi, jumlah, tanggal) VALUES (%s, 'MASUK', %s, %s)", 
+                               (nama_barang, jumlah_masuk, tanggal_sekarang), commit=True)
+                
+                st.success(f"Berhasil mencatat: {jumlah_masuk} unit '{nama_barang}' telah masuk (Cloud).")
+                st.rerun()
+            else:
+                st.error("Mohon isi nama barang dengan benar.")
+
+# ------------------------------------------
+# HALAMAN: BARANG KELUAR
+# ------------------------------------------
+elif pilihan == "Barang Keluar":
+    st.header("📤 Input Barang Keluar")
+    
+    daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang")]
+    
+    if not daftar_barang:
+        st.info("Belum ada data barang di sistem. Silakan input barang masuk terlebih dahulu.")
+    else:
+        with st.form("form_keluar", clear_on_submit=True):
+            nama_barang = st.selectbox("Pilih Barang yang Keluar:", daftar_barang)
+            jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1)
+            tombol_keluar = st.form_submit_button("Simpan Transaksi Keluar")
+            
+            if tombol_keluar:
+                stok_sekarang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nama_barang,))[0][0]
+                
+                if jumlah_keluar > stok_sekarang:
+                    st.error(f"Gagal! Stok tidak mencukupi. Stok saat ini hanya {stok_sekarang} unit.")
+                else:
+                    stok_baru = stok_sekarang - jumlah_keluar
+                    jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
+                    
+                    tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    jalankan_query("INSERT INTO riwayat (nama_barang, jenis_transaksi, jumlah, tanggal) VALUES (%s, 'KELUAR', %s, %s)", 
+                                   (nama_barang, jumlah_keluar, tanggal_sekarang), commit=True)
+                    
+                    st.success(f"Berhasil mencatat: {jumlah_keluar} unit '{nama_barang}' telah keluar (Cloud).")
+                    st.rerun()
+
+# ------------------------------------------
+# HALAMAN: LAPORAN STOCK OPNAME
+# ------------------------------------------
+elif pilihan == "Laporan Stock Opname":
+    st.header("📊 Laporan & Hasil Stock Opname")
+    
+    data_db = jalankan_query("SELECT nama_barang, stok_sistem FROM barang ORDER BY nama_barang ASC")
+    
+    if not data_db:
+        st.info("Belum ada data barang untuk dilaporkan.")
+    else:
+        st.write("Silakan isi jumlah fisik hasil pengecekan gudang di bawah ini:")
+        
+        df = pd.DataFrame(data_db, columns=["Nama Barang", "Stok Sistem"])
+        df["Stok Fisik (Hasil Hitung)"] = df["Stok Sistem"]
+        
+        df_edit = st.data_editor(df, disabled=["Nama Barang", "Stok Sistem"], hide_index=True)
+        
+        df_edit["Selisih"] = df_edit["Stok Fisik (Hasil Hitung)"] - df_edit["Stok Sistem"]
+        
+        def tentukan_status(selisih):
+            if selisih == 0: return "🟢 Sesuai"
+            elif selisih < 0: return "🔴 Kurang (Minus)"
+            else: return "🟡 Lebih"
+            
+        df_edit["Status"] = df_edit["Selisih"].apply(tentukan_status)
+        
+        st.subheader("📋 Hasil Analisis Selisih")
+        st.dataframe(df_edit, hide_index=True)
+        
+        if st.button("Update Stok Sistem Berdasarkan Stok Fisik"):
+            for index, row in df_edit.iterrows():
+                jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", 
+                               (int(row["Stok Fisik (Hasil Hitung)"]), row["Nama Barang"]), commit=True)
+            st.success("Stok sistem di cloud berhasil disesuaikan!")
+            st.rerun()
