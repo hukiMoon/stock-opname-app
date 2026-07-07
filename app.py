@@ -243,7 +243,7 @@ else:
             st.info("💡 **Informasi Tambahan:**\n\nSistem mencatat data barang masuk ke database awan (Supabase) secara aman.")
 
     # ------------------------------------------
-    # TAB 2: BARANG KELUAR (Dengan Proteksi Real-Time Warning)
+    # TAB 2: BARANG KELUAR
     # ------------------------------------------
     with tab2:
         st.subheader("📤 Input Barang Keluar")
@@ -257,23 +257,19 @@ else:
             if not daftar_barang:
                 st.info("Belum ada data barang di sistem.")
             else:
-                # Ambil data stok di luar form agar tampilan warning bisa mendeteksi perubahan dinamis
                 pilihan_barang_luar = st.selectbox("Pilih Barang Keluar:", daftar_barang, key="s_keluar_select")
                 nama_barang_keluar = pilihan_barang_luar.split(" - ")[1]
                 
-                # Query detail stok saat ini
                 cek_stok_db = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang_keluar,))[0]
                 kd_brg, stok_sekarang_k, sat_brg_k = cek_stok_db
                 
                 with st.form("form_keluar", clear_on_submit=True):
-                    # MEMBUAT DUA KOLOM BERDAMPINGAN (Stok Tersedia vs Jumlah Keluar)
                     col_stok_k_kiri, col_input_k_kanan = st.columns(2)
                     with col_stok_k_kiri:
                         st.text_input("Stok Tersedia Saat Ini:", value=f"{stok_sekarang_k} {sat_brg_k}", disabled=True, key="t_stok_keluar_view")
                     with col_input_k_kanan:
                         jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1, key="n_keluar")
                     
-                    # --- FITUR WARNING REAL-TIME JIKA OVERSTOK OUT ---
                     if jumlah_keluar > stok_sekarang_k:
                         st.warning(f"⚠️ **Peringatan:** Jumlah yang diinput ({jumlah_keluar} {sat_brg_k}) melebihi stok tersedia ({stok_sekarang_k} {sat_brg_k})!")
                         
@@ -283,7 +279,6 @@ else:
                     tombol_keluar = st.form_submit_button("Simpan Transaksi Keluar", use_container_width=True)
                     
                     if tombol_keluar:
-                        # Validasi akhir saat tombol ditekan
                         if jumlah_keluar > stok_sekarang_k:
                             st.error(f"Gagal menyimpan! Stok tidak mencukupi (Sisa: {stok_sekarang_k} {sat_brg_k}).")
                         else:
@@ -298,7 +293,7 @@ else:
                             st.success(f"Berhasil mencatat transaksi keluar!")
                             st.rerun()
         with col_info_k:
-            st.info("💡 **Sistem Validasi:**\n\nSistem secara cerdas memblokir penyimpanan transaksi dan menampilkan teks peringatan apabila jumlah pengeluaran melampaui sisa barang di gudang.")
+            st.info("💡 **Sistem Validasi:**\n\nSistem memantau sisa barang secara dinamis berdasarkan barang yang Anda pilih di menu dropdown.")
 
     # ------------------------------------------
     # TAB 3: LAPORAN STOCK OPNAME
@@ -351,7 +346,7 @@ else:
                     st.rerun()
 
     # ------------------------------------------
-    # TAB 4: RIWAYAT TRANSAKSI
+    # TAB 4: RIWAYAT TRANSAKSI (FIX TYPO COLUMN)
     # ------------------------------------------
     with tab4:
         st.subheader("📜 Log Aktivitas Gudang Real-time")
@@ -360,7 +355,8 @@ else:
         if not data_riwayat:
             st.info("Belum ada riwayat transaksi.")
         else:
-            df_riwayat = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal Transaksi", "Kermbali"])
+            # PERBAIKAN: Kolom terakhir diganti dari 'Kermbali' menjadi 'Keterangan'
+            df_riwayat = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal Transaksi", "Keterangan"])
             st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
 
     # ------------------------------------------
