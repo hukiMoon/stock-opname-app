@@ -57,21 +57,36 @@ def jalankan_query(sql, param=(), commit=False):
 # ==========================================
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 
+# ==========================================
+# 2. ATUR TAMPILAN (SOLUSI FINAL PANAH SIDEBAR)
+# ==========================================
+st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
+
 st.markdown("""
     <style>
-    /* 1. Menghilangkan tombol Share, Manage App, dan ikon GitHub di bar atas */
-    [data-testid="stHeader"] > div:first-child {display: none !important;}
+    /* 1. Sembunyikan isi container tombol kanan (Share, Manage app, dll) dengan menyetel opacity ke 0 */
+    [data-testid="stHeader"] > div:first-child {
+        opacity: 0 !important;
+        pointer-events: none !important; /* Membuat tombol tidak bisa diklik secara gaib */
+    }
     
-    /* 2. Menghilangkan toolbar/ikon bantuan di pojok kanan atas */
+    /* 2. Selamatkan tombol panah sidebar agar tetap terlihat 100% dan bisa diklik */
+    [data-testid="stSidebarCollapseButton"] {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 999999 !important; /* Memaksa panah berada di lapisan paling depan */
+    }
+    
+    /* 3. Menghilangkan toolbar/ikon bantuan di pojok kanan atas */
     [data-testid="stToolbar"] {display: none !important;}
     
-    /* 3. Menghilangkan tombol tiga titik (Menu Utama) */
+    /* 4. Menghilangkan tombol tiga titik (Menu Utama) */
     #MainMenu {visibility: hidden;}
     
-    /* 4. Menghilangkan tulisan "Made with Streamlit" di paling bawah */
+    /* 5. Menghilangkan tulisan "Made with Streamlit" di paling bawah */
     footer {visibility: hidden;}
     
-    /* 5. Menghilangkan tombol Deploy jika masih tersisa */
+    /* 6. Menghilangkan tombol Deploy jika masih tersisa */
     .stAppDeployButton {display: none !important;}
     </style>
     """, unsafe_allow_html=True)
