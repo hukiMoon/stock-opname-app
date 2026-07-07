@@ -62,8 +62,8 @@ def jalankan_query(sql, param=(), commit=False):
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 st.title("📦 Sistem Stock Opname Persediaan (Online)")
 
-# MENU NAVIGASI (DITAMBAH: Riwayat Transaksi)
-menu = ["Barang Masuk", "Barang Keluar", "Laporan Stock Opname", "Riwayat Transaksi"]
+# MENU NAVIGASI (DITAMBAH: Manajemen Barang)
+menu = ["Barang Masuk", "Barang Keluar", "Laporan Stock Opname", "Riwayat Transaksi", "Manajemen Barang"]
 pilihan = st.sidebar.selectbox("Pilih Menu Navigasi", menu)
 
 # ------------------------------------------
@@ -78,7 +78,7 @@ if pilihan == "Barang Masuk":
         if opsi_input == "Barang Baru (Belum Terdaftar)":
             nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
         else:
-            daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang")]
+            daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
             nama_barang = st.selectbox("Pilih Barang:", daftar_barang) if daftar_barang else "Belum ada barang"
         
         jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1)
@@ -109,7 +109,7 @@ if pilihan == "Barang Masuk":
 elif pilihan == "Barang Keluar":
     st.header("📤 Input Barang Keluar")
     
-    daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang")]
+    daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
     
     if not daftar_barang:
         st.info("Belum ada data barang di sistem. Silakan input barang masuk terlebih dahulu.")
@@ -173,27 +173,85 @@ elif pilihan == "Laporan Stock Opname":
             st.rerun()
 
 # ------------------------------------------
-# HALAMAN BARU: RIWAYAT TRANSAKSI (LOG)
+# HALAMAN: RIWAYAT TRANSAKSI (LOG)
 # ------------------------------------------
 elif pilihan == "Riwayat Transaksi":
     st.header("📜 Log Riwayat Transaksi")
     st.write("Berikut adalah daftar kronologi semua aktivitas barang masuk dan keluar:")
     
-    # Ambil data dari tabel riwayat, diurutkan dari yang paling baru (ID terbesar)
     data_riwayat = jalankan_query("SELECT nama_barang, jenis_transaksi, jumlah, tanggal FROM riwayat ORDER BY id DESC")
     
     if not data_riwayat:
         st.info("Belum ada riwayat transaksi barang masuk atau keluar.")
     else:
-        # Ubah data dari DB menjadi Dataframe Pandas agar rapi
         df_riwayat = pd.DataFrame(data_riwayat, columns=["Nama Barang", "Jenis Transaksi", "Jumlah", "Waktu Transaksi"])
         
-        # Berikan warna pembeda otomatis untuk MASUK (Hijau) dan KELUAR (Merah) agar lebih informatif
         def beri_warna_status(jenis):
             if jenis == "MASUK": return "📥 MASUK"
             else: return "📤 KELUAR"
             
         df_riwayat["Jenis Transaksi"] = df_riwayat["Jenis Transaksi"].apply(beri_warna_status)
-        
-        # Tampilkan tabel riwayat di website
         st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
+
+# ------------------------------------------
+# HALAMAN BARU: MANAJEMEN BARANG (EDIT/HAPUS)
+# ------------------------------------------
+elif pilihan == "Manajemen Barang":
+    st.header("⚙️ Manajemen Master Barang")
+    st.write("Gunakan halaman ini untuk mengubah nama barang atau menghapus barang dari sistem.")
+    
+    daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
+    
+    if not daftar_barang:
+        st.info("Belum ada data barang di database.")
+    else:
+        # Pilihan Aksi: Edit atau Hapus
+        aksi = st.radio("Pilih Tindakan:", ["Edit Nama Barang", "Hapus Barang Dari Sistem"], horizontal=True)
+        
+        # 1. LOGIKA EDIT NAMA BARANG
+        if aksi == "Edit Nama Barang":
+            st.subheader("✏️ Edit Nama Barang")
+            barang_dipilih = st.selectbox("Pilih Barang yang Ingin Diubah:", daftar_barang, key="edit_sel")
+            nama_baru = st.text_input("Masukkan Nama Baru:", value=barang_dipilih).strip().upper()
+            
+            if st.button("Simpan Perubahan Nama"):
+                if nama_baru and nama_baru != barang_dipilih:
+                    # Cek apakah nama baru sudah ada untuk menghindari duplikat
+                    cek_duplikat = jalankan_query("SELECT id FROM barang WHERE nama_barang = %s", (nama_baru,))
+                    if cek_duplikat:
+                        st.error(f"Gagal! Nama barang '{nama_baru}' sudah terdaftar di sistem.")
+                    else:
+                        # Update di tabel master barang
+                        jalankan_query("UPDATE barang SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, barang_dipilih), commit=True)
+                        # Update juga di tabel riwayat agar sinkron
+                        jalankan_query("UPDATE riwayat SET nama_barang = %s WHERE nama_barang = %s", (nama_baru, barang_dipilih), commit=True)
+                        
+                        st.success(f"Berhasil mengubah nama '{barang_dipilih}' menjadi '{nama_baru}'!")
+                        st.rerun()
+                else:
+                    st.warning("Nama baru tidak boleh kosong atau sama dengan nama lama.")
+                    
+        # 2. LOGIKA HAPUS BARANG
+        elif aksi == "Hapus Barang Dari Sistem":
+            st.subheader("❌ Hapus Barang")
+            barang_dipilih = st.selectbox("Pilih Barang yang Ingin Dihapus:", daftar_barang, key="hapus_sel")
+            
+            # Ambil detail stok saat ini sebagai info konfirmasi
+            stok_saat_ini = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (barang_dipilih,))[0][0]
+            st.warning(f"Tindakan ini akan menghapus barang **'{barang_dipilih}'** (Stok Saat Ini: {stok_saat_ini}) dari database.")
+            
+            # Checkbox pengaman tambahan agar tidak sengaja tertekan
+            konfirmasi = st.checkbox("Saya benar-benar ingin menghapus barang ini secara permanen.")
+            
+            if st.button("Hapus Permanen", type="primary"): # type="primary" membuat tombol berwarna merah/menonjol
+                if konfirmasi:
+                    # Hapus dari tabel master barang
+                    jalankan_query("DELETE FROM barang WHERE nama_barang = %s", (barang_dipilih,), commit=True)
+                    # Catatan: Kita tidak menghapus riwayat lamanya agar log audit tetap aman, 
+                    # tetapi jika ingin menghapus riwayatnya juga, hilangkan tanda komentar (#) di bawah ini:
+                    # jalankan_query("DELETE FROM riwayat WHERE nama_barang = %s", (barang_dipilih,), commit=True)
+                    
+                    st.success(f"Barang '{barang_dipilih}' telah berhasil dihapus dari sistem!")
+                    st.rerun()
+                else:
+                    st.error("Gagal! Anda harus mencentang kotak konfirmasi terlebih dahulu.")
