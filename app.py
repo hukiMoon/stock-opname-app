@@ -42,7 +42,7 @@ def init_db():
             )
         """)
         
-        # JALANKAN ALTER TABLE JIKA TABEL SUDAH PERNAH ADA (Agar struktur kolom aman)
+        # JALANKAN ALTER TABLE JIKA TABEL SUDAH PERNAH ADA
         try:
             cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS kode_barang TEXT UNIQUE;")
             cursor.execute("ALTER TABLE barang ADD COLUMN IF NOT EXISTS satuan TEXT DEFAULT 'PCS';")
@@ -171,7 +171,7 @@ else:
     ])
 
     # ------------------------------------------
-    # TAB 1: BARANG MASUK (Ditambahkan Kalender Pilihan Tanggal)
+    # TAB 1: BARANG MASUK
     # ------------------------------------------
     with tab1:
         st.subheader("📥 Input Barang Masuk")
@@ -187,7 +187,9 @@ else:
                     st.info(f"📋 **Kode Barang Baru Otomatis:** {kode_otomatis}")
                     
                     nama_barang = st.text_input("Nama Barang Baru:").strip().upper()
-                    satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
+                    
+                    # --- BERUBAH DI SINI: Ditambahkan pilihan "ROLL" ---
+                    satuan_barang = st.selectbox("Pilih Satuan:", ["PCS", "ROLL", "BOX", "PACK", "UNIT", "KILOGRAM", "LITER"])
                 else:
                     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY nama_barang ASC")
                     daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
@@ -196,10 +198,7 @@ else:
                     nama_barang = pilihan_barang.split(" - ")[1] if daftar_barang else "Belum ada barang"
                     
                 jumlah_masuk = st.number_input("Jumlah Barang Masuk:", min_value=1, step=1, key="n_masuk")
-                
-                # --- INPUT BARU: TANGGAL MANUAL ---
                 tanggal_pilihan = st.date_input("Tanggal Barang Masuk:", value=datetime.now().date())
-                
                 input_keterangan = st.text_input("Keterangan (Opsional):", placeholder="Contoh: Dari Supplier A / No Faktur 123 / Retur").strip()
                 
                 tombol_masuk = st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True)
@@ -208,7 +207,6 @@ else:
                     if nama_barang and nama_barang != "Belum ada barang":
                         cek_barang = jalankan_query("SELECT kode_barang, stok_sistem, satuan FROM barang WHERE nama_barang = %s", (nama_barang,))
                         
-                        # Format tanggal yang dipilih admin menjadi string YYYY-MM-DD
                         tanggal_str = tanggal_pilihan.strftime("%Y-%m-%d")
                         txt_ket = input_keterangan if input_keterangan else "-"
                         
@@ -221,17 +219,17 @@ else:
                             kd_brg, stk_skrg, sat_brg = cek_barang[0]
                             stok_baru = stk_skrg + jumlah_masuk
                             jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nama_barang), commit=True)
-                            jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
+                            jalankan_query("INSERT INTO riwayat (generik_kode, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
                                            (kd_brg, nama_barang, jumlah_masuk, sat_brg, tanggal_str, txt_ket), commit=True)
                         
                         st.success(f"Berhasil mencatat transaksi masuk!")
                         st.rerun()
         
         with col_info:
-            st.info("💡 **Informasi Tambahan:**\n\nFitur tanggal manual mempermudah Anda melakukan pencatatan mundur (*backdate*) apabila ada dokumen nota barang masuk dari hari kemarin yang terlambat diinput oleh admin gudang.")
+            st.info("💡 **Informasi Tambahan:**\n\nSatuan 'ROLL' sekarang siap dipilih untuk item material gulungan/roll seperti kabel, kain, plastik wrap, lembaran seng, dll.")
 
     # ------------------------------------------
-    # TAB 2: BARANG KELUAR (Juga menggunakan Tanggal Hari Ini secara otomatis)
+    # TAB 2: BARANG KELUAR
     # ------------------------------------------
     with tab2:
         st.subheader("📤 Input Barang Keluar")
@@ -250,8 +248,6 @@ else:
                     nama_barang_keluar = pilihan_barang.split(" - ")[1]
                     
                     jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1, key="n_keluar")
-                    
-                    # Kalender untuk Barang Keluar
                     tanggal_keluar_pilihan = st.date_input("Tanggal Barang Keluar:", value=datetime.now().date(), key="t_keluar")
                     
                     tombol_keluar = st.form_submit_button("Simpan Transaksi Keluar", use_container_width=True)
