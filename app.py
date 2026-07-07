@@ -8,6 +8,18 @@ DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-a
 
 st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
 
+def jalankan_query(sql, param=(), commit=False):
+    conn = psycopg2.connect(DB_URL)
+    cursor = conn.cursor()
+    cursor.execute(sql, param)
+    data = None
+    if not commit:
+        data = cursor.fetchall()
+    else:
+        conn.commit()
+    conn.close()
+    return data
+    
 # Fungsi Cek Login via URL Params
 def check_login():
     return st.query_params.get("session") == "loggedin"
