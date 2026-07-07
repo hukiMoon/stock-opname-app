@@ -29,7 +29,6 @@ else:
     # --- FORM INPUT ---
     if opsi_input == "Barang Baru (Belum Terdaftar)":
         with st.form("form_masuk_baru", clear_on_submit=True):
-            # Generate otomatis kode
             data_kd = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
             kode_otomatis = f"STM-{(data_kd[0][0] + 1):02d}" if data_kd else "STM-01"
             
@@ -70,10 +69,9 @@ else:
                     st.success("Stok berhasil ditambahkan!")
                     st.rerun()
 
-    # --- TABEL RIWAYAT + FITUR EDIT & DELETE ---
+    # --- TABEL RIWAYAT + FITUR FILTER, EDIT & DELETE ---
     st.write("---")
     st.subheader("📜 Riwayat Khusus Barang Masuk")
-    st.caption("💡 *Klik ganda pada kotak Jumlah/Keterangan untuk Edit. Pilih baris lalu tekan tombol Delete pada keyboard untuk menghapus.*")
     
     raw_riwayat = jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'MASUK' ORDER BY id DESC")
     
@@ -82,38 +80,59 @@ else:
     else:
         df_riwayat = pd.DataFrame(raw_riwayat, columns=["ID Transaksi", "Kode Barang", "Nama Barang", "Jumlah", "Tanggal", "Keterangan"])
         
-        # Tampilkan editor data
+        # --- PANEL FILTER KODE/NAMA BARANG ---
+        st.write("🔍 **Filter Riwayat:**")
+        col_f1, col_f2 = st.columns([2, 1])
+        with col_f1:
+            search_query = st.text_input("Cari Kode / Nama Barang:", placeholder="Ketik kata kunci...", key="search_masuk").strip().upper()
+        with col_f2:
+            filter_date = st.date_input("Filter Berdasarkan Tanggal:", value=None, key="date_masuk")
+        
+        # Proses Logika Filter pada DataFrame Pandas
+        if search_query:
+            df_riwayat = df_riwayat[
+                df_riwayat["Nama Barang"].str.contains(search_query, na=False) | 
+                df_riwayat["Kode Barang"].str.contains(search_query, na=False)
+            ]
+        if filter_date:
+            date_str = filter_date.strftime("%Y-%m-%d")
+            df_riwayat = df_riwayat[df_riwayat["Tanggal"] == date_str]
+            
+        st.caption("💡 *Klik ganda untuk Edit Jumlah/Keterangan. Pilih baris lalu tekan Delete pada keyboard untuk menghapus.*")
+        
+        # Tampilkan editor data hasil filter
         edited_df = st.data_editor(
             df_riwayat,
             disabled=["ID Transaksi", "Kode Barang", "Nama Barang", "Tanggal"],
-            num_rows="dynamic", # Mengaktifkan tombol hapus baris bawaan streamlit
+            num_rows="dynamic",
             hide_index=True,
             use_container_width=True,
             key="editor_masuk"
         )
         
-        # Deteksi Aksi Simpan Perubahan
         if st.button("SINKRONISASI PERUBAHAN & PENGHAPUSAN MASUK", type="primary", use_container_width=True):
-            # 1. Cek Data yang Dihapus
             set_id_sekarang = set(edited_df["ID Transaksi"].tolist())
+            
+            # Jika sedang difilter, kita hanya memproses data yang saat ini terlihat di layar
+            id_terlihat = df_riwayat["ID Transaksi"].tolist()
+            
+            # 1. Cek Data yang Dihapus dari yang terlihat
             for baris in raw_riwayat:
                 id_asal = baris[0]
-                if id_asal not in set_id_sekarang: # Artinya baris ini dihapus user
-                    kd_b, nm_b, jml_lama = baris[1], baris[2], baris[3]
-                    # Kurangi stok master barang karena transaksi masuknya dibatalkan
+                if id_asal in id_terlihat and id_asal not in set_id_sekarang:
+                    nm_b, jml_lama = baris[2], baris[3]
                     stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))
                     if stok_skrg:
                         stok_baru = max(0, stok_skrg[0][0] - jml_lama)
                         jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_baru, nm_b), commit=True)
                     jalankan_query("DELETE FROM riwayat WHERE id = %s", (id_asal,), commit=True)
             
-            # 2. Cek Data yang Diedit Jumlah atau Keterangannya
+            # 2. Cek Data yang Diedit
             for _, row in edited_df.iterrows():
                 id_cek = row["ID Transaksi"]
                 jml_baru = int(row["Jumlah"])
                 ket_baru = str(row["Keterangan"])
                 
-                # Ambil nilai lama dari database awal sebelum diedit
                 data_lama = [b for b in raw_riwayat if b[0] == id_cek][0]
                 jml_lama = data_lama[3]
                 nm_b = data_lama[2]
@@ -121,7 +140,6 @@ else:
                 if jml_baru != jml_lama or ket_baru != data_lama[5]:
                     selisih = jml_baru - jml_lama
                     stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))[0][0]
-                    # Update master barang & log riwayat
                     jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg + selisih, nm_b), commit=True)
                     jalankan_query("UPDATE riwayat SET jumlah = %s, keterangan = %s WHERE id = %s", (jml_baru, ket_baru, id_cek), commit=True)
             
