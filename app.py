@@ -4,29 +4,16 @@ import pandas as pd
 from datetime import datetime
 import io
 
-# ==========================================
-# GANTI DENGAN CONNECTION STRING SUPABASE-MU
-# ==========================================
 DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
 
 st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
 
-def jalankan_query(sql, param=(), commit=False):
-    conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    cursor.execute(sql, param)
-    data = None
-    if not commit:
-        data = cursor.fetchall()
-    else:
-        conn.commit()
-    conn.close()
-    return data
+# Fungsi Cek Login via URL Params
+def check_login():
+    return st.query_params.get("session") == "loggedin"
 
-if "loggedin" not in st.session_state:
-    st.session_state["loggedin"] = False
-
-if not st.session_state["loggedin"]:
+if not check_login():
+    # Tampilan Login
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -36,18 +23,18 @@ if not st.session_state["loggedin"]:
             password = st.text_input("Password:", type="password")
             if st.form_submit_button("Masuk", use_container_width=True):
                 if username == "admin" and password == "gudang123":
-                    st.session_state["loggedin"] = True
-                    st.success("Login Berhasil!")
+                    st.query_params["session"] = "loggedin" # Simpan status di URL
                     st.rerun()
                 else:
                     st.error("Username atau Password salah!")
 else:
+    # Halaman Utama (jika sudah login)
     col_title, col_logout = st.columns([5, 1])
     with col_title:
         st.title("📊 Laporan Stock Opname & Analisis")
     with col_logout:
         if st.button("🚪 Keluar", use_container_width=True):
-            st.session_state["loggedin"] = False
+            st.query_params.clear() # Hapus status dari URL
             st.rerun()
             
     st.write("---")
