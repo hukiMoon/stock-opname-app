@@ -3,7 +3,7 @@ import psycopg2
 import pandas as pd
 from datetime import datetime
 import io
-from streamlit_cookies_controller import CookieController # Library baru untuk Cookies
+from streamlit_cookies_controller import CookieController
 
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
@@ -17,8 +17,6 @@ def init_db():
     try:
         conn = psycopg2.connect(DB_URL)
         cursor = conn.cursor()
-        
-        # Tabel Master Barang
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS barang (
                 id SERIAL PRIMARY KEY,
@@ -26,8 +24,6 @@ def init_db():
                 stok_sistem INTEGER DEFAULT 0
             )
         """)
-        
-        # Tabel Riwayat Transaksi
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS riwayat (
                 id SERIAL PRIMARY KEY,
@@ -48,44 +44,41 @@ def jalankan_query(sql, param=(), commit=False):
     conn = psycopg2.connect(DB_URL)
     cursor = conn.cursor()
     cursor.execute(sql, param)
-    
     data = None
     if not commit:
         data = cursor.fetchall()
     else:
         conn.commit()
-        
     conn.close()
     return data
 
 # ==========================================
-# 2. ATUR TAMPILAN (HILANGKAN MENU STREAMLIT)
+# 2. ATUR TAMPILAN (REVISI CSS AMAN)
 # ==========================================
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 
 st.markdown("""
     <style>
-    /* Menghilangkan tombol tiga titik (Menu Utama) */
     #MainMenu {visibility: hidden;}
-    
-    /* Menghilangkan tulisan "Made with Streamlit" di bawah */
     footer {visibility: hidden;}
-    
-    /* Menghilangkan tombol Deploy bawaan Streamlit */
     .stAppDeployButton {display:none;}
-    
-    /* Menghilangkan ikon GitHub/bantuan di kanan atas tanpa merusak panah sidebar */
     h1 a, [data-testid="stToolbar"] {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. MANAJEMEN LOGIN MENGGUNAKAN COOKIES
+# 3. MANAJEMEN LOGIN (COOKIES + SESSION STATE)
 # ==========================================
 controller = CookieController()
 
-# Baca status cookie bernama 'login_gudang' dari browser
+# Inisialisasi session state jika belum ada
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+
+# Cek cookie browser untuk otomatisasi login setelah refresh
 cookie_login = controller.get('login_gudang')
+if cookie_login == 'true':
+    st.session_state["logged_in"] = True
 
 # Fungsi Form Login
 def halaman_login():
@@ -99,28 +92,29 @@ def halaman_login():
         
         if tombol_login:
             if username == "admin" and password == "gudang123":
-                # Simpan cookie di browser berlaku selama beberapa hari ke depan
                 controller.set('login_gudang', 'true')
-                st.success("Login Berhasil! Memuat ulang sistem...")
+                st.session_state["logged_in"] = True
+                st.success("Login Berhasil!")
                 st.rerun()
             else:
                 st.error("Username atau Password salah! Silakan coba lagi.")
 
-# JIKA COOKIE TIDAK DITEMUKAN / BUKAN 'true', TAMPILKAN FORM LOGIN
-if cookie_login != 'true':
+# JIKA BELUM LOGIN, TAMPILKAN FORM LOGIN
+if not st.session_state["logged_in"]:
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
     halaman_login()
 
-# JIKA COOKIE SUDAH ADA DI BROWSER, LANGSUNG MASUK KE APLIKASI
+# JIKA SUDAH LOGIN, TAMPILKAN MENU UTAMA SECARA STABIL
 else:
-    # Tombol Logout di paling atas Sidebar
+    # Tombol Logout diletakkan di dalam Sidebar paling atas
     if st.sidebar.button("🚪 Logout / Keluar"):
-        # Hapus cookie dari browser
         controller.remove('login_gudang')
+        st.session_state["logged_in"] = False
         st.rerun()
 
     st.title("📦 Sistem Stock Opname Persediaan (Online)")
     
+    # Menu Navigasi di Sidebar Kiri
     menu = ["Barang Masuk", "Barang Keluar", "Laporan Stock Opname", "Riwayat Transaksi", "Manajemen Barang"]
     pilihan = st.sidebar.selectbox("Pilih Menu Navigasi", menu)
 
@@ -129,7 +123,6 @@ else:
     # ------------------------------------------
     if pilihan == "Barang Masuk":
         st.header("📥 Input Barang Masuk")
-        
         opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
         
         with st.form("form_masuk", clear_on_submit=True):
@@ -145,7 +138,6 @@ else:
             if tombol_masuk:
                 if nama_barang and nama_barang != "Belum ada barang":
                     cek_barang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nama_barang,))
-                    
                     if len(cek_barang) == 0:
                         jalankan_query("INSERT INTO barang (nama_barang, stok_sistem) VALUES (%s, %s)", (nama_barang, jumlah_masuk), commit=True)
                     else:
@@ -155,7 +147,6 @@ else:
                     tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     jalankan_query("INSERT INTO riwayat (nama_barang, jenis_transaksi, jumlah, tanggal) VALUES (%s, 'MASUK', %s, %s)", 
                                    (nama_barang, jumlah_masuk, tanggal_sekarang), commit=True)
-                    
                     st.success(f"Berhasil mencatat: {jumlah_masuk} unit '{nama_barang}' telah masuk (Cloud).")
                     st.rerun()
                 else:
@@ -166,7 +157,6 @@ else:
     # ------------------------------------------
     elif pilihan == "Barang Keluar":
         st.header("📤 Input Barang Keluar")
-        
         daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
         
         if not daftar_barang:
@@ -179,7 +169,6 @@ else:
                 
                 if tombol_keluar:
                     stok_sekarang = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nama_barang,))[0][0]
-                    
                     if jumlah_keluar > stok_sekarang:
                         st.error(f"Gagal! Stok tidak mencukupi. Stok saat ini hanya {stok_sekarang} unit.")
                     else:
@@ -189,7 +178,6 @@ else:
                         tanggal_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         jalankan_query("INSERT INTO riwayat (nama_barang, jenis_transaksi, jumlah, tanggal) VALUES (%s, 'KELUAR', %s, %s)", 
                                        (nama_barang, jumlah_keluar, tanggal_sekarang), commit=True)
-                        
                         st.success(f"Berhasil mencatat: {jumlah_keluar} unit '{nama_barang}' telah keluar (Cloud).")
                         st.rerun()
 
@@ -198,19 +186,16 @@ else:
     # ------------------------------------------
     elif pilihan == "Laporan Stock Opname":
         st.header("📊 Laporan & Hasil Stock Opname")
-        
         data_db = jalankan_query("SELECT nama_barang, stok_sistem FROM barang ORDER BY nama_barang ASC")
         
         if not data_db:
             st.info("Belum ada data barang untuk dilaporkan.")
         else:
             st.write("Silakan isi jumlah fisik hasil pengecekan gudang di bawah ini:")
-            
             df = pd.DataFrame(data_db, columns=["Nama Barang", "Stok Sistem"])
             df["Stok Fisik (Hasil Hitung)"] = df["Stok Sistem"]
             
             df_edit = st.data_editor(df, disabled=["Nama Barang", "Stok Sistem"], hide_index=True)
-            
             df_edit["Selisih"] = df_edit["Stok Fisik (Hasil Hitung)"] - df_edit["Stok Sistem"]
             
             def tentukan_status(selisih):
@@ -219,7 +204,6 @@ else:
                 else: return "🟡 Lebih"
                 
             df_edit["Status"] = df_edit["Selisih"].apply(tentukan_status)
-            
             st.subheader("📋 Hasil Analisis Selisih")
             st.dataframe(df_edit, hide_index=True)
             
@@ -248,18 +232,15 @@ else:
     elif pilihan == "Riwayat Transaksi":
         st.header("📜 Log Riwayat Transaksi")
         st.write("Berikut adalah daftar kronologi semua aktivitas barang masuk dan keluar:")
-        
         data_riwayat = jalankan_query("SELECT nama_barang, jenis_transaksi, jumlah, tanggal FROM riwayat ORDER BY id DESC")
         
         if not data_riwayat:
             st.info("Belum ada riwayat transaksi barang masuk atau keluar.")
         else:
             df_riwayat = pd.DataFrame(data_riwayat, columns=["Nama Barang", "Jenis Transaksi", "Jumlah", "Waktu Transaksi"])
-            
             def beri_warna_status(jenis):
                 if jenis == "MASUK": return "📥 MASUK"
                 else: return "📤 KELUAR"
-                
             df_riwayat["Jenis Transaksi"] = df_riwayat["Jenis Transaksi"].apply(beri_warna_status)
             st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
 
@@ -269,7 +250,6 @@ else:
     elif pilihan == "Manajemen Barang":
         st.header("⚙️ Manajemen Master Barang")
         st.write("Gunakan halaman ini untuk mengubah nama barang atau menghapus barang dari sistem.")
-        
         daftar_barang = [b[0] for b in jalankan_query("SELECT nama_barang FROM barang ORDER BY nama_barang ASC")]
         
         if not daftar_barang:
@@ -300,7 +280,6 @@ else:
                 barang_dipilih = st.selectbox("Pilih Barang yang Ingin Dihapus:", daftar_barang, key="hapus_sel")
                 stok_saat_ini = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (barang_dipilih,))[0][0]
                 st.warning(f"Tindakan ini akan menghapus barang **'{barang_dipilih}'** (Stok Saat Ini: {stok_saat_ini}) dari database.")
-                
                 konfirmasi = st.checkbox("Saya benar-benar ingin menghapus barang ini secara permanen.")
                 
                 if st.button("Hapus Permanen", type="primary"):
