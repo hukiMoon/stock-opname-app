@@ -18,13 +18,6 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
-def check_login():
-    return st.query_params.get("session") == "loggedin"
-
-if not check_login():
-    st.warning("⚠️ Silakan login terlebih dahulu di halaman utama (app.py)!")
-    st.stop() # Ini akan menghentikan eksekusi kode jika belum login
-else:
     st.title("📥 Input Barang Masuk")
     st.write("---")
     
