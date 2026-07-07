@@ -62,6 +62,17 @@ def jalankan_query(sql, param=(), commit=False):
 # ==========================================
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 
+# --- KODE BARU: MENGHILANGKAN MENU BAWAAN STREAMLIT & GITHUB ---
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}      /* Menghilangkan tombol tiga titik (Menu Utama) */
+    footer {visibility: hidden;}         /* Menghilangkan tulisan "Made with Streamlit" di bawah */
+    header {visibility: hidden;}         /* Menghilangkan bar atas (termasuk tombol Deploy/GitHub) */
+    .stAppDeployButton {display:none;}   /* Memastikan tombol deploy benar-benar hilang */
+    </style>
+    """, unsafe_allow_html=True)
+# ---------------------------------------------------------------
+
 # Inisialisasi status login awal jika belum ada
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
