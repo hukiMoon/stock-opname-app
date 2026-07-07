@@ -111,11 +111,12 @@ else:
                 st.caption(f"👁️ *Pratinjau: Menampilkan {len(df_download)} barang hasil filter kustom.*")
                 st.dataframe(df_download, hide_index=True, use_container_width=True)
             
-            # --- FIX: PROSES CUSTOM KOLOM EXCEL (HANYA 3 KOLOM) ---
-            # 1. Buat kolom baru hasil kalkulasi: Stok Sistem - Stok Fisik
-            df_download["Stok Akhir"] = df_download["Stok Sistem"] - df_download["Stok Fisik (Hasil Hitung)"]
+            # --- PROSES CUSTOM KOLOM EXCEL ---
+            # 1. Mengambil data dari Stok Sistem (tanpa dikurangi Stok Fisik)
+            # Kita beri nama kolomnya "Stok Akhir" sesuai keinginanmu
+            df_download = df_download.rename(columns={"Stok Sistem": "Stok Akhir"})
             
-            # 2. Potong & Ambil hanya kolom yang diminta
+            # 2. Potong & Ambil hanya kolom yang diminta: Nama Barang, Stok Akhir, Satuan
             df_excel_final = df_download[["Nama Barang", "Stok Akhir", "Satuan"]]
             
             # 3. Proses Ekspor ke Excel
