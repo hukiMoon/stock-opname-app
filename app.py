@@ -86,13 +86,18 @@ else:
             st.caption(f"👁️ *Pratinjau: Menampilkan {len(df_download)} barang hasil filter kustom.*")
             st.dataframe(df_download, hide_index=True, use_container_width=True)
         
-        # --- PROSES EXCEL (HANYA 3 KOLOM) ---
-        df_download["Stok Akhir"] = df_download["Stok Sistem"] - df_download["Stok Fisik (Hasil Hitung)"]
+        # --- PROSES CUSTOM KOLOM EXCEL ---
+        # 1. Mengambil data dari Stok Sistem (tanpa dikurangi Stok Fisik)
+        # Kita beri nama kolomnya "Stok Akhir" sesuai keinginanmu
+        df_download = df_download.rename(columns={"Stok Sistem": "Stok Akhir"})
+            
+        # 2. Potong & Ambil hanya kolom yang diminta: Nama Barang, Stok Akhir, Satuan
         df_excel_final = df_download[["Nama Barang", "Stok Akhir", "Satuan"]]
-        
+            
+        # 3. Proses Ekspor ke Excel
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-            df_excel_final.to_excel(writer, index=False, sheet_name='Laporan Opname Ringkas')
+            df_excel_final.to_excel(writer, index=False, sheet_name='Laporan Stok Ringkas')
             
         col_dl, col_sync = st.columns(2)
         with col_dl:
