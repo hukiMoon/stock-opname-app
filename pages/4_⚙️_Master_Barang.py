@@ -13,8 +13,8 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
-if st.query_params.get("session") != "loggedin":
-    st.warning("Silakan login terlebih dahulu di halaman utama!")
+if "loggedin" not in st.session_state or not st.session_state["loggedin"]:
+    st.warning("⚠️ Silakan login terlebih dahulu di halaman utama (app.py)!")
 else:
     st.title("⚙️ Manajemen Master Data")
     st.write("---")
