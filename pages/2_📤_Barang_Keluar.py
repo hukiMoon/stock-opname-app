@@ -18,8 +18,8 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
-    st.title("📤 Input Barang Keluar")
-    st.write("---")
+st.title("📤 Input Barang Keluar")
+st.write("---")
     
     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
     daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
@@ -53,11 +53,11 @@ def jalankan_query(sql, param=(), commit=False):
                     st.success("Transaksi keluar berhasil!")
                     st.rerun()
 
-    # --- TABEL RIWAYAT + FITUR FILTER, EDIT & DELETE ---
-    st.write("---")
-    st.subheader("📜 Riwayat Khusus Barang Keluar")
+# --- TABEL RIWAYAT + FITUR FILTER, EDIT & DELETE ---
+st.write("---")
+st.subheader("📜 Riwayat Khusus Barang Keluar")
     
-    raw_riwayat = jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'KELUAR' ORDER BY id DESC")
+raw_riwayat = jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'KELUAR' ORDER BY id DESC")
     
     if not raw_riwayat:
         st.info("Belum ada riwayat transaksi keluar.")
