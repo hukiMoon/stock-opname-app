@@ -16,7 +16,7 @@ def init_db():
         conn = psycopg2.connect(DB_URL)
         cursor = conn.cursor()
         
-        # Tabel Master Barang (PostgreSQL menggunakan SERIAL)
+        # Tabel Master Barang
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS barang (
                 id SERIAL PRIMARY KEY,
@@ -62,7 +62,8 @@ def jalankan_query(sql, param=(), commit=False):
 st.set_page_config(page_title="Aplikasi Stock Opname Online", layout="centered")
 st.title("📦 Sistem Stock Opname Persediaan (Online)")
 
-menu = ["Barang Masuk", "Barang Keluar", "Laporan Stock Opname"]
+# MENU NAVIGASI (DITAMBAH: Riwayat Transaksi)
+menu = ["Barang Masuk", "Barang Keluar", "Laporan Stock Opname", "Riwayat Transaksi"]
 pilihan = st.sidebar.selectbox("Pilih Menu Navigasi", menu)
 
 # ------------------------------------------
@@ -170,3 +171,29 @@ elif pilihan == "Laporan Stock Opname":
                                (int(row["Stok Fisik (Hasil Hitung)"]), row["Nama Barang"]), commit=True)
             st.success("Stok sistem di cloud berhasil disesuaikan!")
             st.rerun()
+
+# ------------------------------------------
+# HALAMAN BARU: RIWAYAT TRANSAKSI (LOG)
+# ------------------------------------------
+elif pilihan == "Riwayat Transaksi":
+    st.header("📜 Log Riwayat Transaksi")
+    st.write("Berikut adalah daftar kronologi semua aktivitas barang masuk dan keluar:")
+    
+    # Ambil data dari tabel riwayat, diurutkan dari yang paling baru (ID terbesar)
+    data_riwayat = jalankan_query("SELECT nama_barang, jenis_transaksi, jumlah, tanggal FROM riwayat ORDER BY id DESC")
+    
+    if not data_riwayat:
+        st.info("Belum ada riwayat transaksi barang masuk atau keluar.")
+    else:
+        # Ubah data dari DB menjadi Dataframe Pandas agar rapi
+        df_riwayat = pd.DataFrame(data_riwayat, columns=["Nama Barang", "Jenis Transaksi", "Jumlah", "Waktu Transaksi"])
+        
+        # Berikan warna pembeda otomatis untuk MASUK (Hijau) dan KELUAR (Merah) agar lebih informatif
+        def beri_warna_status(jenis):
+            if jenis == "MASUK": return "📥 MASUK"
+            else: return "📤 KELUAR"
+            
+        df_riwayat["Jenis Transaksi"] = df_riwayat["Jenis Transaksi"].apply(beri_warna_status)
+        
+        # Tampilkan tabel riwayat di website
+        st.dataframe(df_riwayat, hide_index=True, use_container_width=True)
