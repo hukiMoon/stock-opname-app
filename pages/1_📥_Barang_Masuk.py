@@ -21,9 +21,9 @@ def jalankan_query(sql, param=(), commit=False):
 def check_login():
     return st.query_params.get("session") == "loggedin"
 
-if st.query_params.get("session") != "loggedin":
+if not check_login():
     st.warning("⚠️ Silakan login terlebih dahulu di halaman utama (app.py)!")
-    st.stop() # Menghentikan sisa kode agar tidak muncul jika belum login
+    st.stop() # Ini akan menghentikan eksekusi kode jika belum login
 else:
     st.title("📥 Input Barang Masuk")
     st.write("---")
