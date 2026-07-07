@@ -12,8 +12,9 @@ def jalankan_query(sql, param=(), commit=False):
     if not commit: data = cursor.fetchall()
     return data
 
-if "loggedin" not in st.session_state or not st.session_state["loggedin"]:
+if st.query_params.get("session") != "loggedin":
     st.warning("⚠️ Silakan login terlebih dahulu di halaman utama (app.py)!")
+    st.stop() # Menghentikan sisa kode agar tidak muncul jika belum login
 else:
     st.title("📜 Log Aktivitas Gudang")
     st.write("---")
