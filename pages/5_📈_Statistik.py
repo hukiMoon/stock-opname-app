@@ -7,7 +7,7 @@ from styles import card_container
 check_password()
 sidebar_logout()
 
-st.title("📈 Dashboard Statistik")
+st.title("📈 Statistik Ketersediaan Barang")
 
 # 1. Ambil Data
 data_riwayat = jalankan_query("SELECT jenis_transaksi, jumlah, tanggal FROM riwayat")
