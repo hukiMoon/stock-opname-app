@@ -132,7 +132,7 @@ with tab2:
             )
 
             if st.checkbox("Saya yakin ingin menghapus semua riwayat"):
-            if st.button("Konfirmasi Hapus Permanen", type="primary"):
+                if st.button("Konfirmasi Hapus Permanen", type="primary"):
                 jalankan_query("DELETE FROM log_opname", commit=True)
                 st.rerun()
         
