@@ -24,26 +24,15 @@ def jalankan_audit_dan_update(data_list):
 
 # Fungsi ambil log
 def ambil_data_log():
-    # Menggunakan LEFT JOIN agar jika barang dihapus dari tabel barang, log tetap muncul
-    sql = """
-    SELECT 
-        l.id, 
-        l.kode_barang, 
-        b.nama_barang, 
-        l.stok_sebelum, 
-        l.stok_sesudah, 
-        l.waktu_opname, 
-        l.petugas 
-    FROM log_opname l
-    LEFT JOIN barang b ON l.kode_barang = b.kode_barang
-    ORDER BY l.waktu_opname DESC
-    """
-    def ambil_data_log():
-    # Menggunakan fungsi yang sudah terpusat dan aman
-        return jalankan_query("SELECT * FROM riwayat ORDER BY id DESC LIMIT 5")
+    # Ambil data dari database
+    data = jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat ORDER BY id DESC LIMIT 5")
     
-    # Update nama kolom agar lebih jelas
-    return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
+    # Jika data kosong, kembalikan DataFrame kosong agar tidak error
+    if not data:
+        return pd.DataFrame(columns=["ID", "Kode", "Nama Barang", "Jumlah", "Tanggal", "Keterangan"])
+    
+    # Buat DataFrame
+    return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Jumlah", "Tanggal", "Keterangan"])
 
 # ==========================================
 # TAMPILAN APLIKASI
