@@ -138,11 +138,6 @@ with tab2:
                     jalankan_query("DELETE FROM log_opname", commit=True)
                     st.success("Riwayat berhasil dihapus!")
                     st.rerun()
-
-            if st.checkbox("Saya yakin ingin menghapus semua riwayat"):
-                if st.button("Konfirmasi Hapus Permanen", type="primary"):
-                jalankan_query("DELETE FROM log_opname", commit=True)
-                st.rerun()
         
             # 2. Tombol Hapus Semua Riwayat
             if st.button("🗑️ Hapus Semua Log", type="primary"):
