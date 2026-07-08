@@ -44,9 +44,28 @@ def jalankan_audit_dan_update(data_list):
 
 # Fungsi ambil log
 def ambil_data_log():
-    sql = "SELECT * FROM log_opname ORDER BY waktu_opname DESC"
-    data = jalankan_query(sql)
-    return pd.DataFrame(data, columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
+    # Menggunakan LEFT JOIN agar jika barang dihapus dari tabel barang, log tetap muncul
+    sql = """
+    SELECT 
+        l.id, 
+        l.kode_barang, 
+        b.nama_barang, 
+        l.stok_sebelum, 
+        l.stok_sesudah, 
+        l.waktu_opname, 
+        l.petugas 
+    FROM log_opname l
+    LEFT JOIN barang b ON l.kode_barang = b.kode_barang
+    ORDER BY l.waktu_opname DESC
+    """
+    conn = psycopg2.connect(DB_URL)
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    conn.close()
+    
+    # Update nama kolom agar lebih jelas
+    return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
 
 # ==========================================
 # TAMPILAN APLIKASI
@@ -87,6 +106,14 @@ with tab2:
     st.markdown("### Riwayat Perubahan Stok")
     df_log = ambil_data_log()
     if not df_log.empty:
-        st.dataframe(df_log, use_container_width=True, hide_index=True)
+        # Menambahkan format warna untuk selisih agar lebih mudah dibaca
+        st.dataframe(
+            df_log, 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                "Waktu": st.column_config.DatetimeColumn(format="DD/MM/YYYY HH:mm")
+            }
+        )
     else:
         st.info("Belum ada riwayat perubahan stok.")
