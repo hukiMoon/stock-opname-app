@@ -5,8 +5,67 @@ import pandas as pd
 from datetime import datetime
 import io
 
-if "login_sukses" not in st.session_state:
-    st.session_state.login_sukses = False
+# ==========================================
+# KONFIGURASI DATABASE
+# ==========================================
+DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+
+st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
+
+# Fungsi untuk query biasa
+def jalankan_query(sql, param=(), commit=False):
+    conn = psycopg2.connect(DB_URL)
+    cursor = conn.cursor()
+    cursor.execute(sql, param)
+    data = None
+    if not commit:
+        data = cursor.fetchall()
+    else:
+        conn.commit()
+    conn.close()
+    return data
+
+# Fungsi untuk Batch Update & Audit (Poin 1 & 2)
+def jalankan_audit_dan_update(data_list):
+    conn = psycopg2.connect(DB_URL)
+    cursor = conn.cursor()
+    
+    # 1. Update stok
+    sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
+    psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
+    
+    # 2. Insert log
+    sql_log = "INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) VALUES (%s, %s, %s)"
+    psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+# Fungsi ambil log
+def ambil_data_log():
+    # Menggunakan LEFT JOIN agar jika barang dihapus dari tabel barang, log tetap muncul
+    sql = """
+    SELECT 
+        l.id, 
+        l.kode_barang, 
+        b.nama_barang, 
+        l.stok_sebelum, 
+        l.stok_sesudah, 
+        l.waktu_opname, 
+        l.petugas 
+    FROM log_opname l
+    LEFT JOIN barang b ON l.kode_barang = b.kode_barang
+    ORDER BY l.waktu_opname DESC
+    """
+    conn = psycopg2.connect(DB_URL)
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    data = cursor.fetchall()
+    conn.close()
+    
+    # Update nama kolom agar lebih jelas
+    return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
 
 def login_form():
     password = st.text_input("Masukkan Password Admin", type="password")
@@ -17,10 +76,9 @@ def login_form():
             st.rerun()
         else:
             st.error("Password salah!")
-# ==========================================
-# KONFIGURASI DATABASE
-# ==========================================
-DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+
+if "login_sukses" not in st.session_state:
+    st.session_state.login_sukses = False
 
 st.title("📊 Sistem Stock Opname")
 
@@ -108,60 +166,3 @@ else:
                     st.rerun()
         else:
             st.info("Belum ada riwayat perubahan stok.")
-    
-st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
-
-# Fungsi untuk query biasa
-def jalankan_query(sql, param=(), commit=False):
-    conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    cursor.execute(sql, param)
-    data = None
-    if not commit:
-        data = cursor.fetchall()
-    else:
-        conn.commit()
-    conn.close()
-    return data
-
-# Fungsi untuk Batch Update & Audit (Poin 1 & 2)
-def jalankan_audit_dan_update(data_list):
-    conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    
-    # 1. Update stok
-    sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
-    psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
-    
-    # 2. Insert log
-    sql_log = "INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) VALUES (%s, %s, %s)"
-    psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-# Fungsi ambil log
-def ambil_data_log():
-    # Menggunakan LEFT JOIN agar jika barang dihapus dari tabel barang, log tetap muncul
-    sql = """
-    SELECT 
-        l.id, 
-        l.kode_barang, 
-        b.nama_barang, 
-        l.stok_sebelum, 
-        l.stok_sesudah, 
-        l.waktu_opname, 
-        l.petugas 
-    FROM log_opname l
-    LEFT JOIN barang b ON l.kode_barang = b.kode_barang
-    ORDER BY l.waktu_opname DESC
-    """
-    conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    cursor.execute(sql)
-    data = cursor.fetchall()
-    conn.close()
-    
-    # Update nama kolom agar lebih jelas
-    return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
