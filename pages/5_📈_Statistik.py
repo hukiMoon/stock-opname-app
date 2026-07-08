@@ -18,6 +18,7 @@ if not data_riwayat:
     st.info("Belum ada data untuk ditampilkan.")
 else:
     df = pd.DataFrame(data_riwayat, columns=["Jenis", "Jumlah", "Tanggal"])
+    df["Tanggal"] = pd.to_datetime(df["Tanggal"])
     
     # --- TAMBAHKAN INI DI SINI ---
     from pdf_utils import export_to_pdf
@@ -30,8 +31,6 @@ else:
         mime="application/pdf",
         key="download_pdf_statistik"  # <--- TAMBAHKAN KEY UNIK DI SINI
     )
-
-   # df["Tanggal"] = pd.to_datetime(df["Tanggal"])
 
     # 2. Ringkasan (Metrics)
     total_masuk = df[df["Jenis"] == "MASUK"]["Jumlah"].sum()
