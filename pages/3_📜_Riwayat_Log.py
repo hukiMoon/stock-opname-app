@@ -1,6 +1,10 @@
 import streamlit as st
 import psycopg2
 import pandas as pd
+from auth import check_password, sidebar_logout
+
+check_password()
+sidebar_logout()
 
 DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
 
