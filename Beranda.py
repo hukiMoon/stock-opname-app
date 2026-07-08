@@ -18,7 +18,7 @@ st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
 
 hide_st_style = """
             <style>
-            MainMenu {visibility: delete;}
+            MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
             </style>
