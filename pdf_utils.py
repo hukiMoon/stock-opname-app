@@ -1,13 +1,4 @@
-from fpdf import FPDF
-from datetime import datetime
-
-class PDF(FPDF):
-    def header(self):
-        self.set_font("Arial", "B", 12)
-        self.cell(0, 10, "Laporan Inventaris Gudang", 0, 1, "C")
-        self.set_font("Arial", "", 10)
-        self.cell(0, 10, f"Tanggal: {datetime.now().strftime('%d-%m-%Y')}", 0, 1, "C")
-        self.ln(5)
+import io
 
 def export_to_pdf(df):
     pdf = PDF()
@@ -26,5 +17,4 @@ def export_to_pdf(df):
             pdf.cell(col_width, 10, str(item), border=1, align="C")
         pdf.ln()
 
-    pdf_string = pdf.output(dest='S') 
-    return pdf_string.encode('latin-1')
+    return io.BytesIO(pdf.output(dest='S').encode('latin-1')).getvalue()
