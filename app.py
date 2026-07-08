@@ -130,6 +130,14 @@ with tab2:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 use_container_width=True
             )
+            
+            # --- Perbaikan Indentasi di Sini ---
+            st.divider()
+            if st.checkbox("Aktifkan tombol Hapus"):
+                if st.button("🗑️ Hapus Semua Log", type="primary"):
+                    jalankan_query("DELETE FROM log_opname", commit=True)
+                    st.success("Riwayat berhasil dihapus!")
+                    st.rerun()
 
             if st.checkbox("Saya yakin ingin menghapus semua riwayat"):
                 if st.button("Konfirmasi Hapus Permanen", type="primary"):
