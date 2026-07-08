@@ -4,6 +4,10 @@ import psycopg2.extras
 import pandas as pd
 from datetime import datetime
 import io
+from auth import check_password, sidebar_logout
+
+check_password()
+sidebar_logout()
 
 # ==========================================
 # KONFIGURASI DATABASE
@@ -67,30 +71,8 @@ def ambil_data_log():
     # Update nama kolom agar lebih jelas
     return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
 
-def login_form():
-    password = st.text_input("Masukkan Password Admin", type="password")
-    if st.button("Login"):
-        # GANTI 'admin123' dengan password yang kamu inginkan
-        if password == "admin123": 
-            st.session_state.login_sukses = True
-            st.rerun()
-        else:
-            st.error("Password salah!")
-
-if "login_sukses" not in st.session_state:
-    st.session_state.login_sukses = False
-
 st.title("📊 Sistem Stock Opname")
-
-# Logika Login
-if not st.session_state.login_sukses:
-    login_form()
-else:
-    # Tampilkan aplikasi jika sudah login
-    if st.button("Logout"):
-        st.session_state.login_sukses = False
-        st.rerun()
-        
+       
     # Pindahkan semua kode tab1 dan tab2 ke sini
     tab1, tab2 = st.tabs(["📥 Input Opname", "📜 Riwayat Opname"])
     
