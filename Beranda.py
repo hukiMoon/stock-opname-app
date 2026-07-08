@@ -42,11 +42,9 @@ def ambil_data_log():
     LEFT JOIN barang b ON l.kode_barang = b.kode_barang
     ORDER BY l.waktu_opname DESC
     """
-    conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    cursor.execute(sql)
-    data = cursor.fetchall()
-    conn.close()
+    def ambil_data_log():
+    # Menggunakan fungsi yang sudah terpusat dan aman
+    return jalankan_query("SELECT * FROM riwayat ORDER BY id DESC LIMIT 5")
     
     # Update nama kolom agar lebih jelas
     return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
