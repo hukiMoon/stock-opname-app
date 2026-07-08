@@ -5,6 +5,10 @@ from datetime import datetime
 from db_utils import jalankan_query, get_stok_rendah
 from auth import check_password, sidebar_logout
 
+if st.session_state.get("role") != "admin":
+    st.warning("Anda tidak memiliki izin untuk mengakses halaman ini.")
+    st.stop()
+
 check_password()
 sidebar_logout()
 
