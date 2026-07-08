@@ -5,27 +5,10 @@ import pandas as pd
 from datetime import datetime
 import io
 from auth import check_password, sidebar_logout
+from db_utils import jalankan_query, get_stok_rendah
 
 check_password()
 sidebar_logout()
-
-# ==========================================
-# KONFIGURASI DATABASE
-# ==========================================
-DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
-
-# Fungsi untuk query biasa
-def jalankan_query(sql, param=(), commit=False):
-    conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    cursor.execute(sql, param)
-    data = None
-    if not commit:
-        data = cursor.fetchall()
-    else:
-        conn.commit()
-    conn.close()
-    return data
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
 def jalankan_audit_dan_update(data_list):
@@ -141,3 +124,11 @@ with tab2:
                     st.rerun()
     else:
         st.info("Belum ada riwayat perubahan stok.")
+
+
+stok_rendah = get_stok_rendah(5)
+if stok_rendah:
+    with st.expander("⚠️ **Peringatan: Stok Barang Rendah!**", expanded=True):
+        st.write("Barang-barang berikut memiliki stok tersisa 5 atau kurang:")
+        df_rendah = pd.DataFrame(stok_rendah, columns=["Nama Barang", "Sisa Stok"])
+        st.table(df_rendah)
