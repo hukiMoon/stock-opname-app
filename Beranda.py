@@ -30,19 +30,18 @@ def jalankan_query(sql, param=(), commit=False):
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    
-    # 1. Update stok
-    sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
-    psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
-    
-    # 2. Insert log
-    sql_log = "INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) VALUES (%s, %s, %s)"
-    psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        with conn: # Otomatis commit jika sukses, rollback jika error
+            with conn.cursor() as cursor:
+                # 1. Update stok
+                sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
+                psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
+                
+                # 2. Insert log
+                sql_log = "INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) VALUES (%s, %s, %s)"
+                psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
+    finally:
+        conn.close()
 
 # Fungsi ambil log
 def ambil_data_log():
