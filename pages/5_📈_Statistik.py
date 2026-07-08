@@ -31,7 +31,7 @@ else:
         key="download_pdf_statistik"  # <--- TAMBAHKAN KEY UNIK DI SINI
     )
 
-    df["Tanggal"] = pd.to_datetime(df["Tanggal"])
+   # df["Tanggal"] = pd.to_datetime(df["Tanggal"])
 
     # 2. Ringkasan (Metrics)
     total_masuk = df[df["Jenis"] == "MASUK"]["Jumlah"].sum()
