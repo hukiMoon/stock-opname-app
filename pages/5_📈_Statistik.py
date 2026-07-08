@@ -27,8 +27,10 @@ else:
         label="📥 Unduh Laporan sebagai PDF",
         data=pdf_data,
         file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
-        mime="application/pdf"
+        mime="application/pdf",
+        key="download_pdf_statistik"  # <--- TAMBAHKAN KEY UNIK DI SINI
     )
+
     df["Tanggal"] = pd.to_datetime(df["Tanggal"])
 
     # 2. Ringkasan (Metrics)
@@ -55,13 +57,3 @@ else:
             st.bar_chart(df_top.set_index("Nama Barang"))
         else:
             st.write("Belum ada data barang keluar.")
-
-pdf_data = export_to_pdf(df)
-
-st.download_button(
-    label="📥 Unduh Laporan sebagai PDF",
-    data=pdf_data,
-    file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
-    mime="application/pdf",
-    key="download_pdf_statistik"  # <--- TAMBAHKAN KEY UNIK DI SINI
-)
