@@ -103,17 +103,44 @@ with tab1:
                 st.warning("Tidak ada perubahan stok.")
 
 with tab2:
-    st.markdown("### Riwayat Perubahan Stok")
+    st.markdown("### 📜 Riwayat Perubahan Stok")
+    
+    # Ambil data
     df_log = ambil_data_log()
+    
     if not df_log.empty:
-        # Menambahkan format warna untuk selisih agar lebih mudah dibaca
-        st.dataframe(
-            df_log, 
-            use_container_width=True, 
-            hide_index=True,
-            column_config={
-                "Waktu": st.column_config.DatetimeColumn(format="DD/MM/YYYY HH:mm")
-            }
-        )
+        # 1. Tombol Ekspor ke Excel
+        buffer_log = io.BytesIO()
+        with pd.ExcelWriter(buffer_log, engine='openpyxl') as writer:
+            df_log.to_excel(writer, index=False, sheet_name='Riwayat Opname')
+        
+        col_t1, col_t2 = st.columns([0.8, 0.2])
+        with col_t1:
+            st.dataframe(
+                df_log, 
+                use_container_width=True, 
+                hide_index=True,
+                column_config={"Waktu": st.column_config.DatetimeColumn(format="DD/MM/YYYY HH:mm")}
+            )
+        with col_t2:
+            st.download_button(
+                label="📥 Download Excel",
+                data=buffer_log.getvalue(),
+                file_name=f"Riwayat_Opname_{datetime.now().strftime('%Y%m%d')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
+
+            if st.checkbox("Saya yakin ingin menghapus semua riwayat"):
+            if st.button("Konfirmasi Hapus Permanen", type="primary"):
+                jalankan_query("DELETE FROM log_opname", commit=True)
+                st.rerun()
+        
+            # 2. Tombol Hapus Semua Riwayat
+            if st.button("🗑️ Hapus Semua Log", type="primary"):
+                # Konfirmasi sederhana bisa ditambah dengan session_state jika ingin lebih aman
+                jalankan_query("DELETE FROM log_opname", commit=True)
+                st.success("Riwayat berhasil dihapus!")
+                st.rerun()
     else:
         st.info("Belum ada riwayat perubahan stok.")
