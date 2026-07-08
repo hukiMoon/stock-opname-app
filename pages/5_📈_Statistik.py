@@ -60,7 +60,7 @@ pdf_data = export_to_pdf(df)
 
 st.download_button(
     label="📥 Unduh Laporan sebagai PDF",
-    data=pdf_data,
+    data=pdf_data, # Sekarang pdf_data adalah bytes yang valid
     file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
     mime="application/pdf"
 )
