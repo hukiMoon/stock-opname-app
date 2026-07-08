@@ -14,9 +14,20 @@ st.title("📈 Statistik Ketersediaan Barang")
 data_riwayat = jalankan_query("SELECT jenis_transaksi, jumlah, tanggal FROM riwayat")
 
 if not data_riwayat:
-    st.info("Belum ada data untuk ditampilkan pada dashboard.")
+    st.info("Belum ada data untuk ditampilkan.")
 else:
     df = pd.DataFrame(data_riwayat, columns=["Jenis", "Jumlah", "Tanggal"])
+    
+    # --- TAMBAHKAN INI DI SINI ---
+    from pdf_utils import export_to_pdf
+    pdf_data = export_to_pdf(df)
+
+    st.download_button(
+        label="📥 Unduh Laporan sebagai PDF",
+        data=pdf_data,
+        file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
+        mime="application/pdf"
+    )
     df["Tanggal"] = pd.to_datetime(df["Tanggal"])
 
     # 2. Ringkasan (Metrics)
