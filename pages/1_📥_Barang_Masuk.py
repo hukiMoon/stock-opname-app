@@ -5,6 +5,7 @@ from datetime import datetime
 from auth import check_password
 
 check_password()
+sidebar_logout()
 
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
