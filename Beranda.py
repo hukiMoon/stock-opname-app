@@ -18,9 +18,9 @@ st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
 
 hide_st_style = """
             <style>
-            #MainMenu {visibility: hidden;}
+            MainMenu {visibility: delete;}
             footer {visibility: hidden;}
-            #header {visibility: hidden;}
+            header {visibility: hidden;}
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
