@@ -12,7 +12,7 @@ sidebar_logout()
 # ==========================================
 DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
 
-st.set_page_config(page_title="Sistem Inventory", layout="wide")
+st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
 
 hide_st_style = """
             <style>
