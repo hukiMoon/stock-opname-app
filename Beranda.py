@@ -119,9 +119,11 @@ if stok_rendah:
         st.table(df_rendah)
 
 
+# Contoh membatasi menu sidebar
 if st.session_state.get("role") == "admin":
+    st.sidebar.subheader("Menu Admin")
     st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Manajemen Master")
     st.sidebar.page_link("pages/5_📈_Statistik.py", label="Laporan Statistik")
 
-# Staff hanya bisa lihat menu transaksi
+st.sidebar.subheader("Menu Umum")
 st.sidebar.page_link("pages/6_📋_Transaksi.py", label="Input Transaksi")
