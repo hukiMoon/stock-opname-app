@@ -4,6 +4,10 @@ from datetime import datetime
 from auth import check_password, sidebar_logout
 from db_utils import jalankan_query
 
+if st.session_state.get("role") != "admin":
+    st.warning("Anda tidak memiliki izin untuk mengakses halaman ini.")
+    st.stop()
+
 check_password()
 sidebar_logout()
 
