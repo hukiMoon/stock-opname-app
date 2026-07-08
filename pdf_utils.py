@@ -13,7 +13,7 @@ class PDF(FPDF):
 
 # 2. Fungsi baru menggunakan kelas PDF di atas
 def export_to_pdf(df):
-    pdf = PDF() # Sekarang Python tahu apa itu PDF karena sudah didefinisikan di atas
+    pdf = PDF()
     pdf.add_page()
     pdf.set_font("Arial", size=10)
 
@@ -29,5 +29,7 @@ def export_to_pdf(df):
             pdf.cell(col_width, 10, str(item), border=1, align="C")
         pdf.ln()
 
-    # Konversi ke format yang bisa dibaca Streamlit
-    return pdf.output(dest='S').encode('latin-1')
+    # PERUBAHAN DI SINI:
+    # fpdf2 mengembalikan bytes langsung jika dest tidak ditentukan 
+    # atau menggunakan output(dest='S')
+    return pdf.output()
