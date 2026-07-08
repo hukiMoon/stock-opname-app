@@ -3,6 +3,7 @@ import pandas as pd
 from auth import check_password, sidebar_logout
 from db_utils import jalankan_query
 from styles import card_container
+from pdf_utils import export_to_pdf
 
 check_password()
 sidebar_logout()
@@ -42,3 +43,12 @@ else:
             st.bar_chart(df_top.set_index("Nama Barang"))
         else:
             st.write("Belum ada data barang keluar.")
+
+pdf_data = export_to_pdf(df)
+
+st.download_button(
+    label="📥 Unduh Laporan sebagai PDF",
+    data=pdf_data,
+    file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
+    mime="application/pdf"
+)
