@@ -158,6 +158,6 @@ with card_container("Ringkasan"):
 with card_container("Data Terkini"):
     st.subheader("📋 Daftar Stok Barang")
     st.dataframe(
-    df,
+    df_log,
     use_container_width=True
 )
