@@ -3,6 +3,7 @@ import psycopg2
 import pandas as pd
 from datetime import datetime
 import io
+import psycopg2.extras
 
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
@@ -22,6 +23,21 @@ def jalankan_query(sql, param=(), commit=False):
         conn.commit()
     conn.close()
     return data
+
+def jalankan_batch_update(data_list):
+    """
+    data_list: List berisi tuple (stok_fisik, kode_barang)
+    """
+    conn = psycopg2.connect(DB_URL)
+    cursor = conn.cursor()
+    sql = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
+    
+    # Menjalankan update untuk semua data sekaligus
+    psycopg2.extras.execute_batch(cursor, sql, data_list)
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 # Halaman Utama (Langsung tampil)
 st.title("📊 Laporan Stock Opname & Analisis")
@@ -110,14 +126,16 @@ else:
             )
         # --- SINKRONISASI DIPERBAIKI ---
 with col_sync:
-    if st.button("Sinkronisasi Stok Sistem ke Fisik (Semua Barang)", type="primary", use_container_width=True):
+    if st.button("Sinkronisasi Semua Barang", type="primary", use_container_width=True):
+        # 1. Siapkan data dalam bentuk list of tuples
+        data_to_update = []
+        for index, row in df_edit.iterrows():
+            data_to_update.append((int(row["Stok Fisik (Hasil Hitung)"]), row["Kode Barang"]))
+        
+        # 2. Panggil fungsi batch
         try:
-            for index, row in df_edit.iterrows():
-                # Pastikan menggunakan kode_barang bukan nama_barang
-                sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
-                jalankan_query(sql_update, (int(row["Stok Fisik (Hasil Hitung)"]), row["Kode Barang"]), commit=True)
-            
-            st.success("Stok cloud berhasil disesuaikan!")
+            jalankan_batch_update(data_to_update)
+            st.success(f"Berhasil sinkronisasi {len(data_to_update)} barang ke database!")
             st.rerun()
         except Exception as e:
-            st.error(f"Gagal melakukan sinkronisasi: {e}")
+            st.error(f"Terjadi kesalahan saat sinkronisasi: {e}")
