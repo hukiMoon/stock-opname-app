@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import io
 from datetime import datetime
-from db_utils import jalankan_query
+from db_utils import jalankan_query, get_stok_rendah
 from auth import check_password, sidebar_logout
 
 check_password()
