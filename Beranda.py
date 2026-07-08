@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import io
 from db_utils import jalankan_query
 from auth import check_password, sidebar_logout
 
