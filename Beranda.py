@@ -1,11 +1,7 @@
 import streamlit as st
-import psycopg2
-import psycopg2.extras
 import pandas as pd
-from datetime import datetime
-import io
+from db_utils import jalankan_query
 from auth import check_password, sidebar_logout
-from db_utils import jalankan_query, get_stok_rendah
 
 check_password()
 sidebar_logout()
