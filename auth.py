@@ -16,3 +16,10 @@ def check_password():
             else:
                 st.error("Password salah!")
         st.stop() # Menghentikan sisa kode agar tidak tampil sebelum login
+
+def sidebar_logout():
+    if st.session_state.login_sukses:
+        st.sidebar.divider()
+        if st.sidebar.button("Logout"):
+            st.session_state.login_sukses = False
+            st.rerun()
