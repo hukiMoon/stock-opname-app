@@ -37,79 +37,77 @@ else:
     tab1, tab2 = st.tabs(["📥 Input Opname", "📜 Riwayat Opname"])
     
     with tab1:
-        with tab1:
-    st.markdown("### Laporan Stock Opname & Analisis")
-    data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY kode_barang ASC")
+        st.markdown("### Laporan Stock Opname & Analisis")
+        data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY kode_barang ASC")
 
-    if not data_db:
-        st.info("Belum ada data barang.")
-    else:
-        df = pd.DataFrame(data_db, columns=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"])
-        df["Stok Fisik (Hasil Hitung)"] = df["Stok Sistem"]
+        if not data_db:
+            st.info("Belum ada data barang.")
+        else:
+            df = pd.DataFrame(data_db, columns=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"])
+            df["Stok Fisik (Hasil Hitung)"] = df["Stok Sistem"]
         
-        df_edit = st.data_editor(df, disabled=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"], hide_index=True, use_container_width=True)
+            df_edit = st.data_editor(df, disabled=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"], hide_index=True, use_container_width=True)
         
-        if st.button("Sinkronisasi & Simpan Log", type="primary"):
-            data_to_sync = []
-            for index, row in df_edit.iterrows():
-                stok_baru = int(row["Stok Fisik (Hasil Hitung)"])
-                stok_lama = int(row["Stok Sistem"])
-                if stok_baru != stok_lama:
-                    data_to_sync.append((stok_baru, stok_lama, row["Kode Barang"]))
+            if st.button("Sinkronisasi & Simpan Log", type="primary"):
+                data_to_sync = []
+                for index, row in df_edit.iterrows():
+                    stok_baru = int(row["Stok Fisik (Hasil Hitung)"])
+                    stok_lama = int(row["Stok Sistem"])
+                    if stok_baru != stok_lama:
+                        data_to_sync.append((stok_baru, stok_lama, row["Kode Barang"]))
             
-            if data_to_sync:
-                jalankan_audit_dan_update(data_to_sync)
-                st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
-                st.rerun()
-            else:
-                st.warning("Tidak ada perubahan stok.")
+                if data_to_sync:
+                    jalankan_audit_dan_update(data_to_sync)
+                    st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
+                    st.rerun()
+                else:
+                    st.warning("Tidak ada perubahan stok.")
         
     with tab2:
-        with tab2:
-    st.markdown("### 📜 Riwayat Perubahan Stok")
+        st.markdown("### 📜 Riwayat Perubahan Stok")
     
-    # Ambil data
-    df_log = ambil_data_log()
+        # Ambil data
+        df_log = ambil_data_log()
     
-    if not df_log.empty:
-        # 1. Tombol Ekspor ke Excel
-        buffer_log = io.BytesIO()
-        with pd.ExcelWriter(buffer_log, engine='openpyxl') as writer:
-            df_log.to_excel(writer, index=False, sheet_name='Riwayat Opname')
+        if not df_log.empty:
+            # 1. Tombol Ekspor ke Excel
+            buffer_log = io.BytesIO()
+            with pd.ExcelWriter(buffer_log, engine='openpyxl') as writer:
+                df_log.to_excel(writer, index=False, sheet_name='Riwayat Opname')
         
-        col_t1, col_t2 = st.columns([0.8, 0.2])
-        with col_t1:
-            st.dataframe(
-                df_log, 
-                use_container_width=True, 
-                hide_index=True,
-                column_config={"Waktu": st.column_config.DatetimeColumn(format="DD/MM/YYYY HH:mm")}
-            )
-        with col_t2:
-            st.download_button(
-                label="📥 Download Excel",
-                data=buffer_log.getvalue(),
-                file_name=f"Riwayat_Opname_{datetime.now().strftime('%Y%m%d')}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True
-            )
+            col_t1, col_t2 = st.columns([0.8, 0.2])
+            with col_t1:
+                st.dataframe(
+                    df_log, 
+                    use_container_width=True, 
+                    hide_index=True,
+                    column_config={"Waktu": st.column_config.DatetimeColumn(format="DD/MM/YYYY HH:mm")}
+                )
+            with col_t2:
+                st.download_button(
+                    label="📥 Download Excel",
+                    data=buffer_log.getvalue(),
+                    file_name=f"Riwayat_Opname_{datetime.now().strftime('%Y%m%d')}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True
+                )
             
-            # --- Perbaikan Indentasi di Sini ---
-            st.divider()
-            if st.checkbox("Aktifkan tombol Hapus"):
+                # --- Perbaikan Indentasi di Sini ---
+                st.divider()
+                if st.checkbox("Aktifkan tombol Hapus"):
+                    if st.button("🗑️ Hapus Semua Log", type="primary"):
+                        jalankan_query("DELETE FROM log_opname", commit=True)
+                        st.success("Riwayat berhasil dihapus!")
+                        st.rerun()
+        
+                # 2. Tombol Hapus Semua Riwayat
                 if st.button("🗑️ Hapus Semua Log", type="primary"):
+                    # Konfirmasi sederhana bisa ditambah dengan session_state jika ingin lebih aman
                     jalankan_query("DELETE FROM log_opname", commit=True)
                     st.success("Riwayat berhasil dihapus!")
                     st.rerun()
-        
-            # 2. Tombol Hapus Semua Riwayat
-            if st.button("🗑️ Hapus Semua Log", type="primary"):
-                # Konfirmasi sederhana bisa ditambah dengan session_state jika ingin lebih aman
-                jalankan_query("DELETE FROM log_opname", commit=True)
-                st.success("Riwayat berhasil dihapus!")
-                st.rerun()
-    else:
-        st.info("Belum ada riwayat perubahan stok.")
+        else:
+            st.info("Belum ada riwayat perubahan stok.")
     
 st.set_page_config(page_title="Sistem Stock Opname", layout="wide")
 
