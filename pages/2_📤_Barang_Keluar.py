@@ -26,7 +26,7 @@ else:
         with col2: jumlah_keluar = st.number_input("Jumlah Barang Keluar:", min_value=1, step=1)
             
         if jumlah_keluar > stok_sekarang:
-            st.warning(f"⚠️ **Peringatan:** Jumlah melebihi stok tersedia!")
+            st.warning("⚠️ **Peringatan:** Jumlah melebihi stok tersedia!")
                 
         tanggal_keluar = st.date_input("Tanggal Keluar:", value=datetime.now().date())
         tujuan_subbag = st.selectbox("Tujuan Pengeluaran / Sub Bagian:", ["SUBBAGRENMIN", "SUBBAGTAKAH", "SUBBAGBINSET", "SUBBAGARSIP", "SUBBAGUM", "KANPOS", "URKEU"])
@@ -52,42 +52,27 @@ if not raw_riwayat:
     st.info("Belum ada riwayat transaksi keluar.")
 else:
     df_riwayat = pd.DataFrame(raw_riwayat, columns=["ID Transaksi", "Kode Barang", "Nama Barang", "Jumlah", "Tanggal", "Keterangan/Tujuan"])
-        
-    # --- PANEL FILTER KODE/NAMA BARANG & SUBBAG ---
+    
     st.write("🔍 **Filter Riwayat:**")
     col_f1, col_f2 = st.columns([2, 1])
     with col_f1:
-        search_query = st.text_input("Cari Nama Barang / Sub Bagian / Kode:", placeholder="Ketik kata kunci pencarian...", key="search_keluar").strip().upper()
+        search_query = st.text_input("Cari Nama Barang / Sub Bagian / Kode:", placeholder="Ketik kata kunci...", key="search_keluar").strip().upper()
     with col_f2:
         filter_date = st.date_input("Filter Berdasarkan Tanggal:", value=None, key="date_keluar")
             
-    # Proses Logika Filter Data
     if search_query:
-        df_riwayat = df_riwayat[
-            df_riwayat["Nama Barang"].str.contains(search_query, na=False) | 
-            df_riwayat["Kode Barang"].str.contains(search_query, na=False) |
-            df_riwayat["Keterangan/Tujuan"].str.contains(search_query, na=False)
-        ]
+        df_riwayat = df_riwayat[df_riwayat["Nama Barang"].str.contains(search_query, na=False) | df_riwayat["Kode Barang"].str.contains(search_query, na=False) | df_riwayat["Keterangan/Tujuan"].str.contains(search_query, na=False)]
     if filter_date:
-        date_str = filter_date.strftime("%Y-%m-%d")
-        df_riwayat = df_riwayat[df_riwayat["Tanggal"] == date_str]
+        df_riwayat = df_riwayat[df_riwayat["Tanggal"] == filter_date.strftime("%Y-%m-%d")]
             
     st.caption("💡 *Klik ganda untuk mengedit Jumlah/Keterangan. Pilih baris lalu klik ikon Tong Sampah atau tekan Delete untuk menghapus.*")
         
-    edited_df = st.data_editor(
-        df_riwayat,
-        disabled=["ID Transaksi", "Kode Barang", "Nama Barang", "Tanggal"],
-        num_rows="dynamic",
-        hide_index=True,
-        use_container_width=True,
-        key="editor_keluar"
-    )
+    edited_df = st.data_editor(df_riwayat, disabled=["ID Transaksi", "Kode Barang", "Nama Barang", "Tanggal"], num_rows="dynamic", hide_index=True, use_container_width=True, key="editor_keluar")
         
     if st.button("SINKRONISASI PERUBAHAN & PENGHAPUSAN KELUAR", type="primary", use_container_width=True):
         set_id_sekarang = set(edited_df["ID Transaksi"].tolist())
         id_terlihat = df_riwayat["ID Transaksi"].tolist()
-            
-        # 1. Logika Hapus Baris
+        
         for baris in raw_riwayat:
             id_asal = baris[0]
             if id_asal in id_terlihat and id_asal not in set_id_sekarang:
@@ -95,22 +80,20 @@ else:
                 stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))[0][0]
                 jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg + jml_lama, nm_b), commit=True)
                 jalankan_query("DELETE FROM riwayat WHERE id = %s", (id_asal,), commit=True)
-            
-        # 2. Logika Edit Baris
+        
         for _, row in edited_df.iterrows():
             id_cek = row["ID Transaksi"]
             jml_baru = int(row["Jumlah"])
             ket_baru = str(row["Keterangan/Tujuan"])
-                
             data_lama = [b for b in raw_riwayat if b[0] == id_cek][0]
             jml_lama = data_lama[3]
             nm_b = data_lama[2]
-                
+            
             if jml_baru != jml_lama or ket_baru != data_lama[5]:
                 selisih = jml_baru - jml_lama
                 stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))[0][0]
                 jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg - selisih, nm_b), commit=True)
                 jalankan_query("UPDATE riwayat SET jumlah = %s, keterangan = %s WHERE id = %s", (jml_baru, ket_baru, id_cek), commit=True)
-            
+        
         st.success("Perubahan riwayat keluar berhasil disimpan!")
         st.rerun()
