@@ -1,7 +1,8 @@
 import streamlit as st
-from db_utils import jalankan_query
+import pandas as pd
 from datetime import datetime
 from auth import check_password, sidebar_logout
+from db_utils import jalankan_query
 
 check_password()
 sidebar_logout()
@@ -71,7 +72,7 @@ else:
 # --- TABEL RIWAYAT ---
 st.write("---")
 st.subheader("📜 Riwayat Khusus Barang Masuk")
-jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'MASUK' ORDER BY id DESC")
+raw_riwayat jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'MASUK' ORDER BY id DESC")
 
 if not raw_riwayat:
     st.info("Belum ada riwayat transaksi masuk.")
