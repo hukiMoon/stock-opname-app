@@ -108,9 +108,16 @@ else:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
                 use_container_width=True
             )
-        with col_sync:
-            if st.button("Sinkronisasi Stok Sistem ke Fisik (Semua Barang)", type="primary", use_container_width=True):
-                for index, row in df_edit.iterrows():
-                    jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (int(row["Stok Fisik (Hasil Hitung)"]), row["Nama Barang"]), commit=True)
-                st.success("Stok cloud berhasil disesuaikan!")
-                st.rerun()
+        # --- SINKRONISASI DIPERBAIKI ---
+with col_sync:
+    if st.button("Sinkronisasi Stok Sistem ke Fisik (Semua Barang)", type="primary", use_container_width=True):
+        try:
+            for index, row in df_edit.iterrows():
+                # Pastikan menggunakan kode_barang bukan nama_barang
+                sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
+                jalankan_query(sql_update, (int(row["Stok Fisik (Hasil Hitung)"]), row["Kode Barang"]), commit=True)
+            
+            st.success("Stok cloud berhasil disesuaikan!")
+            st.rerun()
+        except Exception as e:
+            st.error(f"Gagal melakukan sinkronisasi: {e}")
