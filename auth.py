@@ -20,11 +20,18 @@ def check_password(username, password):
     
     return False
 
-def sidebar_logout():
+def tampilkan_sidebar():
+    st.sidebar.title("Menu Utama")
+    # Tampilkan menu berdasarkan role
+    if st.session_state.get("role") == "admin":
+        st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Manajemen Master")
+    
+    st.sidebar.divider()
+    
+    # Tombol logout selalu muncul jika user login
     if st.sidebar.button("Logout"):
         st.session_state["logged_in"] = False
         st.session_state["role"] = None
-        st.session_state["username"] = None
         st.rerun()
 
 def logout():
