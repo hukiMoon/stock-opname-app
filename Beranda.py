@@ -44,7 +44,7 @@ def ambil_data_log():
     """
     def ambil_data_log():
     # Menggunakan fungsi yang sudah terpusat dan aman
-    return jalankan_query("SELECT * FROM riwayat ORDER BY id DESC LIMIT 5")
+        return jalankan_query("SELECT * FROM riwayat ORDER BY id DESC LIMIT 5")
     
     # Update nama kolom agar lebih jelas
     return pd.DataFrame(data, columns=["ID", "Kode", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Waktu", "Petugas"])
