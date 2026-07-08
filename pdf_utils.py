@@ -1,17 +1,14 @@
+import io
 from fpdf import FPDF
 from datetime import datetime
-import io
 
-# 1. Definisi Kelas HARUS di atas fungsi
+# Pastikan kelas PDF sudah didefinisikan sebelumnya
 class PDF(FPDF):
     def header(self):
         self.set_font("Arial", "B", 12)
         self.cell(0, 10, "Laporan Inventaris Gudang", 0, 1, "C")
-        self.set_font("Arial", "", 10)
-        self.cell(0, 10, f"Tanggal: {datetime.now().strftime('%d-%m-%Y')}", 0, 1, "C")
         self.ln(5)
 
-# 2. Fungsi baru menggunakan kelas PDF di atas
 def export_to_pdf(df):
     pdf = PDF()
     pdf.add_page()
@@ -29,7 +26,10 @@ def export_to_pdf(df):
             pdf.cell(col_width, 10, str(item), border=1, align="C")
         pdf.ln()
 
-    # PERUBAHAN DI SINI:
-    # fpdf2 mengembalikan bytes langsung jika dest tidak ditentukan 
-    # atau menggunakan output(dest='S')
-    return pdf.output()
+    # KONVERSI KE BYTES YANG BENAR:
+    # 1. Simpan output ke dalam buffer bytes
+    buffer = io.BytesIO()
+    # 2. Gunakan output() untuk menulis ke buffer (fpdf2 mendukung ini)
+    pdf.output(buffer)
+    # 3. Ambil nilai bytes dari buffer
+    return buffer.getvalue()
