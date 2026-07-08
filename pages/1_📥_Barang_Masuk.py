@@ -72,7 +72,7 @@ else:
 # --- TABEL RIWAYAT ---
 st.write("---")
 st.subheader("📜 Riwayat Khusus Barang Masuk")
-raw_riwayat jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'MASUK' ORDER BY id DESC")
+raw_riwayat = jalankan_query("SELECT id, kode_barang, nama_barang, jumlah, tanggal, keterangan FROM riwayat WHERE jenis_transaksi = 'MASUK' ORDER BY id DESC")
 
 if not raw_riwayat:
     st.info("Belum ada riwayat transaksi masuk.")
