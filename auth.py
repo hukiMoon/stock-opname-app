@@ -20,6 +20,13 @@ def check_password(username, password):
     
     return False
 
+def sidebar_logout():
+    if st.sidebar.button("Logout"):
+        st.session_state["logged_in"] = False
+        st.session_state["role"] = None
+        st.session_state["username"] = None
+        st.rerun()
+
 def logout():
     st.session_state["logged_in"] = False
     st.session_state["role"] = None
