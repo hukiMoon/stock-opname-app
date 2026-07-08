@@ -3,14 +3,13 @@ import pandas as pd
 import io
 from datetime import datetime
 from db_utils import jalankan_query, get_stok_rendah
-from auth import check_password, sidebar_logout, tampilkan_sidebar
+from auth import check_password, tampilkan_sidebar
 
 if st.session_state.get("role") != "admin":
     st.warning("Anda tidak memiliki izin untuk mengakses halaman ini.")
     st.stop()
 
 check_password()
-sidebar_logout()
 tampilkan_sidebar()
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
