@@ -3,7 +3,6 @@ import pandas as pd
 from auth import check_password, sidebar_logout
 from db_utils import jalankan_query
 from styles import card_container
-from pdf_utils import export_to_pdf
 
 check_password()
 sidebar_logout()
