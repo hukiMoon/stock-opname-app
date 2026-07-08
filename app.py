@@ -24,16 +24,23 @@ def jalankan_query(sql, param=(), commit=False):
     conn.close()
     return data
 
-def jalankan_batch_update(data_list):
+def jalankan_audit_dan_update(data_list):
     """
-    data_list: List berisi tuple (stok_fisik, kode_barang)
+    data_list: list of tuples (stok_sesudah, stok_sebelum, kode_barang)
     """
     conn = psycopg2.connect(DB_URL)
     cursor = conn.cursor()
-    sql = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
     
-    # Menjalankan update untuk semua data sekaligus
-    psycopg2.extras.execute_batch(cursor, sql, data_list)
+    # 1. Update stok barang
+    sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
+    psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
+    
+    # 2. Masukkan ke log_opname
+    sql_log = """
+    INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) 
+    VALUES (%s, %s, %s)
+    """
+    psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
     
     conn.commit()
     cursor.close()
@@ -126,16 +133,23 @@ else:
             )
         # --- SINKRONISASI DIPERBAIKI ---
 with col_sync:
-    if st.button("Sinkronisasi Semua Barang", type="primary", use_container_width=True):
-        # 1. Siapkan data dalam bentuk list of tuples
-        data_to_update = []
+    if st.button("Sinkronisasi & Simpan Log", type="primary", use_container_width=True):
+        data_to_sync = []
         for index, row in df_edit.iterrows():
-            data_to_update.append((int(row["Stok Fisik (Hasil Hitung)"]), row["Kode Barang"]))
+            stok_baru = int(row["Stok Fisik (Hasil Hitung)"])
+            stok_lama = int(row["Stok Sistem"])
+            kode = row["Kode Barang"]
+            
+            # Hanya simpan/update jika ada perubahan
+            if stok_baru != stok_lama:
+                data_to_sync.append((stok_baru, stok_lama, kode))
         
-        # 2. Panggil fungsi batch
-        try:
-            jalankan_batch_update(data_to_update)
-            st.success(f"Berhasil sinkronisasi {len(data_to_update)} barang ke database!")
-            st.rerun()
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat sinkronisasi: {e}")
+        if data_to_sync:
+            try:
+                jalankan_audit_dan_update(data_to_sync)
+                st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item dan menyimpan log!")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Gagal: {e}")
+        else:
+            st.info("Tidak ada perubahan stok untuk disinkronisasi.")
