@@ -117,3 +117,11 @@ if stok_rendah:
         st.write("Barang-barang berikut memiliki stok tersisa 5 atau kurang:")
         df_rendah = pd.DataFrame(stok_rendah, columns=["Nama Barang", "Sisa Stok"])
         st.table(df_rendah)
+
+
+if st.session_state.get("role") == "admin":
+    st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Manajemen Master")
+    st.sidebar.page_link("pages/5_📈_Statistik.py", label="Laporan Statistik")
+
+# Staff hanya bisa lihat menu transaksi
+st.sidebar.page_link("pages/6_📋_Transaksi.py", label="Input Transaksi")
