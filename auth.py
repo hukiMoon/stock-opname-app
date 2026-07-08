@@ -33,9 +33,3 @@ def tampilkan_sidebar():
         st.session_state["logged_in"] = False
         st.session_state["role"] = None
         st.rerun()
-
-def logout():
-    st.session_state["logged_in"] = False
-    st.session_state["role"] = None
-    st.session_state["username"] = None
-    st.rerun()
