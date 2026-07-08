@@ -2,7 +2,7 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 from datetime import datetime
-from auth import check_password
+from auth import check_password, sidebar_logout
 
 check_password()
 sidebar_logout()
