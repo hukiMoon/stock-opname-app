@@ -2,6 +2,9 @@ import streamlit as st
 import psycopg2
 import pandas as pd
 from datetime import datetime
+from auth import check_password
+
+check_password()
 
 # ==========================================
 # GANTI DENGAN CONNECTION STRING SUPABASE-MU
@@ -19,7 +22,7 @@ def jalankan_query(sql, param=(), commit=False):
     return data
 
 st.title("📥 Input Barang Masuk")
-st.write("---")
+st.write("Selamat datang di menu Barang Masuk!")
 
 opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
 
