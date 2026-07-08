@@ -26,4 +26,5 @@ def export_to_pdf(df):
             pdf.cell(col_width, 10, str(item), border=1, align="C")
         pdf.ln()
 
-    return pdf.output(dest='S') # Mengembalikan bytes PDF
+    pdf_string = pdf.output(dest='S') 
+    return pdf_string.encode('latin-1')
