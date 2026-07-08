@@ -1,21 +1,11 @@
 import streamlit as st
-import psycopg2
+import pandas as pd
+from datetime import datetime
 from auth import check_password, sidebar_logout
+from db_utils import jalankan_query
 
 check_password()
 sidebar_logout()
-
-DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
-
-def jalankan_query(sql, param=(), commit=False):
-    conn = psycopg2.connect(DB_URL)
-    cursor = conn.cursor()
-    cursor.execute(sql, param)
-    data = None
-    if not commit: data = cursor.fetchall()
-    else: conn.commit()
-    conn.close()
-    return data
 
 st.title("⚙️ Manajemen Master Data")
 st.write("---")
