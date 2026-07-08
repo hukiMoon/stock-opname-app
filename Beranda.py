@@ -159,7 +159,7 @@ with card_container("Data Terkini"):
     st.subheader("📋 Daftar Stok Barang")
     st.dataframe(
                 df, 
-                use_container_width=True, 
+                use_container_width=True 
                 #hide_index=True,
                 #column_config={"Waktu": st.column_config.DatetimeColumn(format="DD/MM/YYYY HH:mm")}
             )
