@@ -4,10 +4,6 @@ from datetime import datetime
 from db_utils import jalankan_query  # <--- Tambahkan baris ini
 from auth import tampilkan_sidebar
 
-# Pastikan user sudah login
-if not st.session_state.get("logged_in", False):
-    st.switch_page("Beranda.py") # Paksa kembali ke halaman utama jika belum login
-
 # Jika sudah login, tampilkan sidebar
 tampilkan_sidebar()
 
