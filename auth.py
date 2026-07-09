@@ -47,3 +47,8 @@ def tampilkan_sidebar():
     if st.sidebar.button("Logout"):
         st.session_state.clear()
         st.rerun()
+
+def check_role():
+    if st.session_state.get("role") != "admin":
+        st.error("⚠️ Anda tidak memiliki akses ke halaman ini!")
+        st.stop()
