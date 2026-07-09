@@ -2,14 +2,14 @@ import streamlit as st
 import pandas as pd
 import db_utils
 from datetime import datetime
-from auth import check_password, sidebar_logout
+from auth import check_role, sidebar_logout
 from db_utils import jalankan_query
 
 if st.session_state.get("role") != "admin":
     st.warning("Anda tidak memiliki izin untuk mengakses halaman ini.")
     st.stop()
 
-check_password()
+check_role()
 sidebar_logout()
 
 st.title("📥 Input Barang Masuk")
