@@ -4,8 +4,7 @@ from db_utils import jalankan_query, get_data_barang
 from auth import tampilkan_sidebar
 
 if not st.session_state.get("logged_in", False):
-    st.warning("Silakan login terlebih dahulu.")
-    st.stop() # Menghentikan sisa kode agar tidak berjalan
+    st.switch_page("Beranda.py") # Paksa kembali ke halaman utama jika belum login
 
 # Jika sudah login, tampilkan sidebar
 tampilkan_sidebar()
