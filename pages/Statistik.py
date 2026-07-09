@@ -6,7 +6,7 @@ from db_utils import jalankan_query
 from utils import card_container
 
 st.title("📈 Statistik Ketersediaan Barang")
-st.write("Selamat datang, Anda telah login!")
+st.write("---")
 
 # 1. Ambil Data
 data_riwayat = jalankan_query("SELECT jenis_transaksi, jumlah, tanggal FROM riwayat")
