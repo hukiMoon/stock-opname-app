@@ -4,21 +4,10 @@ import io                       # Untuk buffer file
 from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
 from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
-from login import show_login    # Untuk form login
 from auth import tampilkan_sidebar # Untuk sidebar dan akses
-
-show_login()
-
-# Inisialisasi
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-if "current_page" not in st.session_state:
-    st.session_state["current_page"] = "login"
 
 # Panggil Sidebar
 tampilkan_sidebar()
-
-
             
 st.title("📊 Sistem Stock Opname")
 st.write("Selamat datang di sistem manajemen stok.")
