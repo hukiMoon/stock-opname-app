@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from db_utils import get_data_barang
+from db_utils import jalankan_query, get_data_barang
 from auth import cek_akses_admin, tampilkan_sidebar
 
 if st.session_state.get("role") != "admin":
