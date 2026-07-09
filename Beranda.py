@@ -3,18 +3,18 @@ import init_path
 from login import show_login
 from auth import tampilkan_sidebar
 
-# 1. Pastikan inisialisasi status login di awal
+# Inisialisasi status login
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# 2. CEK STATUS LOGIN SEBELUM APAPUN
+# Cek status login
 if not st.session_state["logged_in"]:
-    show_login()  # Menampilkan form login
-    st.stop()     # Menghentikan eksekusi agar konten tidak muncul sebelum login
+    show_login()
+    st.stop()
 
-# 3. Jika sudah berhasil login, kode di bawah ini baru akan terbaca
+# Jika sudah login, tampilkan konten
 tampilkan_sidebar()
-st.title("Selamat Datang di Aplikasi")
+st.title("Selamat Datang di Aplikasi Stock Opname")
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
