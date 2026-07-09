@@ -42,14 +42,6 @@ def main():
         st.switch_page("auth.py") # Arahkan ke halaman login
     
     st.title("Selamat Datang di Aplikasi")
-    
-    # Navigasi Kustom (opsional: menyembunyikan halaman berdasarkan role)
-    if st.session_state.role == "admin":
-        st.sidebar.page_link("pages/3_📜_Riwayat_Log.py", label="Riwayat Log")
-        st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Master Barang")
-    
-    st.sidebar.page_link("pages/1_📥_Barang_Masuk.py", label="Barang Masuk")
-    st.sidebar.page_link("pages/2_📤_Barang_Keluar.py", label="Barang Keluar")
 
 if __name__ == "__main__":
     main()
