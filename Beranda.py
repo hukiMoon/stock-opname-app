@@ -2,22 +2,19 @@ import streamlit as st
 import sys
 import os
 
-# Memastikan direktori root ada di path
+# Menambahkan folder root ke path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Sekarang import dari auth.py yang juga ada di root
 from auth import form_login, tampilkan_sidebar
 
-# Inisialisasi session state jika belum ada
+# Logika kontrol akses
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# Logika kontrol akses
 if not st.session_state["logged_in"]:
     form_login()
-    st.stop() # Hentikan eksekusi, jangan tampilkan apa pun di bawah sini
+    st.stop()
 
-# Jika sudah login, baru tampilkan konten utama
 tampilkan_sidebar()
 st.title("Selamat Datang!")
 st.write("Anda telah berhasil masuk ke sistem.")
