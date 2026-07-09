@@ -4,9 +4,6 @@ from datetime import datetime
 from db_utils import jalankan_query  # <--- Tambahkan baris ini
 from auth import tampilkan_sidebar
 
-# Jika sudah login, tampilkan sidebar
-tampilkan_sidebar()
-
 st.title("📤 Input Barang Keluar")
 st.write("Selamat datang, Anda telah login!")
     
