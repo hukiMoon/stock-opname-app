@@ -1,12 +1,19 @@
 import streamlit as st
 import sys
 import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
-# Menambahkan direktori root ke path agar bisa import auth.py
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+try:
+    from auth import check_role, sidebar_logout
+except ImportError as e:
+    st.error(f"Gagal mengimpor auth.py. Pastikan file ada di root. Error: {e}")
+    st.stop()
 import pandas as pd
 import db_utils
 from datetime import datetime
+st.write("Isi folder root:", os.listdir(parent_dir))
 from auth import check_role, sidebar_logout
 from db_utils import jalankan_query
 
