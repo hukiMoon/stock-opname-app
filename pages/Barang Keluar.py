@@ -4,10 +4,6 @@ from datetime import datetime
 from db_utils import jalankan_query  # <--- Tambahkan baris ini
 from auth import tampilkan_sidebar
 
-if st.session_state.get("role") != "admin":
-    st.error("Silakan Login terlebih dahulu!")
-    st.stop()
-
 # Pastikan user sudah login
 if not st.session_state.get("logged_in", False):
     st.warning("Silakan login terlebih dahulu.")
