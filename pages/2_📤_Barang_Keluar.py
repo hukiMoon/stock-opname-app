@@ -1,11 +1,9 @@
-import streamlit as st
-import pandas as pd
-from datetime import datetime
-from auth import check_password, sidebar_logout
-from db_utils import jalankan_query
+import init_path  # Mengatur path agar bisa mengimpor file dari root
+from auth import check_role, tampilkan_sidebar # Sekarang import jadi bersih!
 
-check_password()
-sidebar_logout()
+# Contoh penerapan di halaman Barang Masuk
+check_role(["admin", "user"]) # Sesuaikan role
+tampilkan_sidebar()
 
 st.title("📤 Input Barang Keluar")
 st.write("---")
