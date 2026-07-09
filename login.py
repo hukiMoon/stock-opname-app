@@ -3,7 +3,7 @@ import streamlit as st
 # Mengatur tampilan halaman agar rapi
 st.set_page_config(page_title="Login", layout="centered")
 
-def login_page():
+def show_login():
     # Menghapus padding/header bawaan agar lebih bersih
     st.markdown("""
         <style>
