@@ -1,15 +1,8 @@
-import streamlit as st
-import pandas as pd
-import io
-from datetime import datetime
-from db_utils import jalankan_query, get_stok_rendah
-from auth import check_role, tampilkan_sidebar
+import init_path  # Mengatur path agar bisa mengimpor file dari root
+from auth import check_role, tampilkan_sidebar # Sekarang import jadi bersih!
 
-check_role(["admin"])
-
-st.title("Halaman Admin")
-st.write("Selamat datang, Admin!")
-
+# Contoh penerapan di halaman Barang Masuk
+check_role(["admin", "user"]) # Sesuaikan role
 tampilkan_sidebar()
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
