@@ -1,4 +1,4 @@
-import streamlit as st  # <-- Tidak ada spasi
+import streamlit as st
 import init_path
 from login import show_login
 from auth import tampilkan_sidebar
@@ -10,8 +10,7 @@ if "logged_in" not in st.session_state:
 # 2. CEK STATUS LOGIN SEBELUM APAPUN
 if not st.session_state["logged_in"]:
     show_login()  # Menampilkan form login
-    st.stop()     # <--- INI PALING PENTING! 
-                  # Perintah ini menghentikan sisa kode agar tidak dijalankan
+    st.stop()     # Menghentikan eksekusi agar konten tidak muncul sebelum login
 
 # 3. Jika sudah berhasil login, kode di bawah ini baru akan terbaca
 tampilkan_sidebar()
