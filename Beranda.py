@@ -5,9 +5,6 @@ from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
 from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
 from auth import tampilkan_sidebar # Untuk sidebar dan akses
-
-# Panggil Sidebar
-tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
 st.write("Selamat datang di sistem manajemen stok.")
