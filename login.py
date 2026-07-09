@@ -1,33 +1,41 @@
-# login.py
 import streamlit as st
 
-def show_login():
-    # Menggunakan container agar tampilan lebih bersih
+# Mengatur tampilan halaman agar rapi
+st.set_page_config(page_title="Login", layout="centered")
+
+def login_page():
+    # Menghapus padding/header bawaan agar lebih bersih
     st.markdown("""
         <style>
-        .stButton>button {
-            width: 100%;
-        }
+        .block-container { padding-top: 2rem; }
         </style>
     """, unsafe_allow_html=True)
 
-    # Membuat layout kolom untuk memusatkan form
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.title("🔐 Silakan Login")
     
-    with col2:
-        st.subheader("🔐 Login ke Aplikasi")
-        st.write("Silakan masukkan kredensial Anda")
+    # Menggunakan form agar lebih terstruktur
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
         
-        with st.form("login_form"):
-            username = st.text_input("Username")
-            password = st.text_input("Password", type="password")
-            submit = st.form_submit_button("Masuk")
-            
-            if submit:
-                # Logika validasi (Ganti dengan pengecekan database Anda nanti)
-                if username == "admin" and password == "admin123":
-                    st.session_state["logged_in"] = True
-                    st.session_state["role"] = "admin"
-                    st.rerun()
-                else:
-                    st.error("Username atau password salah!")
+        # Tombol login saja
+        submit_button = st.form_submit_button("Login")
+        
+        if submit_button:
+            # Logika autentikasi Anda di sini
+            if username == "admin" and password == "admin":
+                st.session_state["logged_in"] = True
+                st.session_state["role"] = "admin"
+                st.success("Login Berhasil!")
+                st.rerun()
+            else:
+                st.error("Username atau Password salah")
+
+# Panggil fungsi login
+if not st.session_state.get("logged_in", False):
+    login_page()
+else:
+    st.write("Anda sudah login.")
+    if st.button("Logout"):
+        st.session_state["logged_in"] = False
+        st.rerun()
