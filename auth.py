@@ -1,17 +1,15 @@
 import streamlit as st
-import bcrypt
+# Pastikan 'bcrypt' ada di file requirements.txt Anda!
+import bcrypt 
 from db_utils import jalankan_query
 
 def check_role(allowed_roles):
-    """
-    Fungsi untuk memeriksa apakah user saat ini memiliki akses.
-    allowed_roles: list atau string, misal: ["admin", "editor"]
-    """
-    # Ambil role dari session_state
-    current_role = st.session_state.get("role", None)
-
-    # Jika role tidak ada atau tidak termasuk dalam list yang diizinkan
-    if current_role not in allowed_roles:
+    # Logika tetap sama, tapi pastikan ini dipanggil setelah user login
+    if "role" not in st.session_state:
+        st.error("Anda belum login!")
+        st.stop()
+        
+    if st.session_state.get("role") not in allowed_roles:
         st.error("🚫 Anda tidak memiliki akses ke halaman ini.")
         st.stop()
 
