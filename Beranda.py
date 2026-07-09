@@ -9,18 +9,6 @@ from auth import tampilkan_sidebar # Untuk sidebar dan akses
 
 tampilkan_sidebar()
 
-st.set_page_config(initial_sidebar_state="collapsed") 
-
-# ATAU, jika Anda ingin menyembunyikan menu tersebut sepenuhnya via CSS:
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
-
 # Logika login
 if not st.session_state.get("logged_in", False):
     from login import show_login
