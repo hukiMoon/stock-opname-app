@@ -1,10 +1,9 @@
 import sys
-import os
+sys.path.append(os.path.abspath(".."))
 import streamlit as st
 import pandas as pd
 import db_utils
 from datetime import datetime
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from auth import check_role, sidebar_logout
 from db_utils import jalankan_query
 
