@@ -1,7 +1,11 @@
 import streamlit as st
-import init_path
-from db_utils import jalankan_query
-from auth import form_login, tampilkan_sidebar, cek_akses_admin
+import pandas as pd             # Untuk mengolah tabel/dataframe
+import io                       # Untuk buffer file
+from datetime import datetime   # Untuk tanggal/waktu
+import init_path                # Untuk manajemen folder
+from db_utils import jalankan_query # Untuk koneksi database
+from login import show_login    # Untuk form login
+from auth import tampilkan_sidebar, cek_akses_admin # Untuk sidebar dan akses
 
 # Cek login
 if "logged_in" not in st.session_state:
