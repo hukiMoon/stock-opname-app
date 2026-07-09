@@ -5,7 +5,7 @@ from db_utils import jalankan_query
 from auth import cek_akses_admin, tampilkan_sidebar
 
 if st.session_state.get("role") != "admin":
-    st.error("Anda tidak memiliki akses ke halaman ini!")
+    st.error("Silakan Login terlebih dahulu!")
     st.stop()
 
 # Pastikan user sudah login
