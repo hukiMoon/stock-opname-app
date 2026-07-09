@@ -24,13 +24,19 @@ def form_login():
 
 def tampilkan_sidebar():
     st.sidebar.title("Menu Utama")
-    # Pengecekan role
-    if st.session_state.get("role") == "admin":
-        st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Manajemen Master")
+    
+    # ... navigasi Anda ...
     
     st.sidebar.divider()
     
+    # Tombol Logout
     if st.sidebar.button("Logout"):
+        # 1. Hapus semua data di session state
+        st.session_state.clear() 
+        
+        # 2. Atau jika ingin spesifik, set ulang key Anda:
         st.session_state["logged_in"] = False
         st.session_state["role"] = None
+        
+        # 3. Wajib: rerun agar aplikasi kembali ke state awal (login)
         st.rerun()
