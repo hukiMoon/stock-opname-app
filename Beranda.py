@@ -7,6 +7,8 @@ from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
 from login import show_login    # Untuk form login
 from auth import tampilkan_sidebar # Untuk sidebar dan akses
 
+show_login()
+
 # Inisialisasi
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -16,23 +18,7 @@ if "current_page" not in st.session_state:
 # Panggil Sidebar
 tampilkan_sidebar()
 
-# Logika Tampilan Utama
-if st.session_state["logged_in"]:
-    st.title("Sistem Stock Opname")
-    # Tampilkan tabel/konten Anda di sini
-else:
-    # Tampilkan Login
-    st.title("🔐 Login ke Aplikasi")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    
-    if st.button("Login"):
-        if username == "admin" and password == "admin123":
-            st.session_state["logged_in"] = True
-            st.session_state["current_page"] = "beranda"
-            st.rerun()
-        else:
-            st.error("Username/Password salah!")
+
             
 st.title("📊 Sistem Stock Opname")
 st.write("Selamat datang di sistem manajemen stok.")
