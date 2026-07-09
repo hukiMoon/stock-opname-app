@@ -29,7 +29,7 @@ def jalankan_query(sql, param=(), commit=False):
 
 def get_stok_rendah(batas):
     # Gunakan string biasa tanpa spasi aneh
-    query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= ?"
+    query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= %s"
     return jalankan_query(query, (batas,))
 
 def get_data_barang(role):
