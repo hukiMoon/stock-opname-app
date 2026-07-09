@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import init_path # Pastikan ini ada
 from db_utils import jalankan_query
 from auth import cek_akses_admin, tampilkan_sidebar
