@@ -18,7 +18,6 @@ if "logged_in" not in st.session_state:
 # Jika belum login, tampilkan form
 if not st.session_state["logged_in"]:
     form_login()
-    tampilkan_sidebar()
     st.stop() # Hentikan proses, agar konten beranda tidak muncul
 
 # Jika sudah login, tampilkan konten
@@ -45,6 +44,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    tampilkan_sidebar()
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
