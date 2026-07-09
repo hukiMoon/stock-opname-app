@@ -27,9 +27,9 @@ def jalankan_query(sql, param=(), commit=False):
         conn.close()
     return data
 
-def get_stok_rendah(batas=5):
-    # Mengambil barang yang stoknya kurang dari atau sama dengan batas
-    query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= %s"
+def get_stok_rendah(batas):
+    # Asumsikan Anda menggunakan fungsi query yang sudah ada
+    query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= ?"
     return jalankan_query(query, (batas,))
 
 def get_data_barang(role):
