@@ -3,7 +3,7 @@ import pandas as pd
 from db_utils import jalankan_query, get_data_barang
 
 st.title("📥 Input Barang Masuk")
-st.write("Selamat datang, Anda telah login!")
+st.write("---")
 
 opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
 
