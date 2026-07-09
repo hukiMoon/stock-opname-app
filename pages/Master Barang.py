@@ -23,10 +23,6 @@ st.write("Selamat datang, Anda telah login!")
 daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY kode_barang ASC")
 daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
 
-def card_container(title):
-    st.subheader(title)
-    return st.container(border=True)
-
 with card_container("Kelola Barang"):
     if not daftar_barang:
         st.info("Belum ada data barang.")
