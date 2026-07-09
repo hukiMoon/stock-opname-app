@@ -7,6 +7,18 @@ from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
 from login import show_login    # Untuk form login
 from auth import form_login, tampilkan_sidebar, cek_akses_admin # Untuk sidebar dan akses
 
+st.set_page_config(initial_sidebar_state="collapsed") 
+
+# ATAU, jika Anda ingin menyembunyikan menu tersebut sepenuhnya via CSS:
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
 # Cek login
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
@@ -16,7 +28,7 @@ if not st.session_state["logged_in"]:
     st.stop()
 
 # Jika sudah login
-#tampilkan_sidebar()
+tampilkan_sidebar()
 st.title("Selamat Datang")
 
 def jalankan_audit_dan_update(data_list):
