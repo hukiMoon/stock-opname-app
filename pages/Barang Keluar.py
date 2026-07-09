@@ -4,7 +4,7 @@ from datetime import datetime
 from db_utils import jalankan_query  # <--- Tambahkan baris ini
 
 st.title("📤 Input Barang Keluar")
-st.write("Selamat datang, Anda telah login!")
+st.write("---")
     
 daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
 daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
