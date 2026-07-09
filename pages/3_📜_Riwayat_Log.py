@@ -1,11 +1,9 @@
-import streamlit as st
-import pandas as pd
-from auth import check_role, sidebar_logout
-from db_utils import jalankan_query
+import init_path  # Mengatur path agar bisa mengimpor file dari root
+from auth import check_role, tampilkan_sidebar # Sekarang import jadi bersih!
 
-# 1. Proteksi
-check_role(["admin"])
-sidebar_logout()
+# Contoh penerapan di halaman Barang Masuk
+check_role(["admin", "user"]) # Sesuaikan role
+tampilkan_sidebar()
 
 st.title("📜 Log Aktivitas Gudang")
 
