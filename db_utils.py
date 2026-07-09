@@ -32,10 +32,15 @@ def get_stok_rendah(batas=5):
     query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= %s"
     return jalankan_query(query, (batas,))
 
-def register_user(username, password, role):
-    # Hash password sebelum disimpan
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-    
-    query = "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)"
-    # jalankan_query(query, (username, hashed.decode('utf-8'), role))
+def check_role(allowed_roles):
+    """
+    Fungsi untuk memeriksa apakah user saat ini memiliki akses.
+    allowed_roles: list atau string, misal: ["admin", "editor"]
+    """
+    # Ambil role dari session_state
+    current_role = st.session_state.get("role", None)
+
+    # Jika role tidak ada atau tidak termasuk dalam list yang diizinkan
+    if current_role not in allowed_roles:
+        st.error("🚫 Anda tidak memiliki akses ke halaman ini.")
+        st.stop()
