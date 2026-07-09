@@ -1,20 +1,20 @@
 import streamlit as st
 import init_path
-from auth import tampilkan_sidebar
+from auth import form_login, tampilkan_sidebar
 
-# Cek status login
-if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-    # Tampilkan form login dari auth.py (atau buat fungsi di auth.py untuk form)
-    st.title("Silakan Login")
-    # Panggil fungsi login Anda di sini
-    # form_login() 
-    st.stop() # Hentikan sisa kode agar tidak menampilkan Beranda
+# Inisialisasi session state jika belum ada
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
 
-# Jika sudah login, tampilkan konten Beranda
+# Logika kontrol akses
+if not st.session_state["logged_in"]:
+    form_login()
+    st.stop() # Hentikan eksekusi, jangan tampilkan apa pun di bawah sini
+
+# Jika sudah login, baru tampilkan konten utama
 tampilkan_sidebar()
-
-st.title("Beranda")
-st.write("Selamat datang, Anda telah login!")
+st.title("Selamat Datang!")
+st.write("Anda telah berhasil masuk ke sistem.")
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
 def main():
