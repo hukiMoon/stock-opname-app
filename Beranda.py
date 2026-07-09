@@ -33,6 +33,7 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+tampilkan_sidebar()
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
 def main():
