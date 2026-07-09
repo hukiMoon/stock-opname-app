@@ -5,7 +5,7 @@ from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
 from db_utils import jalankan_query # Untuk koneksi database
 from login import show_login    # Untuk form login
-from auth import tampilkan_sidebar, cek_akses_admin # Untuk sidebar dan akses
+from auth import form_login, tampilkan_sidebar, cek_akses_admin # Untuk sidebar dan akses
 
 # Cek login
 if "logged_in" not in st.session_state:
