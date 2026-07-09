@@ -1,6 +1,7 @@
 import streamlit as st
 import init_path # Pastikan ini ada
-from auth import check_role, tampilkan_sidebar
+from db_utils import jalankan_query
+from auth import cek_akses_admin, tampilkan_sidebar
 
 if st.session_state.get("role") != "admin":
     st.error("Anda tidak memiliki akses ke halaman ini!")
@@ -11,6 +12,7 @@ if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
     st.switch_page("auth.py") # Arahkan ke halaman login jika belum login
 
 # Jika sudah login, tampilkan sidebar
+cek_akses_admin()
 tampilkan_sidebar()
 
 st.title("⚙️ Manajemen Master Data")
