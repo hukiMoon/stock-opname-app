@@ -1,7 +1,5 @@
 import streamlit as st
 
-# HAPUS baris 'from db_utils import jalankan_query' dari bagian atas!
-
 def form_login():
     # Pindahkan import ke dalam fungsi (Lazy Import)
     from db_utils import jalankan_query 
@@ -11,9 +9,6 @@ def form_login():
     password = st.text_input("Password", type="password")
     
     if st.button("Masuk"):
-        # Contoh penggunaan jalankan_query
-        # user = jalankan_query("SELECT ... WHERE username = ?", (username,))
-        
         # Simulasi validasi (ganti dengan hasil query database Anda)
         if username == "admin" and password == "admin123":
             st.session_state["logged_in"] = True
@@ -26,10 +21,7 @@ def cek_akses_admin():
     """Fungsi untuk memproteksi halaman admin."""
     if st.session_state.get("role") != "admin":
         st.error("⚠️ Anda tidak memiliki akses ke halaman ini!")
-        st.stop() # Menghentikan eksekusi kode di bawahnya
-
-def tampilkan_sidebar():
-    # ... (kode sidebar yang sudah kita buat sebelumnya) ...
+        st.stop()
 
 def tampilkan_sidebar():
     st.sidebar.title("Menu Utama")
@@ -48,12 +40,10 @@ def tampilkan_sidebar():
         st.sidebar.page_link("pages/3_📜_Riwayat_Log.py", label="📜 Riwayat Log")
         st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="⚙️ Master Barang")
         st.sidebar.page_link("pages/5_📈_Statistik.py", label="📈 Statistik")
-        # Tambahkan baris untuk setiap file di folder pages Anda di bawah ini
-        # st.sidebar.page_link("pages/nama_file_lain.py", label="Nama Menu")
     
     st.sidebar.divider()
     
-    # Tombol Logout (muncul untuk semua yang sudah login)
+    # Tombol Logout
     if st.sidebar.button("Logout"):
         st.session_state.clear()
         st.rerun()
