@@ -5,7 +5,7 @@ from auth import cek_akses_admin, tampilkan_sidebar
 from utils import card_container
 
 if st.session_state.get("role") != "admin":
-    st.error("Anda tidak memiliki akses ke halaman ini!")
+    st.error("Silakan Login terlebih dahulu!")
     st.stop()
 
 # Pastikan user sudah login
