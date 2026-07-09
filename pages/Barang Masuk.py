@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import db_utils  # <--- Hapus 'from ... import ...', cukup 'import db_utils'
+from db_utils import get_data_barang
 from auth import cek_akses_admin, tampilkan_sidebar
 
 if st.session_state.get("role") != "admin":
