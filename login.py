@@ -1,32 +1,15 @@
 import streamlit as st
 
-# Mengatur tampilan halaman agar rapi
-st.set_page_config(page_title="Login", layout="centered")
-
 def show_login():
-    # Menghapus padding/header bawaan agar lebih bersih
-    st.markdown("""
-        <style>
-        .block-container { padding-top: 2rem; }
-        </style>
-    """, unsafe_allow_html=True)
-
-    st.title("🔐 Silakan Login")
-    
-    # Menggunakan form agar lebih terstruktur
+    st.title("🔐 Login ke Aplikasi")
     with st.form("login_form"):
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
+        submit = st.form_submit_button("Masuk")
         
-        # Tombol login saja
-        submit_button = st.form_submit_button("Login")
-        
-        if submit_button:
-            # Logika autentikasi Anda di sini
+        if submit:
             if username == "admin" and password == "admin":
                 st.session_state["logged_in"] = True
-                st.session_state["role"] = "admin"
-                st.success("Login Berhasil!")
                 st.rerun()
             else:
                 st.error("Username atau Password salah")
