@@ -22,7 +22,7 @@ opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "T
 # --- FORM INPUT ---
 data = get_data_barang(st.session_state.get("role"))
 
-st.dataframe(data)
+#st.dataframe(data)
 
 if opsi_input == "Barang Baru (Belum Terdaftar)":
     with st.form("form_masuk_baru", clear_on_submit=True):
