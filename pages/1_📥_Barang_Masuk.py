@@ -1,6 +1,9 @@
-import sys
-sys.path.append(os.path.abspath(".."))
 import streamlit as st
+import sys
+import os
+
+# Menambahkan direktori root ke path agar bisa import auth.py
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pandas as pd
 import db_utils
 from datetime import datetime
