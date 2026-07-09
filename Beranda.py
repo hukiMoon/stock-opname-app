@@ -1,12 +1,16 @@
 import streamlit as st
-import init_path # Pastikan ini ada
+import init_path
 from auth import tampilkan_sidebar
 
-# Pastikan user sudah login
+# Cek status login
 if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-    st.switch_page("auth.py") # Arahkan ke halaman login jika belum login
+    # Tampilkan form login dari auth.py (atau buat fungsi di auth.py untuk form)
+    st.title("Silakan Login")
+    # Panggil fungsi login Anda di sini
+    # form_login() 
+    st.stop() # Hentikan sisa kode agar tidak menampilkan Beranda
 
-# Jika sudah login, tampilkan sidebar
+# Jika sudah login, tampilkan konten Beranda
 tampilkan_sidebar()
 
 st.title("Beranda")
