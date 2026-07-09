@@ -3,17 +3,34 @@ import pandas as pd
 import io
 from datetime import datetime
 from db_utils import jalankan_query, get_stok_rendah
-from auth import check_password, tampilkan_sidebar
+from auth import check_role, tampilkan_sidebar
 
 check_role(["admin"])
 
 st.title("Halaman Admin")
 st.write("Selamat datang, Admin!")
 
-check_password()
 tampilkan_sidebar()
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
+def main():
+    # Cek apakah user sudah login
+    if "role" not in st.session_state:
+        st.switch_page("auth.py") # Arahkan ke halaman login
+    
+    st.title("Selamat Datang di Aplikasi")
+    
+    # Navigasi Kustom (opsional: menyembunyikan halaman berdasarkan role)
+    if st.session_state.role == "admin":
+        st.sidebar.page_link("pages/3_📜_Riwayat_Log.py", label="Riwayat Log")
+        st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Master Barang")
+    
+    st.sidebar.page_link("pages/1_📥_Barang_Masuk.py", label="Barang Masuk")
+    st.sidebar.page_link("pages/2_📤_Barang_Keluar.py", label="Barang Keluar")
+
+if __name__ == "__main__":
+    main()
+
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
     try:
@@ -122,13 +139,3 @@ if stok_rendah:
         st.write("Barang-barang berikut memiliki stok tersisa 5 atau kurang:")
         df_rendah = pd.DataFrame(stok_rendah, columns=["Nama Barang", "Sisa Stok"])
         st.table(df_rendah)
-
-
-# Contoh membatasi menu sidebar
-if st.session_state.get("role") == "admin":
-    st.sidebar.subheader("Menu Admin")
-    st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Manajemen Master")
-    st.sidebar.page_link("pages/5_📈_Statistik.py", label="Laporan Statistik")
-
-st.sidebar.subheader("Menu Umum")
-st.sidebar.page_link("pages/6_📋_Transaksi.py", label="Input Transaksi")
