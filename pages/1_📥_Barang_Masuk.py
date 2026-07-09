@@ -1,19 +1,8 @@
-import streamlit as st
-import sys
-import os
+import init_path  # Mengatur path agar bisa mengimpor file dari root
+from auth import check_role, tampilkan_sidebar # Sekarang import jadi bersih!
 
-# Menambahkan direktori root ke path agar Python bisa menemukan auth.py
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Sekarang lakukan import. Jika masih error, pastikan nama filenya benar "auth.py"
-try:
-    from auth import check_role, tampilkan_sidebar
-except Exception as e:
-    st.error(f"Error saat mengimpor modul auth: {e}")
-    st.stop()
-
-# Jalankan pengecekan
-check_role(["admin", "user"]) # Sesuaikan role yang diizinkan
+# Contoh penerapan di halaman Barang Masuk
+check_role(["admin", "user"]) # Sesuaikan role
 tampilkan_sidebar()
 
 st.title("📥 Input Barang Masuk")
