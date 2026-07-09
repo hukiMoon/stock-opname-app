@@ -35,7 +35,7 @@ def tampilkan_sidebar():
         st.sidebar.subheader("Menu Admin")
         
         # Tambahkan SEMUA halaman Anda di sini
-        st.sidebar.page_link("pages/page1.py")
+        st.sidebar.page_link("pages/1_📥_Barang_Masuk.py")
         st.sidebar.page_link("pages/2_📥_Barang_Keluar.py")
         st.sidebar.page_link("pages/3_📜_Riwayat_Log.py")
         st.sidebar.page_link("pages/4_⚙️_Master_Barang.py")
