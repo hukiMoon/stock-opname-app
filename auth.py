@@ -25,17 +25,23 @@ def form_login():
 def tampilkan_sidebar():
     st.sidebar.title("Menu Utama")
     
-    # Navigasi ke Halaman Beranda (Selalu ada)
+    # Menu untuk Semua Pengguna (jika sudah login)
     st.sidebar.page_link("Beranda.py", label="🏠 Beranda")
     
-    # Navigasi khusus Admin
+    # Menu khusus Admin
     if st.session_state.get("role") == "admin":
         st.sidebar.divider()
         st.sidebar.subheader("Menu Admin")
+        
+        # Tambahkan SEMUA halaman Anda di sini
         st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="⚙️ Manajemen Master")
-        # Tambahkan page_link lainnya di sini
+        st.sidebar.page_link("pages/1_📥_Barang_Masuk.py", label="📥 Barang Masuk")
+        # Tambahkan baris untuk setiap file di folder pages Anda di bawah ini
+        # st.sidebar.page_link("pages/nama_file_lain.py", label="Nama Menu")
     
     st.sidebar.divider()
+    
+    # Tombol Logout (muncul untuk semua yang sudah login)
     if st.sidebar.button("Logout"):
         st.session_state.clear()
         st.rerun()
