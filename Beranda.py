@@ -12,11 +12,13 @@ from db_utils import jalankan_query  # <--- TAMBAHKAN BARIS INI
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
-if "role" not in st.session_state:
-    st.session_state["role"] = None
 
-# --- Sisa kode Anda ---
+# Jika belum login, tampilkan form
+if not st.session_state["logged_in"]:
+    form_login()
+    st.stop() # Hentikan proses, agar konten beranda tidak muncul
 
+# Jika sudah login, tampilkan konten
 tampilkan_sidebar()
 st.title("Selamat Datang!")
 st.write("Anda telah berhasil masuk ke sistem.")
