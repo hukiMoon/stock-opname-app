@@ -31,16 +31,3 @@ def get_stok_rendah(batas=5):
     # Mengambil barang yang stoknya kurang dari atau sama dengan batas
     query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= %s"
     return jalankan_query(query, (batas,))
-
-def check_role(allowed_roles):
-    """
-    Fungsi untuk memeriksa apakah user saat ini memiliki akses.
-    allowed_roles: list atau string, misal: ["admin", "editor"]
-    """
-    # Ambil role dari session_state
-    current_role = st.session_state.get("role", None)
-
-    # Jika role tidak ada atau tidak termasuk dalam list yang diizinkan
-    if current_role not in allowed_roles:
-        st.error("🚫 Anda tidak memiliki akses ke halaman ini.")
-        st.stop()
