@@ -28,7 +28,7 @@ def jalankan_query(sql, param=(), commit=False):
     return data
 
 def get_stok_rendah(batas):
-    # Asumsikan Anda menggunakan fungsi query yang sudah ada
+    # Gunakan string biasa tanpa spasi aneh
     query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= ?"
     return jalankan_query(query, (batas,))
 
