@@ -16,7 +16,7 @@ if not st.session_state["logged_in"]:
     st.stop()
 
 # Jika sudah login
-tampilkan_sidebar()
+#tampilkan_sidebar()
 st.title("Selamat Datang")
 
 def jalankan_audit_dan_update(data_list):
