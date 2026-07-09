@@ -3,7 +3,7 @@ import pandas as pd             # Untuk mengolah tabel/dataframe
 import io                       # Untuk buffer file
 from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
-from db_utils import jalankan_query # Untuk koneksi database
+from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
 from login import show_login    # Untuk form login
 from auth import form_login, tampilkan_sidebar, cek_akses_admin # Untuk sidebar dan akses
 
