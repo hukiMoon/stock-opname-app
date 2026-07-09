@@ -6,6 +6,10 @@ from db_utils import jalankan_query
 from auth import cek_akses_admin, tampilkan_sidebar
 from utils import card_container
 
+if st.session_state.get("role") != "admin":
+    st.error("Silakan Login terlebih dahulu!")
+    st.stop()
+
 # Pastikan user sudah login
 if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
     st.switch_page("auth.py") # Arahkan ke halaman login jika belum login
