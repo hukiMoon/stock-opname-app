@@ -12,6 +12,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from auth import form_login, tampilkan_sidebar
 from db_utils import jalankan_query, get_stok_rendah
 
+tampilkan_sidebar()
+
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
@@ -44,7 +46,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-    tampilkan_sidebar()
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
