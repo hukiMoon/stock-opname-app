@@ -28,13 +28,6 @@ if not st.session_state["logged_in"]:
     st.title("🔐 Login ke Aplikasi")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
-    
-    if st.button("Login"):
-        if username == "admin" and password == "admin": # Sesuaikan dengan auth Anda
-            st.session_state["logged_in"] = True
-            st.rerun()
-        else:
-            st.error("Username/Password salah!")
 else:
     # Halaman Setelah Login
     tampilkan_sidebar()
