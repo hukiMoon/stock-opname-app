@@ -1,11 +1,8 @@
 import streamlit as st
 import init_path # Pastikan ini ada
 from db_utils import jalankan_query
-from auth import tampilkan_sidebar
 from utils import card_container
 
-# Jika sudah login, tampilkan sidebar
-tampilkan_sidebar()
 
 st.title("⚙️ Manajemen Master Data")
 st.write("Selamat datang, Anda telah login!")
