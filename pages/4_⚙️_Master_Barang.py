@@ -1,10 +1,9 @@
-import streamlit as st
-from auth import check_role, sidebar_logout
-from db_utils import jalankan_query
-from styles import card_container
+import init_path  # Mengatur path agar bisa mengimpor file dari root
+from auth import check_role, tampilkan_sidebar # Sekarang import jadi bersih!
 
-check_role(["admin"])
-sidebar_logout()
+# Contoh penerapan di halaman Barang Masuk
+check_role(["admin", "user"]) # Sesuaikan role
+tampilkan_sidebar()
 
 st.title("⚙️ Manajemen Master Data")
 
