@@ -18,6 +18,7 @@ if "logged_in" not in st.session_state:
 # Jika belum login, tampilkan form
 if not st.session_state["logged_in"]:
     form_login()
+    tampilkan_sidebar()
     st.stop() # Hentikan proses, agar konten beranda tidak muncul
 
 # Jika sudah login, tampilkan konten
@@ -33,7 +34,6 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-tampilkan_sidebar()
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
 def main():
