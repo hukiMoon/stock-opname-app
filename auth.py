@@ -22,6 +22,15 @@ def form_login():
         else:
             st.error("Username atau password salah!")
 
+def cek_akses_admin():
+    """Fungsi untuk memproteksi halaman admin."""
+    if st.session_state.get("role") != "admin":
+        st.error("⚠️ Anda tidak memiliki akses ke halaman ini!")
+        st.stop() # Menghentikan eksekusi kode di bawahnya
+
+def tampilkan_sidebar():
+    # ... (kode sidebar yang sudah kita buat sebelumnya) ...
+
 def tampilkan_sidebar():
     st.sidebar.title("Menu Utama")
     
