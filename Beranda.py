@@ -21,7 +21,6 @@ if not st.session_state["logged_in"]:
     st.stop() # Hentikan proses, agar konten beranda tidak muncul
 
 # Jika sudah login, tampilkan konten
-tampilkan_sidebar()
 st.title("Selamat Datang!")
 st.write("Anda telah berhasil masuk ke sistem.")
 st.set_page_config(page_title="App Stock Opname", layout="wide")
@@ -35,15 +34,15 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
-def main():
+#def main():
     # Cek apakah user sudah login
-    if "role" not in st.session_state:
-        st.switch_page("auth.py") # Arahkan ke halaman login
+    #if "role" not in st.session_state:
+        #st.switch_page("auth.py") # Arahkan ke halaman login
     
-    st.title("Selamat Datang di Aplikasi")
+    #st.title("Selamat Datang di Aplikasi")
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+    #main()
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
