@@ -13,6 +13,11 @@ def check_role(allowed_roles):
         st.error("🚫 Anda tidak memiliki akses ke halaman ini.")
         st.stop()
 
+    if username_valid and password_valid:
+        st.session_state["logged_in"] = True
+        st.session_state["role"] = role_dari_db
+        st.rerun() # Arahkan ke Beranda setelah login berhasil
+
 def tampilkan_sidebar():
     st.sidebar.title("Menu Utama")
     
