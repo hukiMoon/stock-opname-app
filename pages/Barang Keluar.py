@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from db_utils import jalankan_query  # <--- Tambahkan baris ini
-from auth import tampilkan_sidebar
 
 st.title("📤 Input Barang Keluar")
 st.write("Selamat datang, Anda telah login!")
