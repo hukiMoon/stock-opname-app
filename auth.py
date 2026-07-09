@@ -24,18 +24,16 @@ def cek_akses_admin():
         st.stop()
 
 def tampilkan_sidebar():
-    # Cek apakah user sudah login di session_state
-    if st.session_state.get("logged_in", False):
-        with st.sidebar:
+    with st.sidebar:
+        if st.session_state.get("logged_in", False):
             st.title("Menu Utama")
-            # ... (kode menu Anda di sini)
+            # ... daftar menu admin Anda ...
             if st.button("Logout"):
                 st.session_state["logged_in"] = False
                 st.rerun()
-    else:
-        # Jika belum login, sidebar tidak memuat menu (kosong)
-        pass
-
+        else:
+            st.write("Silakan Login terlebih dahulu.")
+            
 def check_role():
     if st.session_state.get("role") != "admin":
         st.error("⚠️ Anda tidak memiliki akses ke halaman ini!")
