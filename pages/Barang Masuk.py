@@ -1,6 +1,7 @@
 import streamlit as st
-import init_path # Pastikan ini ada
-from auth import check_role, tampilkan_sidebar
+import pandas as pd
+import db_utils  # <--- Hapus 'from ... import ...', cukup 'import db_utils'
+from auth import cek_akses_admin, tampilkan_sidebar
 
 if st.session_state.get("role") != "admin":
     st.error("Anda tidak memiliki akses ke halaman ini!")
@@ -19,7 +20,7 @@ st.write("Selamat datang, Anda telah login!")
 opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
 
 # --- FORM INPUT ---
-data = db_utils.get_data_barang(st.session_state.get("role"))
+data = get_data_barang(st.session_state.get("role"))
 
 st.dataframe(data)
 
