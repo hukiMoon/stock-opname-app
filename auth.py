@@ -2,23 +2,18 @@ import streamlit as st
 import bcrypt
 from db_utils import jalankan_query
 
-def check_password(username, password):
-    # Ambil data user dari DB
-    query = "SELECT password_hash, role FROM users WHERE username = ?"
-    user_data = jalankan_query(query, (username,), fetch=True)
-    
-    if user_data:
-        stored_hash = user_data[0][0]
-        user_role = user_data[0][1]
-        
-        # Verifikasi password
-        if bcrypt.checkpw(password.encode('utf-8'), stored_hash.encode('utf-8')):
-            st.session_state["logged_in"] = True
-            st.session_state["role"] = user_role
-            st.session_state["username"] = username
-            return True
-    
-    return False
+def check_role(allowed_roles):
+    """
+    Fungsi untuk memeriksa apakah user saat ini memiliki akses.
+    allowed_roles: list atau string, misal: ["admin", "editor"]
+    """
+    # Ambil role dari session_state
+    current_role = st.session_state.get("role", None)
+
+    # Jika role tidak ada atau tidak termasuk dalam list yang diizinkan
+    if current_role not in allowed_roles:
+        st.error("🚫 Anda tidak memiliki akses ke halaman ini.")
+        st.stop()
 
 def tampilkan_sidebar():
     st.sidebar.title("Menu Utama")
