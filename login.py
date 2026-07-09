@@ -30,12 +30,3 @@ def show_login():
                 st.rerun()
             else:
                 st.error("Username atau Password salah")
-
-# Panggil fungsi login
-if not st.session_state.get("logged_in", False):
-    login_page()
-else:
-    st.write("Anda sudah login.")
-    if st.button("Logout"):
-        st.session_state["logged_in"] = False
-        st.rerun()
