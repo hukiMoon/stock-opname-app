@@ -1,26 +1,21 @@
 import streamlit as st
-import pandas as pd
-import io
-from datetime import datetime
-import sys
-import os
 import init_path
-from login import show_login
+from login import show_login  # Mengambil fungsi login dari file baru
 from auth import tampilkan_sidebar
 
-# Inisialisasi session
+# 1. Pastikan inisialisasi status login di awal
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# Logika pengalihan halaman
+# 2. CEK STATUS LOGIN SEBELUM APAPUN
 if not st.session_state["logged_in"]:
-    show_login()
-    st.stop() # Hentikan agar konten utama tidak tampil
+    show_login()  # Menampilkan form login
+    st.stop()     # <--- INI PALING PENTING! 
+                  # Perintah ini menghentikan sisa kode agar tidak dijalankan
 
-# Jika sudah login, tampilkan konten Beranda
+# 3. Jika sudah berhasil login, kode di bawah ini baru akan terbaca
 tampilkan_sidebar()
 st.title("Selamat Datang di Aplikasi")
-
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
