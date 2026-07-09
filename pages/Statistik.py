@@ -3,11 +3,7 @@ import pandas as pd
 import init_path # Pastikan ini ada
 from datetime import datetime
 from db_utils import jalankan_query
-from auth import tampilkan_sidebar
 from utils import card_container
-
-# Jika sudah login, tampilkan sidebar
-tampilkan_sidebar()
 
 st.title("📈 Statistik Ketersediaan Barang")
 st.write("Selamat datang, Anda telah login!")
