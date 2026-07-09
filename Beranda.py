@@ -12,14 +12,16 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from auth import form_login, tampilkan_sidebar
 from db_utils import jalankan_query, get_stok_rendah
 
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
+if st.session_state.get("role") != "admin":
+    st.error("Anda tidak memiliki akses ke halaman ini!")
+    st.stop()
 
-# Jika belum login, tampilkan form
-if not st.session_state["logged_in"]:
-    form_login()
-    tampilkan_sidebar()
-    st.stop() # Hentikan proses, agar konten beranda tidak muncul
+# Pastikan user sudah login
+if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
+    st.switch_page("auth.py") # Arahkan ke halaman login jika belum login
+
+# Jika sudah login, tampilkan sidebar
+tampilkan_sidebar()
 
 # Jika sudah login, tampilkan konten
 st.title("Selamat Datang!")
