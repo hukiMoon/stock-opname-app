@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import db_utils
 from datetime import datetime
 from auth import check_password, sidebar_logout
 from db_utils import jalankan_query
@@ -17,6 +18,10 @@ st.write("Selamat datang di menu Barang Masuk!")
 opsi_input = st.radio("Pilih Jenis Input:", ["Barang Baru (Belum Terdaftar)", "Tambah Stok Barang Lama"])
 
 # --- FORM INPUT ---
+data = db_utils.get_data_barang(st.session_state.get("role"))
+
+st.dataframe(data)
+
 if opsi_input == "Barang Baru (Belum Terdaftar)":
     with st.form("form_masuk_baru", clear_on_submit=True):
         data_kd = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
