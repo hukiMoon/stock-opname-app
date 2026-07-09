@@ -7,6 +7,8 @@ from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
 from login import show_login    # Untuk form login
 from auth import tampilkan_sidebar # Untuk sidebar dan akses
 
+tampilkan_sidebar()
+
 st.set_page_config(initial_sidebar_state="collapsed") 
 
 # ATAU, jika Anda ingin menyembunyikan menu tersebut sepenuhnya via CSS:
@@ -19,16 +21,11 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# Inisialisasi status login
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-
-if not st.session_state["logged_in"]:
-    # Jika belum login, tampilkan halaman Login
+# Logika login
+if not st.session_state.get("logged_in", False):
+    from login import show_login
     show_login()
 else:
-    # Jika sudah login, tampilkan menu dan konten utama
-    tampilkan_sidebar()
     st.title("📊 Sistem Stock Opname")
     st.write("Selamat datang di sistem manajemen stok.")
 
