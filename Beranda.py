@@ -5,7 +5,7 @@ from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
 from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
 from login import show_login    # Untuk form login
-from auth import form_login, tampilkan_sidebar, cek_akses_admin # Untuk sidebar dan akses
+from auth import tampilkan_sidebar # Untuk sidebar dan akses
 
 st.set_page_config(initial_sidebar_state="collapsed") 
 
@@ -23,13 +23,22 @@ st.markdown(hide_st_style, unsafe_allow_html=True)
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
+# Halaman Login
 if not st.session_state["logged_in"]:
-    form_login() # Memanggil fungsi dari auth.py
-    st.stop()
-
-# Jika sudah login
-tampilkan_sidebar()
-st.title("Selamat Datang")
+    st.title("🔐 Login ke Aplikasi")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    
+    if st.button("Login"):
+        if username == "admin" and password == "admin": # Sesuaikan dengan auth Anda
+            st.session_state["logged_in"] = True
+            st.rerun()
+        else:
+            st.error("Username/Password salah!")
+else:
+    # Halaman Setelah Login
+    tampilkan_sidebar()
+    st.write("Selamat Datang di Aplikasi!")
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
