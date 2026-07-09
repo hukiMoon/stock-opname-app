@@ -1,28 +1,20 @@
 import streamlit as st
 import sys
 import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
 
+# Menambahkan direktori root ke path agar Python bisa menemukan auth.py
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Sekarang lakukan import. Jika masih error, pastikan nama filenya benar "auth.py"
 try:
-    from auth import check_role, sidebar_logout
-except ImportError as e:
-    st.error(f"Gagal mengimpor auth.py. Pastikan file ada di root. Error: {e}")
-    st.stop()
-import pandas as pd
-import db_utils
-from datetime import datetime
-st.write("Isi folder root:", os.listdir(parent_dir))
-from auth import check_role, sidebar_logout
-from db_utils import jalankan_query
-
-if st.session_state.get("role") != "admin":
-    st.warning("Anda tidak memiliki izin untuk mengakses halaman ini.")
+    from auth import check_role, tampilkan_sidebar
+except Exception as e:
+    st.error(f"Error saat mengimpor modul auth: {e}")
     st.stop()
 
-check_role()
-sidebar_logout()
+# Jalankan pengecekan
+check_role(["admin", "user"]) # Sesuaikan role yang diizinkan
+tampilkan_sidebar()
 
 st.title("📥 Input Barang Masuk")
 st.write("Selamat datang di menu Barang Masuk!")
