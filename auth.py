@@ -38,7 +38,7 @@ def tampilkan_sidebar():
         st.sidebar.page_link("pages/2_📥_Barang_Keluar.py", label="📥 Barang Keluar")
         st.sidebar.page_link("pages/3_📜_Riwayat_Log.py", label="📜 Riwayat Log")
         st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="⚙️ Master Barang")
-        st.sidebar.page_link("pages/5_⚙️_Statistik.py", label="⚙️ Statistik")
+        st.sidebar.page_link("pages/5_📈_Statistik.py", label="📈 Statistik")
         # Tambahkan baris untuk setiap file di folder pages Anda di bawah ini
         # st.sidebar.page_link("pages/nama_file_lain.py", label="Nama Menu")
     
