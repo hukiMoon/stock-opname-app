@@ -31,3 +31,17 @@ def get_stok_rendah(batas=5):
     # Mengambil barang yang stoknya kurang dari atau sama dengan batas
     query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= %s"
     return jalankan_query(query, (batas,))
+
+def get_data_barang(role):
+    """
+    Mengambil data barang berdasarkan peran pengguna.
+    """
+    # Contoh koneksi database (sesuaikan dengan kode Anda saat ini)
+    # conn = connect_db() 
+    
+    if role == "admin":
+        # Admin bisa melihat seluruh data
+        query = "SELECT * FROM inventory"
+    else:
+        # User biasa hanya melihat barang yang statusnya 'tersedia'
+        query = "SELECT * FROM inventory WHERE status = 'tersedia'"
