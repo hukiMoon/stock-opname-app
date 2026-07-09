@@ -25,6 +25,7 @@ st.title("Selamat Datang!")
 st.write("Anda telah berhasil login.")
 st.set_page_config(page_title="App Stock Opname", layout="wide")
 
+tampilkan_sidebar()
 # Sembunyikan menu navigasi otomatis Streamlit
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
