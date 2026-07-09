@@ -21,7 +21,7 @@ if not st.session_state["logged_in"]:
     st.stop() # Hentikan proses, agar konten beranda tidak muncul
 
 # Jika sudah login, tampilkan konten
-tampilkan_sidebar()
+
 st.title("Selamat Datang!")
 st.write("Anda telah berhasil masuk ke sistem.")
 
