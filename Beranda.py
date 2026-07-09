@@ -18,6 +18,7 @@ if "logged_in" not in st.session_state:
 # Jika belum login, tampilkan form
 if not st.session_state["logged_in"]:
     form_login()
+    tampilkan_sidebar()
     st.stop() # Hentikan proses, agar konten beranda tidak muncul
 
 # Jika sudah login, tampilkan konten
@@ -25,7 +26,7 @@ st.title("Selamat Datang!")
 st.write("Anda telah berhasil login.")
 st.set_page_config(page_title="App Stock Opname", layout="wide")
 
-tampilkan_sidebar()
+
 # Sembunyikan menu navigasi otomatis Streamlit
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
