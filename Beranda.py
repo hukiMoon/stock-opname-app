@@ -1,9 +1,16 @@
-import init_path  # Mengatur path agar bisa mengimpor file dari root
-from auth import check_role, tampilkan_sidebar # Sekarang import jadi bersih!
+import streamlit as st
+import init_path # Pastikan ini ada
+from auth import tampilkan_sidebar
 
-# Contoh penerapan di halaman Barang Masuk
-check_role(["admin", "user"]) # Sesuaikan role
+# Pastikan user sudah login
+if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
+    st.switch_page("auth.py") # Arahkan ke halaman login jika belum login
+
+# Jika sudah login, tampilkan sidebar
 tampilkan_sidebar()
+
+st.title("Beranda")
+st.write("Selamat datang, Anda telah login!")
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
 def main():
