@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Perbaiki baris import ini:
 from auth import form_login, tampilkan_sidebar
-from db_utils import jalankan_query  # <--- TAMBAHKAN BARIS INI
+from db_utils import jalankan_query, get_stok_rendah
 
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
