@@ -1,6 +1,6 @@
 import streamlit as st
 import init_path # Pastikan ini ada
-from auth import tampilkan_sidebar
+from auth import check_role, tampilkan_sidebar
 
 # Pastikan user sudah login
 if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
