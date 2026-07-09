@@ -24,6 +24,16 @@ if not st.session_state["logged_in"]:
 
 st.title("Selamat Datang!")
 st.write("Anda telah berhasil masuk ke sistem.")
+st.set_page_config(layout="wide") # atau konfigurasi lainnya
+
+# Sembunyikan sidebar otomatis jika Anda ingin mengaturnya secara manual
+st.markdown("""
+    <style>
+        [data-testid="stSidebarNav"] {
+            display: none;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # Fungsi untuk Batch Update & Audit (Poin 1 & 2)
 def main():
