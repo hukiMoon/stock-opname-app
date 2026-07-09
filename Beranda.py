@@ -1,17 +1,13 @@
 import streamlit as st
-import os
 import sys
+import os
 
-# Memastikan folder root selalu berada di urutan pertama dalam pencarian modul
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+# Memastikan root ada di path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Sekarang lakukan import
-try:
-    from auth import form_login, tampilkan_sidebar
-except ImportError as e:
-    st.error(f"Error fatal: {e}")
-    st.info(f"Cek direktori: {os.listdir('.')}")
-    st.stop()
+# Perbaiki baris import ini:
+from auth import form_login, tampilkan_sidebar
+from db_utils import jalankan_query  # <--- TAMBAHKAN BARIS INI
 
 # --- Sisa kode Anda ---
 if "logged_in" not in st.session_state:
