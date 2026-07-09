@@ -4,35 +4,23 @@ import io
 from datetime import datetime
 import sys
 import os
+import init_path
+from login import show_login
+from auth import tampilkan_sidebar
 
-# Memastikan root ada di path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Inisialisasi session
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
 
-# Perbaiki baris import ini:
-from auth import tampilkan_sidebar, cek_akses_admin
-from db_utils import jalankan_query, get_stok_rendah
+# Logika pengalihan halaman
+if not st.session_state["logged_in"]:
+    show_login()
+    st.stop() # Hentikan agar konten utama tidak tampil
 
+# Jika sudah login, tampilkan konten Beranda
 tampilkan_sidebar()
-cek_akses_admin()
+st.title("Selamat Datang di Aplikasi")
 
-# Jika sudah login, tampilkan konten
-st.title("Selamat Datang!")
-st.write("Anda telah berhasil login.")
-st.set_page_config(page_title="App Stock Opname", layout="wide")
-
-
-# Sembunyikan menu navigasi otomatis Streamlit
-
-# Fungsi untuk Batch Update & Audit (Poin 1 & 2)
-#def main():
-    # Cek apakah user sudah login
-    #if "role" not in st.session_state:
-        #st.switch_page("auth.py") # Arahkan ke halaman login
-    
-    #st.title("Selamat Datang di Aplikasi")
-
-#if __name__ == "__main__":
-    #main()
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
