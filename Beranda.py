@@ -1,20 +1,18 @@
 import streamlit as st
 import init_path
-from login import show_login
-from auth import tampilkan_sidebar
+from auth import form_login, tampilkan_sidebar, cek_akses_admin
 
-# Inisialisasi status login
+# Cek login
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# Cek status login
 if not st.session_state["logged_in"]:
-    show_login()
+    form_login() # Memanggil fungsi dari auth.py
     st.stop()
 
-# Jika sudah login, tampilkan konten
+# Jika sudah login
 tampilkan_sidebar()
-st.title("Selamat Datang di Aplikasi Stock Opname")
+st.title("Selamat Datang")
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
