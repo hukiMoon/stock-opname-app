@@ -22,7 +22,7 @@ if not st.session_state["logged_in"]:
 
 # Jika sudah login, tampilkan konten
 st.title("Selamat Datang!")
-st.write("Anda telah berhasil masuk ke sistem.")
+st.write("Anda telah berhasil login")
 st.set_page_config(page_title="App Stock Opname", layout="wide")
 
 # Sembunyikan menu navigasi otomatis Streamlit
