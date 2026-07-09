@@ -1,5 +1,6 @@
 import streamlit as st
 import init_path
+from db_utils import jalankan_query
 from auth import form_login, tampilkan_sidebar, cek_akses_admin
 
 # Cek login
