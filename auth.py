@@ -25,6 +25,17 @@ def form_login():
 def tampilkan_sidebar():
     st.sidebar.title("Menu Utama")
     
-    # Pastikan bagian ini hanya berisi link yang ingin Anda tampilkan secara spesifik
+    # Navigasi ke Halaman Beranda (Selalu ada)
+    st.sidebar.page_link("Beranda.py", label="🏠 Beranda")
+    
+    # Navigasi khusus Admin
     if st.session_state.get("role") == "admin":
-        st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="Manajemen Master")
+        st.sidebar.divider()
+        st.sidebar.subheader("Menu Admin")
+        st.sidebar.page_link("pages/4_⚙️_Master_Barang.py", label="⚙️ Manajemen Master")
+        # Tambahkan page_link lainnya di sini
+    
+    st.sidebar.divider()
+    if st.sidebar.button("Logout"):
+        st.session_state.clear()
+        st.rerun()
