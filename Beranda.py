@@ -19,27 +19,18 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# 1. Inisialisasi status login
+# Inisialisasi status login
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# 2. Logika utama:
 if not st.session_state["logged_in"]:
-    # Tampilkan Halaman Login saja
-    st.title("🔐 Login ke Aplikasi")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    
-    if st.button("Login"):
-        if username == "admin" and password == "admin":
-            st.session_state["logged_in"] = True
-            st.rerun() # Refresh agar sidebar muncul
-        else:
-            st.error("Username/Password salah!")
+    # Jika belum login, tampilkan halaman Login
+    show_login()
 else:
-    # 3. KONTEN APLIKASI (Hanya muncul jika sudah login)
+    # Jika sudah login, tampilkan menu dan konten utama
     tampilkan_sidebar()
-st.title("📊 Sistem Stock Opname")
+    st.title("📊 Sistem Stock Opname")
+    st.write("Selamat datang di sistem manajemen stok.")
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
