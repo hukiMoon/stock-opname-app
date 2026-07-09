@@ -10,13 +10,12 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from auth import form_login, tampilkan_sidebar
 from db_utils import jalankan_query  # <--- TAMBAHKAN BARIS INI
 
-# --- Sisa kode Anda ---
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
+if "role" not in st.session_state:
+    st.session_state["role"] = None
 
-if not st.session_state["logged_in"]:
-    form_login()
-    st.stop()
+# --- Sisa kode Anda ---
 
 tampilkan_sidebar()
 st.title("Selamat Datang!")
