@@ -4,7 +4,7 @@ import init_path # Pastikan ini ada
 from db_utils import jalankan_query
 
 st.title("📜 Log Aktivitas Gudang")
-st.write("Selamat datang, Anda telah login!")
+st.write("---")
 
 # 2. Mengambil data untuk statistik (opsional, tapi memperbagus tampilan)
 data_riwayat = jalankan_query("SELECT kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan FROM riwayat ORDER BY id DESC")
