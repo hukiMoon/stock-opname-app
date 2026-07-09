@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import init_path # Pastikan ini ada
+from datetime import datetime
 from db_utils import jalankan_query
 from auth import cek_akses_admin, tampilkan_sidebar
 
@@ -31,7 +32,7 @@ else:
     st.download_button(
         label="📥 Unduh Laporan sebagai PDF",
         data=pdf_data,
-        file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
+        file_name = f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
         mime="application/pdf",
         key="download_pdf_statistik"  # <--- TAMBAHKAN KEY UNIK DI SINI
     )
