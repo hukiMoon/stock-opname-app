@@ -1,8 +1,7 @@
 import streamlit as st
-from auth import check_password, sidebar_logout
+from auth import check_role, sidebar_logout
 from db_utils import jalankan_query
 from styles import card_container
-from auth import check_role
 
 check_role(["admin"])
 sidebar_logout()
