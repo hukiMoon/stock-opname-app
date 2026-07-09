@@ -26,13 +26,23 @@ def cek_akses_admin():
 def tampilkan_sidebar():
     with st.sidebar:
         if st.session_state.get("logged_in", False):
+            # MENU ADMIN (Jika sudah login)
             st.title("Menu Utama")
-            # ... daftar menu admin Anda ...
+            st.page_link("Beranda.py", label="Beranda", icon="🏠")
+            st.page_link("pages/Barang_Masuk.py", label="Barang Masuk", icon="📥")
+            # ... tambahkan menu lainnya ...
+            
+            st.divider()
             if st.button("Logout"):
                 st.session_state["logged_in"] = False
                 st.rerun()
         else:
-            st.write("Silakan Login terlebih dahulu.")
+            # MENU LOGIN (Jika belum login)
+            st.title("Sistem Gudang")
+            st.info("Silakan login untuk mengakses menu.")
+            # Ini akan mengarahkan user kembali ke halaman utama (Login)
+            if st.button("Halaman Login"):
+                st.switch_page("Beranda.py")
             
 def check_role():
     if st.session_state.get("role") != "admin":
