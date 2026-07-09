@@ -1,15 +1,11 @@
 import streamlit as st
 import pandas as pd
 from db_utils import jalankan_query, get_data_barang
-from auth import cek_akses_admin, tampilkan_sidebar
+from auth import tampilkan_sidebar
 
-if st.session_state.get("role") != "admin":
-    st.error("Silakan Login terlebih dahulu!")
-    st.stop()
-
-# Pastikan user sudah login
-if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-    st.switch_page("auth.py") # Arahkan ke halaman login jika belum login
+if not st.session_state.get("logged_in", False):
+    st.warning("Silakan login terlebih dahulu.")
+    st.stop() # Menghentikan sisa kode agar tidak berjalan
 
 # Jika sudah login, tampilkan sidebar
 tampilkan_sidebar()
