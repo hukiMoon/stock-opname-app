@@ -1,6 +1,13 @@
 import streamlit as st
-import init_path
+import sys
+import os
+
+# Menambahkan direktori saat ini ke sys.path untuk memastikan file di root terbaca
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Sekarang baru melakukan import
 from auth import form_login, tampilkan_sidebar
+import init_path
 
 # Inisialisasi session state jika belum ada
 if "logged_in" not in st.session_state:
