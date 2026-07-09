@@ -1,13 +1,19 @@
 import streamlit as st
-import sys
 import os
+import sys
 
-# Menambahkan folder root ke path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Memastikan folder root selalu berada di urutan pertama dalam pencarian modul
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from auth import form_login, tampilkan_sidebar
+# Sekarang lakukan import
+try:
+    from auth import form_login, tampilkan_sidebar
+except ImportError as e:
+    st.error(f"Error fatal: {e}")
+    st.info(f"Cek direktori: {os.listdir('.')}")
+    st.stop()
 
-# Logika kontrol akses
+# --- Sisa kode Anda ---
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
