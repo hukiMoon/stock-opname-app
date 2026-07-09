@@ -9,19 +9,11 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Perbaiki baris import ini:
-from auth import form_login, tampilkan_sidebar
+from auth import tampilkan_sidebar, cek_akses_admin
 from db_utils import jalankan_query, get_stok_rendah
 
-if st.session_state.get("role") != "admin":
-    st.error("Anda tidak memiliki akses ke halaman ini!")
-    st.stop()
-
-# Pastikan user sudah login
-if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-    st.switch_page("auth.py") # Arahkan ke halaman login jika belum login
-
-# Jika sudah login, tampilkan sidebar
 tampilkan_sidebar()
+cek_akses_admin()
 
 # Jika sudah login, tampilkan konten
 st.title("Selamat Datang!")
