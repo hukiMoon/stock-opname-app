@@ -5,7 +5,7 @@ from utils import card_container
 
 
 st.title("⚙️ Manajemen Master Data")
-st.write("Selamat datang, Anda telah login!")
+st.write("---")
 
 # Ambil data barang
 daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY kode_barang ASC")
