@@ -47,6 +47,8 @@ def get_data_barang(role):
         query = "SELECT * FROM inventory WHERE status = 'tersedia'"
 
 def cek_barang_ada(nama_barang):
+    # Mengecek apakah nama barang sudah ada (case-insensitive)
     query = "SELECT COUNT(*) FROM barang WHERE LOWER(nama_barang) = LOWER(%s)"
     hasil = jalankan_query(query, (nama_barang,))
+    # hasil akan berupa list berisi tuple, misal: [(1,)]
     return hasil[0][0] > 0
