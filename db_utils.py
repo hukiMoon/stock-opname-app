@@ -56,21 +56,36 @@ def cek_barang_ada(nama_barang):
     return hasil[0][0] > 0
 
 def export_to_excel(query, params=(), kolom_pilihan=None):
+    # 1. Jalankan query untuk mendapatkan data mentah
     data = jalankan_query(query, params)
     
-    # Pastikan daftar ini memiliki jumlah yang sama persis dengan kolom di DB
-    # Urutannya harus sesuai dengan urutan kolom di query SQL Anda
-    nama_kolom = ["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"]
+    # 2. Definisikan nama kolom sesuai urutan yang Anda berikan
+    nama_kolom = [
+        "id", 
+        "kode_barang", 
+        "nama_barang", 
+        "jenis_transaksi", 
+        "jumlah", 
+        "satuan", 
+        "tanggal", 
+        "keterangan"
+    ]
     
+    # 3. Buat DataFrame dengan nama kolom yang sudah benar
     df = pd.DataFrame(data, columns=nama_kolom)
     
-    # Sekarang filter kolom akan bekerja dengan akurat
+    # 4. Filter kolom jika kolom_pilihan ditentukan
     if kolom_pilihan:
-        df = df[[k for k in kolom_pilihan if k in df.columns]]
-        
+        # Hanya ambil kolom yang benar-benar ada di daftar nama_kolom
+        kolom_yang_tersedia = [k for k in kolom_pilihan if k in df.columns]
+        if kolom_yang_tersedia:
+            df = df[kolom_yang_tersedia]
+    
+    # 5. Simpan ke buffer Excel
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
     
+    # 6. Pindahkan kursor ke awal buffer agar file bisa diunduh dengan benar
     buffer.seek(0)
     return buffer.getvalue()
