@@ -161,14 +161,10 @@ with tab2:
             )
             
             st.divider()
-            # Pastikan checkbox dan button di bawah ini memiliki indentasi yang benar
-            if st.checkbox("Aktifkan tombol Hapus"):
-                if st.button("🗑️ Hapus Semua Log", type="primary"):
-                    jalankan_query("DELETE FROM log_opname", commit=True)
-                    st.success("Riwayat berhasil dihapus!")
-                    st.rerun()
-    else:
-        st.info("Belum ada riwayat perubahan stok.")
+            if st.button("🗑️ Hapus Semua Log", type="primary"):
+                jalankan_perintah_db("DELETE FROM log_opname") # Panggil fungsi dari db_utils
+                st.success("Riwayat berhasil dihapus!")
+                st.rerun()
 
 
 stok_rendah = get_stok_rendah(5)
