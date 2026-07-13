@@ -1,5 +1,15 @@
 import streamlit as st
 
+def init_login_state():
+    """Memastikan variabel sesi login selalu terinisialisasi."""
+    if "logged_in" not in st.session_state:
+        st.session_state["logged_in"] = False
+
+def check_login():
+    if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
+        st.warning("Anda harus login terlebih dahulu.")
+        st.stop()
+
 def tampilkan_sidebar():
     st.sidebar.title("Navigasi Menu")
     st.sidebar.success("Anda berhasil login!")
@@ -7,11 +17,6 @@ def tampilkan_sidebar():
     if st.sidebar.button("Logout"):
         st.session_state["logged_in"] = False
         st.rerun() # Refresh halaman untuk kembali ke layar login
-
-def check_login():
-    if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-        st.warning("Anda harus login terlebih dahulu.")
-        st.stop()
 
 # 1. Fungsi untuk membuat tampilan kartu (card) yang Anda butuhkan
 def card_container(title):
