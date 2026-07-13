@@ -1,7 +1,15 @@
 import streamlit as st
+from utils import init_login_state, show_login
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
+
+init_login_state()
+
+if st.session_state["logged_in"]:
+    st.write("Selamat datang di sistem!")
+else:
+    show_login()
 
 # 1. Inisialisasi status login
 if "logged_in" not in st.session_state:
