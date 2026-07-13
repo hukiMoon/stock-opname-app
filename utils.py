@@ -10,6 +10,11 @@ def check_login():
         st.warning("Anda harus login terlebih dahulu.")
         st.stop()
 
+def logout():
+    """Fungsi untuk membersihkan sesi login."""
+    st.session_state["logged_in"] = False
+    st.rerun()
+
 def tampilkan_sidebar():
     st.sidebar.title("Navigasi Menu")
     st.sidebar.success("Anda berhasil login!")
