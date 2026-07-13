@@ -32,9 +32,19 @@ if data:
     st.dataframe(
         df_tampil,
         use_container_width=True,
+            column_config={
+            "id": st.column_config.NumberColumn("ID", format="%d"),
+            "kode_barang": st.column_config.TextColumn("Kode Barang"),
+            "nama_barang": st.column_config.TextColumn("Nama Barang"),
+            "jenis_transaksi": st.column_config.TextColumn("Jenis"),
+            "jumlah": st.column_config.NumberColumn("Jumlah", format="%d"),
+            "satuan": st.column_config.TextColumn("Satuan"),
+            "tanggal": st.column_config.DateColumn("Tanggal"),
+            "keterangan": st.column_config.TextColumn("Keterangan"),
+        },
         hide_index=True
     )
-
+            
     # 5. Tombol Download
     if kolom_dipilih:
         excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_dipilih)
