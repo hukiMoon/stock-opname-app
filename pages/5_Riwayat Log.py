@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 import init_path # Pastikan ini ada
 from db_utils import jalankan_query
-from utils import check_login, card_container
+from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
+tampilkan_sidebar()
 
 st.title("📜 Log Aktivitas Gudang")
 st.write("---")
