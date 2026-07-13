@@ -1,5 +1,5 @@
 import streamlit as st
-import Login
+import Login # Pastikan Login.py berada di folder utama yang sama dengan app.py
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Sistem Gudang", layout="wide")
@@ -10,11 +10,12 @@ if "logged_in" not in st.session_state:
 
 # Logika kontrol akses
 if not st.session_state["logged_in"]:
-    # Jika belum login, tampilkan halaman Login saja
+    # Jika belum login, tampilkan halaman Login
     Login.show_login()
 else:
     # Jika sudah login, Streamlit akan otomatis menampilkan 
     # file yang ada di folder 'pages/' di sidebar.
+    st.sidebar.title("Navigasi Menu")
     st.sidebar.success("Anda berhasil login!")
     
     if st.sidebar.button("Logout"):
