@@ -1,3 +1,5 @@
+import pandas as pd
+import io
 import psycopg2
 import psycopg2.extras
 import streamlit as st
@@ -52,3 +54,18 @@ def cek_barang_ada(nama_barang):
     hasil = jalankan_query(query, (nama_barang,))
     # hasil akan berupa list berisi tuple, misal: [(1,)]
     return hasil[0][0] > 0
+
+def export_to_excel(query, params=()):
+    # 1. Jalankan query untuk mendapatkan data
+    data = jalankan_query(query, params)
+    
+    # 2. Definisikan nama kolom (sesuaikan dengan tabel yang di-query)
+    # Catatan: Jika query berbeda-beda, Anda bisa menambahkan argumen columns
+    df = pd.DataFrame(data)
+    
+    # 3. Simpan ke buffer
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Data')
+    
+    return buffer.getvalue()
