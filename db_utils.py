@@ -58,10 +58,19 @@ def cek_barang_ada(nama_barang):
 def export_to_excel(query, params=(), kolom_pilihan=None):
     # 1. Jalankan query
     data = jalankan_query(query, params)
+    
+    # Debug: Cek apakah data berhasil diambil
+    if not data:
+        print("Debug: Query mengembalikan data kosong!")
+        return b"" # Mengembalikan bytes kosong jika tidak ada data
+
     df = pd.DataFrame(data)
     
-    # 2. Filter kolom jika kolom_pilihan ditentukan
-    if kolom_pilihan and not df.empty:
+    # Debug: Lihat isi df
+    print(f"Debug: Data berhasil dimuat, jumlah baris: {len(df)}")
+    
+    # 2. Filter kolom
+    if kolom_pilihan:
         kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
         df = df[kolom_yang_ada]
     
@@ -70,7 +79,5 @@ def export_to_excel(query, params=(), kolom_pilihan=None):
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
     
-    # 4. PENTING: Pindahkan kursor ke awal buffer agar file tidak kosong
     buffer.seek(0)
-    
     return buffer.getvalue()
