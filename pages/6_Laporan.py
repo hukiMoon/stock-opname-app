@@ -45,20 +45,6 @@ if data:
         hide_index=True
     )
 
-# Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
-def export_filtered_excel(query, kolom_pilihan):
-    data = jalankan_query(query)
-    df = pd.DataFrame(data, columns=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
-    
-    # Filter DataFrame berdasarkan kolom yang diinginkan
-    df_filtered = df[kolom_pilihan]
-    
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df_filtered.to_excel(writer, index=False)
-    buffer.seek(0)
-    return buffer.getvalue()
-
 # 5. Tombol Download
     if kolom_dipilih:
         excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_dipilih)
@@ -72,6 +58,19 @@ def export_filtered_excel(query, kolom_pilihan):
 else:
     st.info("Data belum tersedia.")
 
+# Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
+def export_filtered_excel(query, kolom_pilihan):
+    data = jalankan_query(query)
+    df = pd.DataFrame(data, columns=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
+    
+    # Filter DataFrame berdasarkan kolom yang diinginkan
+    df_filtered = df[kolom_pilihan]
+    
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df_filtered.to_excel(writer, index=False)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
