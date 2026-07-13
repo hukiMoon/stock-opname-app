@@ -44,19 +44,6 @@ if data:
         },
         hide_index=True
     )
-            
-    # 5. Tombol Download
-    if kolom_dipilih:
-        excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_dipilih)
-        st.download_button(
-            label="📥 Download Laporan (Excel)",
-            data=excel_data,
-            file_name="Laporan_Gudang.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            key="btn_download_laporan"
-        )
-else:
-    st.info("Data belum tersedia.")
 
 # Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
 def export_filtered_excel(query, kolom_pilihan):
@@ -72,21 +59,19 @@ def export_filtered_excel(query, kolom_pilihan):
     buffer.seek(0)
     return buffer.getvalue()
 
-# Panggil fungsi dengan parameter tambahan kolom_pilihan
-# 3. Tombol download (hanya muncul jika ada kolom yang dipilih)
-if kolom_dipilih:
-    if st.button("Generate Laporan Excel", key="btn_laporan_excel"):
-        # Kita panggil fungsi dengan kolom yang sudah dipilih user
+# 5. Tombol Download
+    if kolom_dipilih:
         excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_dipilih)
-        
         st.download_button(
             label="📥 Download Laporan (Excel)",
             data=excel_data,
             file_name="Laporan_Gudang.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="btn_download_laporan"
         )
 else:
-    st.warning("Silakan pilih minimal satu kolom untuk diunduh.")
+    st.info("Data belum tersedia.")
+
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
