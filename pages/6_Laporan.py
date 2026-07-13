@@ -12,63 +12,41 @@ tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
 
-query_laporan = """
-    SELECT id, kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan 
-    FROM riwayat 
-    ORDER BY id DESC
-"""
-kolom_export = ["kode_barang", "nama_barang", "jumlah", "tanggal"] 
-excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
-kolom_dipilih = ["kode_barang", "nama_barang", "jumlah"]
-semua_kolom = [
-    "id", "kode_barang", "nama_barang", "jenis_transaksi", 
-    "jumlah", "satuan", "tanggal", "keterangan"
-]
+# --- SETUP AWAL ---
+query_laporan = "SELECT id, kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan FROM riwayat ORDER BY id DESC"
 
-# 2. Tambahkan widget multiselect untuk memilih kolom
-kolom_dipilih = st.multiselect(
-    "Pilih kolom yang ingin diunduh:",
-    options=semua_kolom,
-    default=["nama_barang", "jumlah"] # Kolom yang terpilih otomatis
-)
+# 1. Pilih Kolom
+semua_kolom = ["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"]
+kolom_dipilih = st.multiselect("Pilih kolom yang ingin diunduh:", options=semua_kolom, default=["nama_barang", "jumlah"])
 
-# 1. Pastikan data diambil dari database
-data = jalankan_query(query_laporan) # Mengambil data mentah
+# 2. Ambil Data
+data = jalankan_query(query_laporan)
+if data:
+    df = pd.DataFrame(data, columns=semua_kolom)
+    
+    # 3. Filter DataFrame
+    df_tampil = df[kolom_dipilih] if kolom_dipilih else df
 
-# 2. Definisikan nama kolom (HARUS sesuai urutan tabel di DB)
-nama_kolom = [
-    "id", "kode_barang", "nama_barang", "jenis_transaksi", 
-    "jumlah", "satuan", "tanggal", "keterangan"
-]
-
-# 3. BUAT VARIABEL 'df' DI SINI agar tidak error
-df = pd.DataFrame(data, columns=nama_kolom)
-
-# 4. Filter 'df' berdasarkan pilihan kolom dari multiselect (jika ada)
-if kolom_dipilih:
-    df = df[kolom_dipilih]
-
-# 5. Sekarang kita bisa mengecek if not df.empty
-if not df.empty:
+    # 4. Tampilkan Tabel Cantik
     st.subheader("Preview Data Laporan")
     st.dataframe(
-        df,
+        df_tampil,
         use_container_width=True,
-        column_config={
-            "id": st.column_config.NumberColumn("ID", format="%d"),
-            "kode_barang": st.column_config.TextColumn("Kode Barang"),
-            "nama_barang": st.column_config.TextColumn("Nama Barang"),
-            "jenis_transaksi": st.column_config.TextColumn("Jenis"),
-            "jumlah": st.column_config.NumberColumn("Jumlah", format="%d"),
-            "satuan": st.column_config.TextColumn("Satuan"),
-            "tanggal": st.column_config.DateColumn("Tanggal"),
-            "keterangan": st.column_config.TextColumn("Keterangan"),
-        },
-        hide_index=True,
+        hide_index=True
     )
-else:
-    st.info("Data tidak ditemukan atau kolom belum dipilih.")
 
+    # 5. Tombol Download
+    if kolom_dipilih:
+        excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_dipilih)
+        st.download_button(
+            label="📥 Download Laporan (Excel)",
+            data=excel_data,
+            file_name="Laporan_Gudang.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="btn_download_laporan"
+        )
+else:
+    st.info("Data belum tersedia.")
 
 # Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
 def export_filtered_excel(query, kolom_pilihan):
