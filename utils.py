@@ -14,7 +14,7 @@ def show_login():
         submit_button = st.form_submit_button("Masuk")
         
         if submit_button:
-            if username == "admin" and password == "admin123":
+            if username == "98010786" and password == "1P@ny001":
                 st.session_state["logged_in"] = True
                 st.rerun()
             else:
