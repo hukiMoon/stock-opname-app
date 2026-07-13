@@ -8,9 +8,9 @@ init_login_state()
 
 if st.session_state["logged_in"]:
     st.write("Selamat datang di sistem!")
+    tampilkan_sidebar()
 else:
     show_login()
-    tampilkan_sidebar()
 
 # 1. Inisialisasi status login
 if "logged_in" not in st.session_state:
