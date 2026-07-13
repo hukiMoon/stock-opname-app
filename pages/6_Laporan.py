@@ -29,7 +29,7 @@ semua_kolom = [
 kolom_dipilih = st.multiselect(
     "Pilih kolom yang ingin diunduh:",
     options=semua_kolom,
-    default=["Nama Barang", "Jumlah"] # Kolom yang terpilih otomatis
+    default=["nama_barang", "jumlah"] # Kolom yang terpilih otomatis
 )
 
 
