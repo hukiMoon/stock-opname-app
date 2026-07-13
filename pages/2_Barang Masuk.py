@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from db_utils import jalankan_query, get_data_barang
+from db_utils import jalankan_query, get_data_barang, cek_barang_ada
 from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
