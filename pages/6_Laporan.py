@@ -12,7 +12,7 @@ tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
 
-#query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
+query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
 kolom_export = ["kode_barang", "nama_barang", "jumlah", "tanggal", "keterangan"]
 
 # Panggil fungsi dengan parameter tambahan kolom_pilihan
