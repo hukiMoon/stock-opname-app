@@ -5,13 +5,30 @@ def init_login_state():
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
 
+def show_login():
+    """Tampilan form login."""
+    st.subheader("🔐 Silakan Login")
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit_button = st.form_submit_button("Masuk")
+        
+        if submit_button:
+            if username == "admin" and password == "admin123":
+                st.session_state["logged_in"] = True
+                st.rerun()
+            else:
+                st.error("Username atau Password salah!")
+
 def check_login():
-    if "logged_in" not in st.session_state or not st.session_state["logged_in"]:
-        st.warning("Anda harus login terlebih dahulu.")
+    """Fungsi proteksi untuk halaman di folder pages/."""
+    init_login_state() # Pastikan state ada
+    if not st.session_state["logged_in"]:
+        st.warning("Silakan login terlebih dahulu.")
         st.stop()
 
 def logout():
-    """Fungsi untuk membersihkan sesi login."""
+    """Fungsi untuk keluar dari sistem."""
     st.session_state["logged_in"] = False
     st.rerun()
 
