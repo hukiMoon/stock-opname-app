@@ -58,15 +58,16 @@ def cek_barang_ada(nama_barang):
 def export_to_excel(query, params=(), kolom_pilihan=None):
     data = jalankan_query(query, params)
     
-    # Berikan nama kolom yang sesuai dengan struktur tabel riwayat Anda
+    # Pastikan daftar ini memiliki jumlah yang sama persis dengan kolom di DB
+    # Urutannya harus sesuai dengan urutan kolom di query SQL Anda
     nama_kolom = ["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"]
     
     df = pd.DataFrame(data, columns=nama_kolom)
     
+    # Sekarang filter kolom akan bekerja dengan akurat
     if kolom_pilihan:
-        # Sekarang filter akan bekerja karena kolom sudah punya nama
         df = df[[k for k in kolom_pilihan if k in df.columns]]
-    
+        
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
