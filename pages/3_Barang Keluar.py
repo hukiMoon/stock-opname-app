@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from db_utils import jalankan_query  # <--- Tambahkan baris ini
+from utils import check_login, card_container
+
+check_login()
 
 st.title("📤 Input Barang Keluar")
 st.write("---")
