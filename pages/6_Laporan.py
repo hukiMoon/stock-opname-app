@@ -4,9 +4,10 @@ import io                       # Untuk buffer file
 from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
 from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
-from utils import check_login, card_container
+from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
+tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
 st.write("Selamat datang di sistem manajemen stok.")
