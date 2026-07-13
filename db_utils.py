@@ -65,6 +65,7 @@ def export_to_excel(query, params=(), kolom_pilihan=None):
         return None
 
     df = pd.DataFrame(data)
+    st.write("Kolom yang tersedia di database:", df.columns.tolist())
     
     # 2. Filter kolom (opsional)
     if kolom_pilihan:
