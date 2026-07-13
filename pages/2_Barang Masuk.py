@@ -16,6 +16,7 @@ data = get_data_barang(st.session_state.get("role"))
 
 if opsi_input == "Barang Baru (Belum Terdaftar)":
     with st.form("form_masuk_baru", clear_on_submit=True):
+        # Definisi input widget
         nama_barang = st.text_input("Nama Barang Baru:", key="input_nama_barang_baru").strip().upper()
         data_kd = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
         kode_otomatis = f"STM-{(data_kd[0][0] + 1):02d}" if data_kd else "STM-01"
@@ -26,8 +27,11 @@ if opsi_input == "Barang Baru (Belum Terdaftar)":
         tanggal_pilihan = st.date_input("Tanggal Masuk:")
         input_keterangan = st.text_input("Keterangan:").strip()
         
-        if st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True):
-            # 1. Definisikan variabel terlebih dahulu dengan membersihkan input
+        # Tombol submit
+        submit = st.form_submit_button("Simpan Transaksi Masuk")
+    
+        if submit:
+            # Definisi variabel bersih hanya saat tombol ditekan
             nama_barang_bersih = nama_barang.strip()
             
             # 2. Validasi: Apakah setelah dibersihkan, namanya kosong?
