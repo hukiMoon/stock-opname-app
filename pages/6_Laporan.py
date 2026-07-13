@@ -13,7 +13,7 @@ tampilkan_sidebar()
 st.title("📊 Sistem Stock Opname")
 
 query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
-kolom_export = ["kode_barang", "nama_barang", "jumlah", "tanggal", "keterangan"]
+kolom_export = ["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"]
 
 # Panggil fungsi dengan parameter tambahan kolom_pilihan
 if st.button("Generate Laporan Excel"):
@@ -21,7 +21,7 @@ if st.button("Generate Laporan Excel"):
     data_mentah = jalankan_query(query_laporan)
     
     if data_mentah:
-        excel_data = export_to_excel(query_laporan, kolom_pilihan=["nama_barang", "jumlah", "tanggal"])
+        excel_data = export_to_excel(query_laporan, kolom_pilihan=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
         
         if excel_data: # Pastikan data tidak None
             st.download_button(
