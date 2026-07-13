@@ -11,7 +11,6 @@ check_login()
 tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
-st.write("Selamat datang di sistem manajemen stok.")
 
 query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
 
