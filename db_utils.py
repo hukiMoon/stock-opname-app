@@ -56,14 +56,15 @@ def cek_barang_ada(nama_barang):
     return hasil[0][0] > 0
 
 def export_to_excel(query, params=(), kolom_pilihan=None):
-    # 1. Jalankan query
+    # 1. Jalankan query untuk mendapatkan data
     data = jalankan_query(query, params)
     df = pd.DataFrame(data)
     
     # 2. Filter kolom jika kolom_pilihan ditentukan
     if kolom_pilihan:
-        # Memastikan hanya mengambil kolom yang ada di dalam DataFrame
-        df = df[kolom_pilihan]
+        # Hanya ambil kolom yang benar-benar ada di dalam DataFrame
+        kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
+        df = df[kolom_yang_ada]
     
     # 3. Simpan ke buffer
     buffer = io.BytesIO()
