@@ -3,7 +3,7 @@ import pandas as pd             # Untuk mengolah tabel/dataframe
 import io                       # Untuk buffer file
 from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
-from db_utils import jalankan_query, get_stok_rendah # Untuk koneksi database
+from db_utils import jalankan_query, get_stok_rendah, export_to_excel # Untuk koneksi database
 from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
@@ -72,6 +72,18 @@ with tab1:
                 st.rerun()
             else:
                 st.warning("Tidak ada perubahan stok.")
+
+            query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
+
+            if st.button("Generate Laporan Excel"):
+                excel_data = export_to_excel(query_laporan)
+    
+                st.download_button(
+                    label="📥 Download Data Riwayat (Excel)",
+                    data=excel_data,
+                    file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )   
 
 with tab2:
     st.markdown("### 📜 Riwayat Perubahan Stok")
