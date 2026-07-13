@@ -55,30 +55,29 @@ def cek_barang_ada(nama_barang):
     # hasil akan berupa list berisi tuple, misal: [(1,)]
     return hasil[0][0] > 0
 
-def export_to_excel(query, params=()):
-    # 1. Jalankan query untuk mengambil data dari Supabase
+def export_to_excel(query, params=(), kolom_pilihan=None):
+    # 1. Jalankan query
     data = jalankan_query(query, params)
     
-    # 2. Definisikan urutan nama kolom sesuai dengan struktur tabel riwayat
+    # 2. Definisikan nama kolom (HARUS sesuai urutan tabel database)
     nama_kolom = [
-        "id", 
-        "kode_barang", 
-        "nama_barang", 
-        "jenis_transaksi", 
-        "jumlah", 
-        "satuan", 
-        "tanggal", 
-        "keterangan"
+        "id", "kode_barang", "nama_barang", "jenis_transaksi", 
+        "jumlah", "satuan", "tanggal", "keterangan"
     ]
     
-    # 3. Masukkan data ke DataFrame dengan nama kolom yang sudah sinkron
+    # 3. Buat DataFrame
     df = pd.DataFrame(data, columns=nama_kolom)
     
-    # 4. Buat buffer untuk Excel
+    # 4. Filter kolom jika kolom_pilihan diberikan
+    if kolom_pilihan:
+        # Kita saring kolom yang valid saja untuk menghindari error
+        kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
+        df = df[kolom_yang_ada]
+    
+    # 5. Proses ke Excel
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
     
-    # 5. Pindahkan kursor ke posisi awal
     buffer.seek(0)
     return buffer.getvalue()
