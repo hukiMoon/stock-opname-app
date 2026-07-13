@@ -3,7 +3,7 @@ import pandas as pd             # Untuk mengolah tabel/dataframe
 import io                       # Untuk buffer file
 from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
-from db_utils import jalankan_query, get_stok_rendah, export_to_excel # Untuk koneksi database
+from db_utils import jalankan_query, get_stok_rendah, export_to_excel, jalankan_perintah_db, update_stok_opname # Untuk koneksi database
 from utils import check_login, tampilkan_sidebar, card_container
 from pdf_utils import export_to_pdf
 
@@ -119,19 +119,17 @@ with tab1:
         df_edit = st.data_editor(df, disabled=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"], hide_index=True, use_container_width=True)
         
         if st.button("Sinkronisasi & Simpan Log", type="primary"):
-            data_to_sync = []
-            for index, row in df_edit.iterrows():
-                stok_baru = int(row["Stok Fisik (Hasil Hitung)"])
-                stok_lama = int(row["Stok Sistem"])
-                if stok_baru != stok_lama:
-                    data_to_sync.append((stok_baru, stok_lama, row["Kode Barang"]))
-            
-            if data_to_sync:
-                jalankan_audit_dan_update(data_to_sync)
-                st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
-                st.rerun()
-            else:
-                st.warning("Tidak ada perubahan stok.")   
+                data_to_sync = []
+                for index, row in df_edit.iterrows():
+                    stok_baru = int(row["Stok Fisik (Hasil Hitung)"])
+                    stok_lama = int(row["Stok Sistem"])
+                    if stok_baru != stok_lama:
+                        data_to_sync.append((stok_baru, stok_lama, row["Kode Barang"]))
+    
+        if data_to_sync:
+             update_stok_opname(data_to_sync) # Panggil fungsi dari db_utils
+             st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
+             st.rerun()   
 
 with tab2:
     st.markdown("### 📜 Riwayat Perubahan Stok")
