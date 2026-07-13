@@ -16,7 +16,7 @@ query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
 
 if st.button("Generate Laporan Excel"):
     excel_data = export_to_pdf(query_laporan)
-          )
+)
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
