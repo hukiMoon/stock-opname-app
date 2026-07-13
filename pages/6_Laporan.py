@@ -17,9 +17,35 @@ query_laporan = """
     FROM riwayat 
     ORDER BY id DESC
 """
-kolom_export = ["kode_barang", "nama_barang", "jumlah", "tanggal"] 
-excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
-kolom_dipilih = ["kode_barang", "nama_barang", "jumlah"]
+#kolom_export = ["kode_barang", "nama_barang", "jumlah", "tanggal"] 
+#excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
+#kolom_dipilih = ["kode_barang", "nama_barang", "jumlah"]
+semua_kolom = [
+    "id", "kode_barang", "nama_barang", "jenis_transaksi", 
+    "jumlah", "satuan", "tanggal", "keterangan"
+]
+
+# 2. Tambahkan widget multiselect untuk memilih kolom
+kolom_dipilih = st.multiselect(
+    "Pilih kolom yang ingin diunduh:",
+    options=semua_kolom,
+    default=["kode_barang", "nama_barang", "jumlah", "tanggal"] # Kolom yang terpilih otomatis
+)
+
+# 3. Tombol download (hanya muncul jika ada kolom yang dipilih)
+if kolom_dipilih:
+    if st.button("Generate Laporan Excel"):
+        # Kita panggil fungsi dengan kolom yang sudah dipilih user
+        excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_dipilih)
+        
+        st.download_button(
+            label="📥 Download Laporan (Excel)",
+            data=excel_data,
+            file_name="Laporan_Gudang.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+else:
+    st.warning("Silakan pilih minimal satu kolom untuk diunduh.")
 
 # Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
 def export_filtered_excel(query, kolom_pilihan):
