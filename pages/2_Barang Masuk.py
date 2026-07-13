@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 from db_utils import jalankan_query, get_data_barang
-from utils import check_login, card_container
+from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
+tampilkan_sidebar()
 
 st.title("📥 Input Barang Masuk")
 st.write("---")
