@@ -59,25 +59,30 @@ def export_to_excel(query, params=(), kolom_pilihan=None):
     # 1. Jalankan query
     data = jalankan_query(query, params)
     
-    # Debug: Cek apakah data berhasil diambil
+    # Debug: Pastikan data tidak kosong
     if not data:
-        print("Debug: Query mengembalikan data kosong!")
-        return b"" # Mengembalikan bytes kosong jika tidak ada data
+        st.error("Data dari database kosong, tidak bisa membuat file Excel.")
+        return None
 
     df = pd.DataFrame(data)
     
-    # Debug: Lihat isi df
-    print(f"Debug: Data berhasil dimuat, jumlah baris: {len(df)}")
-    
-    # 2. Filter kolom
+    # 2. Filter kolom (opsional)
     if kolom_pilihan:
         kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
-        df = df[kolom_yang_ada]
+        if kolom_yang_ada:
+            df = df[kolom_yang_ada]
+        else:
+            st.warning("Kolom pilihan tidak ditemukan, mengekspor semua kolom.")
     
-    # 3. Simpan ke buffer
+    # 3. Simpan ke buffer dengan penanganan error
     buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Data')
-    
-    buffer.seek(0)
-    return buffer.getvalue()
+    try:
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Data')
+        
+        # Pindahkan kursor ke awal agar bisa dibaca oleh st.download_button
+        buffer.seek(0)
+        return buffer.getvalue()
+    except Exception as e:
+        st.error(f"Gagal menulis ke Excel: {e}")
+        return None
