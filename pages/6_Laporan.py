@@ -13,8 +13,8 @@ tampilkan_sidebar()
 st.title("📊 Sistem Stock Opname")
 
 query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
-#kolom_export = ["nama_barang", "jumlah", "tanggal", "keterangan"] 
-#excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
+kolom_export = ["nama_barang", "jumlah", "tanggal", "keterangan"] 
+excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
 kolom_dipilih = ["kode_barang", "nama_barang", "jumlah"]
 
 # Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
