@@ -64,11 +64,12 @@ def export_to_excel(query, params=(), kolom_pilihan=None):
     if kolom_pilihan:
         # Hanya ambil kolom yang benar-benar ada di dalam DataFrame
         kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
+        st.write("Kolom yang ditemukan:", kolom_yang_ada) # Tambahkan ini untuk debugging
         df = df[kolom_yang_ada]
     
     # 3. Simpan ke buffer
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
-    
+    buffer.seek(0) # Memastikan kursor kembali ke awal file
     return buffer.getvalue()
