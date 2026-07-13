@@ -56,25 +56,30 @@ def cek_barang_ada(nama_barang):
     return hasil[0][0] > 0
 
 def export_to_excel(query, params=(), kolom_pilihan=None):
-    # 1. Jalankan query
+    # 1. Jalankan query (Sekarang urutan data dari SQL sudah pasti)
     data = jalankan_query(query, params)
     
-    # 2. Definisikan nama kolom (HARUS sesuai urutan tabel database)
+    # 2. Urutan ini HARUS sama persis dengan urutan SELECT di SQL
     nama_kolom = [
-        "id", "kode_barang", "nama_barang", "jenis_transaksi", 
-        "jumlah", "satuan", "tanggal", "keterangan"
+        "id", 
+        "kode_barang", 
+        "nama_barang", 
+        "jenis_transaksi", 
+        "jumlah", 
+        "satuan", 
+        "tanggal", 
+        "keterangan"
     ]
     
     # 3. Buat DataFrame
     df = pd.DataFrame(data, columns=nama_kolom)
     
-    # 4. Filter kolom jika kolom_pilihan diberikan
+    # 4. Filter kolom sesuai pilihan user
     if kolom_pilihan:
-        # Kita saring kolom yang valid saja untuk menghindari error
         kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
         df = df[kolom_yang_ada]
     
-    # 5. Proses ke Excel
+    # 5. Proses simpan ke Excel
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
