@@ -56,33 +56,16 @@ def cek_barang_ada(nama_barang):
     return hasil[0][0] > 0
 
 def export_to_excel(query, params=(), kolom_pilihan=None):
-    # 1. Jalankan query (Sekarang urutan data dari SQL sudah pasti)
     data = jalankan_query(query, params)
-    
-    # 2. Urutan ini HARUS sama persis dengan urutan SELECT di SQL
-    nama_kolom = [
-        "id", 
-        "kode_barang", 
-        "nama_barang", 
-        "jenis_transaksi", 
-        "jumlah", 
-        "satuan", 
-        "tanggal", 
-        "keterangan"
-    ]
-    
-    # 3. Buat DataFrame
+    nama_kolom = ["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"]
     df = pd.DataFrame(data, columns=nama_kolom)
     
-    # 4. Filter kolom sesuai pilihan user
+    # Filter hanya kolom yang dipilih di multiselect
     if kolom_pilihan:
-        kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
-        df = df[kolom_yang_ada]
-    
-    # 5. Proses simpan ke Excel
+        df = df[kolom_pilihan]
+        
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
-    
     buffer.seek(0)
     return buffer.getvalue()
