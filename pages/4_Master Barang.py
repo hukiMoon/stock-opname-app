@@ -1,8 +1,9 @@
 import streamlit as st
 import init_path # Pastikan ini ada
 from db_utils import jalankan_query
-from utils import card_container
+from utils import check_login, card_container
 
+check_login()
 
 st.title("⚙️ Manajemen Master Data")
 st.write("---")
