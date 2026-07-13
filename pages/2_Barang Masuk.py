@@ -26,15 +26,15 @@ if opsi_input == "Barang Baru (Belum Terdaftar)":
         input_keterangan = st.text_input("Keterangan:").strip()
         
         if st.form_submit_button("Simpan Transaksi Masuk"):
-    # 1. Validasi input kosong (yang sudah kita bahas sebelumnya)
-    if not nama_barang:
-        st.error("Nama barang tidak boleh kosong!")
+            # 1. Validasi input kosong (yang sudah kita bahas sebelumnya)
+            if not nama_barang:
+                st.error("Nama barang tidak boleh kosong!")
     
-    # 2. Validasi duplikasi
-    elif cek_barang_ada(nama_barang):
-        st.error(f"Gagal! Barang dengan nama '{nama_barang}' sudah terdaftar di sistem.")
+            # 2. Validasi duplikasi
+            elif cek_barang_ada(nama_barang):
+                st.error(f"Gagal! Barang dengan nama '{nama_barang}' sudah terdaftar di sistem.")
     
-    else:
+        else:
         # Jika lolos semua validasi, baru jalankan insert
         jalankan_query("INSERT INTO barang ...", (kode_otomatis, nama_barang, ...), commit=True)
         st.success("Barang baru berhasil didaftarkan!")
