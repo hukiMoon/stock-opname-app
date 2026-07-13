@@ -63,26 +63,6 @@ if kolom_dipilih:
         )
 else:
     st.warning("Silakan pilih minimal satu kolom untuk diunduh.")
-            
-            
-#if st.button("Generate Laporan Excel"):
-    # Cek dulu datanya sebelum memanggil fungsi
-    #data_mentah = jalankan_query(query_laporan)
-    
-    #if data_mentah:
-        #excel_data = export_to_excel(query_laporan, kolom_pilihan=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
-        
-        #if excel_data: # Pastikan data tidak None
-            #st.download_button(
-                #label="📥 Download Laporan (Excel)",
-                #data=excel_data,
-                #file_name=f"Laporan_{datetime.now().strftime('%Y%m%d')}.xlsx",
-                #mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            #)
-        #else:
-            #st.error("Gagal membuat file Excel.")
-    #else:
-        #st.warning("Tidak ada data untuk diekspor.")
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
