@@ -13,8 +13,23 @@ tampilkan_sidebar()
 st.title("📊 Sistem Stock Opname")
 
 query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
-kolom_export = ["nama_barang", "jumlah", "tanggal", "keterangan"] 
-excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
+#kolom_export = ["nama_barang", "jumlah", "tanggal", "keterangan"] 
+#excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
+kolom_dipilih = ["kode_barang", "nama_barang", "jumlah"]
+
+# Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
+def export_filtered_excel(query, kolom_pilihan):
+    data = jalankan_query(query)
+    df = pd.DataFrame(data, columns=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
+    
+    # Filter DataFrame berdasarkan kolom yang diinginkan
+    df_filtered = df[kolom_pilihan]
+    
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df_filtered.to_excel(writer, index=False)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 # Panggil fungsi dengan parameter tambahan kolom_pilihan
 if st.button("Generate Laporan Excel"):
