@@ -56,20 +56,21 @@ def cek_barang_ada(nama_barang):
     return hasil[0][0] > 0
 
 def export_to_excel(query, params=(), kolom_pilihan=None):
-    # 1. Jalankan query untuk mendapatkan data
+    # 1. Jalankan query
     data = jalankan_query(query, params)
     df = pd.DataFrame(data)
     
     # 2. Filter kolom jika kolom_pilihan ditentukan
-    if kolom_pilihan:
-        # Hanya ambil kolom yang benar-benar ada di dalam DataFrame
+    if kolom_pilihan and not df.empty:
         kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
-        st.write("Kolom yang ditemukan:", kolom_yang_ada) # Tambahkan ini untuk debugging
         df = df[kolom_yang_ada]
     
     # 3. Simpan ke buffer
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Data')
-    buffer.seek(0) # Memastikan kursor kembali ke awal file
+    
+    # 4. PENTING: Pindahkan kursor ke awal buffer agar file tidak kosong
+    buffer.seek(0)
+    
     return buffer.getvalue()
