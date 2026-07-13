@@ -16,7 +16,7 @@ data = get_data_barang(st.session_state.get("role"))
 
 if opsi_input == "Barang Baru (Belum Terdaftar)":
     with st.form("form_masuk_baru", clear_on_submit=True):
-        nama_barang = st.text_input("Nama Barang Baru:")
+        nama_barang = st.text_input("Nama Barang Baru:", key="input_nama_barang_baru").strip().upper()
         data_kd = jalankan_query("SELECT id FROM barang ORDER BY id DESC LIMIT 1")
         kode_otomatis = f"STM-{(data_kd[0][0] + 1):02d}" if data_kd else "STM-01"
         st.info(f"📋 **Kode Barang Baru Otomatis:** {kode_otomatis}")
