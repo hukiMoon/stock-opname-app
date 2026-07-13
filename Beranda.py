@@ -2,7 +2,7 @@ import streamlit as st
 import Login # Pastikan Login.py berada di folder utama yang sama dengan app.py
 
 # Konfigurasi halaman
-st.set_page_config(page_title="Sistem Gudang", layout="wide")
+st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
 
 # Inisialisasi status login
 if "logged_in" not in st.session_state:
