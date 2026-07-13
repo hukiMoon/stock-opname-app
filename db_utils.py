@@ -69,3 +69,29 @@ def export_to_excel(query, params=(), kolom_pilihan=None):
         df.to_excel(writer, index=False, sheet_name='Data')
     buffer.seek(0)
     return buffer.getvalue()
+
+def jalankan_perintah_db(sql, params=()):
+    """Fungsi untuk perintah INSERT, UPDATE, atau DELETE yang butuh commit"""
+    conn = psycopg2.connect(DB_URL) # Sesuaikan dengan variabel koneksi Anda
+    try:
+        with conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, params)
+    finally:
+        conn.close()
+
+def update_stok_opname(data_list):
+    """Logika untuk update stok dan insert log secara batch"""
+    conn = psycopg2.connect(DB_URL)
+    try:
+        with conn:
+            with conn.cursor() as cursor:
+                # Update stok
+                sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
+                psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
+                
+                # Insert log
+                sql_log = "INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) VALUES (%s, %s, %s)"
+                psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
+    finally:
+        conn.close()
