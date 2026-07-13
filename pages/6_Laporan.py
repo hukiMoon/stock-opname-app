@@ -100,28 +100,6 @@ if kolom_dipilih:
 else:
     st.warning("Silakan pilih minimal satu kolom untuk diunduh.")
 
-if not df.empty:
-    st.subheader("Preview Data Laporan")
-    
-    # Menggunakan st.dataframe dengan konfigurasi kolom
-    st.dataframe(
-        df,
-        use_container_width=True, # Tabel akan melebar menyesuaikan layar
-        column_config={
-            "id": st.column_config.NumberColumn("ID", format="%d"),
-            "kode_barang": st.column_config.TextColumn("Kode Barang"),
-            "nama_barang": st.column_config.TextColumn("Nama Barang"),
-            "jenis_transaksi": st.column_config.TextColumn("Jenis"),
-            "jumlah": st.column_config.NumberColumn("Jumlah", format="%d"),
-            "satuan": st.column_config.TextColumn("Satuan"),
-            "tanggal": st.column_config.DateColumn("Tanggal"),
-            "keterangan": st.column_config.TextColumn("Keterangan"),
-        },
-        hide_index=True, # Menyembunyikan indeks angka di kiri
-    )
-else:
-    st.info("Data tidak ditemukan.")
-
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
     try:
