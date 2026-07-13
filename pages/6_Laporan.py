@@ -13,16 +13,17 @@ tampilkan_sidebar()
 st.title("📊 Sistem Stock Opname")
 
 query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
+kolom_export = ["kode_barang", "nama_barang", "jumlah", "tanggal", "keterangan"]
 
+# Panggil fungsi dengan parameter tambahan kolom_pilihan
 if st.button("Generate Laporan Excel"):
-    # Pastikan fungsi export_to_pdf sudah tersedia dan diimpor
-    excel_data = export_to_pdf(pd.DataFrame(jalankan_query(query_laporan)))
+    excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
     
     st.download_button(
-        label="📥 Download Laporan (PDF)",
+        label="📥 Download Laporan (Excel)",
         data=excel_data,
-        file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
-        mime="application/pdf"
+        file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 def jalankan_audit_dan_update(data_list):
