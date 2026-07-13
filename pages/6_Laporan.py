@@ -12,7 +12,11 @@ tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
 
-query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
+query_laporan = """
+    SELECT id, kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan 
+    FROM riwayat 
+    ORDER BY id DESC
+"""
 kolom_export = ["kode_barang", "nama_barang", "jumlah", "tanggal"] 
 excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_export)
 kolom_dipilih = ["kode_barang", "nama_barang", "jumlah"]
