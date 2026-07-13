@@ -12,6 +12,7 @@ DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-a
 def get_connection():
     return psycopg2.connect(DB_URL)
 
+@st.cache_data(ttl=600)
 def jalankan_query(sql, param=(), commit=False):
     conn = get_connection()
     cursor = conn.cursor()
