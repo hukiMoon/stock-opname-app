@@ -56,34 +56,20 @@ def cek_barang_ada(nama_barang):
     return hasil[0][0] > 0
 
 def export_to_excel(query, params=(), kolom_pilihan=None):
-    # 1. Jalankan query
     data = jalankan_query(query, params)
     
-    # Debug: Pastikan data tidak kosong
-    if not data:
-        st.error("Data dari database kosong, tidak bisa membuat file Excel.")
-        return None
-
-    df = pd.DataFrame(data)
-    st.dataframe(df, use_container_width=True)
+    # Berikan nama kolom yang sesuai dengan struktur tabel riwayat Anda
+    nama_kolom = ["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"]
     
-    # 2. Filter kolom (opsional)
+    df = pd.DataFrame(data, columns=nama_kolom)
+    
     if kolom_pilihan:
-        kolom_yang_ada = [k for k in kolom_pilihan if k in df.columns]
-        if kolom_yang_ada:
-            df = df[kolom_yang_ada]
-        else:
-            st.warning("Kolom pilihan tidak ditemukan, mengekspor semua kolom.")
+        # Sekarang filter akan bekerja karena kolom sudah punya nama
+        df = df[[k for k in kolom_pilihan if k in df.columns]]
     
-    # 3. Simpan ke buffer dengan penanganan error
     buffer = io.BytesIO()
-    try:
-        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-            df.to_excel(writer, index=False, sheet_name='Data')
-        
-        # Pindahkan kursor ke awal agar bisa dibaca oleh st.download_button
-        buffer.seek(0)
-        return buffer.getvalue()
-    except Exception as e:
-        st.error(f"Gagal menulis ke Excel: {e}")
-        return None
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Data')
+    
+    buffer.seek(0)
+    return buffer.getvalue()
