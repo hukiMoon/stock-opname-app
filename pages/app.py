@@ -20,7 +20,7 @@ else:
     menu = st.sidebar.radio("Pilih Halaman:", ["Statistik", "Barang Masuk", "Barang Keluar"])
     
     if menu == "Statistik":
-        import 1_Statistik.py
+        import 1_Statistik
     elif menu == "Barang Masuk":
         import 2_Barang_Masuk
     
