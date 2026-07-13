@@ -34,7 +34,7 @@ kolom_dipilih = st.multiselect(
 
 # 3. Tombol download (hanya muncul jika ada kolom yang dipilih)
 if kolom_dipilih:
-    if st.button("Generate Laporan Excel"):
+    if st.button("Generate Laporan Excel", key="btn_laporan_excel"):
         # Kita panggil fungsi dengan kolom yang sudah dipilih user
         excel_data = export_to_excel(query_laporan, kolom_pilihan=kolom_dipilih)
         
