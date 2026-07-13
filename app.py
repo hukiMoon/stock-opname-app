@@ -1,30 +1,22 @@
 import streamlit as st
 import Login
 
-# Mengatur konfigurasi halaman
+# Konfigurasi halaman
 st.set_page_config(page_title="Sistem Gudang", layout="wide")
 
-# Inisialisasi status login jika belum ada
+# Inisialisasi status login
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
 # Logika kontrol akses
 if not st.session_state["logged_in"]:
-    # Jika belum login, tampilkan halaman Login
+    # Jika belum login, tampilkan halaman Login saja
     Login.show_login()
 else:
-    # Jika sudah login, tampilkan navigasi ke fitur lainnya
-    st.sidebar.title("Navigasi Menu")
+    # Jika sudah login, Streamlit akan otomatis menampilkan 
+    # file yang ada di folder 'pages/' di sidebar.
+    st.sidebar.success("Anda berhasil login!")
     
-    # Contoh navigasi (sesuaikan dengan nama filemu)
-    menu = st.sidebar.radio("Pilih Halaman:", ["Statistik", "Barang Masuk", "Barang Keluar"])
-    
-    if menu == "Statistik":
-        import 1_Statistik
-    elif menu == "Barang Masuk":
-        import 2_Barang_Masuk
-    
-    # Tombol Logout
     if st.sidebar.button("Logout"):
         st.session_state["logged_in"] = False
         st.rerun()
