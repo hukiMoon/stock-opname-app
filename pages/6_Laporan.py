@@ -133,6 +133,7 @@ with tab1:
     
                     if data_to_sync:
                          update_stok_opname(data_to_sync) # Panggil fungsi dari db_utils
+                         st.cache_data.clear()
                          st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
                          st.rerun()   
 
