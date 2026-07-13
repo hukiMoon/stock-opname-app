@@ -126,10 +126,10 @@ with tab1:
                     if stok_baru != stok_lama:
                         data_to_sync.append((stok_baru, stok_lama, row["Kode Barang"]))
     
-        if data_to_sync:
-             update_stok_opname(data_to_sync) # Panggil fungsi dari db_utils
-             st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
-             st.rerun()   
+                    if data_to_sync:
+                         update_stok_opname(data_to_sync) # Panggil fungsi dari db_utils
+                         st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
+                         st.rerun()   
 
 with tab2:
     st.markdown("### 📜 Riwayat Perubahan Stok")
