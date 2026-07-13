@@ -24,7 +24,7 @@ kolom_dipilih = ["kode_barang", "nama_barang", "jumlah"]
 # Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
 def export_filtered_excel(query, kolom_pilihan):
     data = jalankan_query(query)
-    df = pd.DataFrame(data, columns=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
+    df = pd.DataFrame(data, columns=["ID", "Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"])
     
     # Filter DataFrame berdasarkan kolom yang diinginkan
     df_filtered = df[kolom_pilihan]
