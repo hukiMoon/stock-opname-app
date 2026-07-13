@@ -55,13 +55,15 @@ def cek_barang_ada(nama_barang):
     # hasil akan berupa list berisi tuple, misal: [(1,)]
     return hasil[0][0] > 0
 
-def export_to_excel(query, params=()):
-    # 1. Jalankan query untuk mendapatkan data
+def export_to_excel(query, params=(), kolom_pilihan=None):
+    # 1. Jalankan query
     data = jalankan_query(query, params)
-    
-    # 2. Definisikan nama kolom (sesuaikan dengan tabel yang di-query)
-    # Catatan: Jika query berbeda-beda, Anda bisa menambahkan argumen columns
     df = pd.DataFrame(data)
+    
+    # 2. Filter kolom jika kolom_pilihan ditentukan
+    if kolom_pilihan:
+        # Memastikan hanya mengambil kolom yang ada di dalam DataFrame
+        df = df[kolom_pilihan]
     
     # 3. Simpan ke buffer
     buffer = io.BytesIO()
