@@ -45,3 +45,8 @@ def get_data_barang(role):
     else:
         # User biasa hanya melihat barang yang statusnya 'tersedia'
         query = "SELECT * FROM inventory WHERE status = 'tersedia'"
+
+def cek_barang_ada(nama_barang):
+    query = "SELECT COUNT(*) FROM barang WHERE LOWER(nama_barang) = LOWER(%s)"
+    hasil = jalankan_query(query, (nama_barang,))
+    return hasil[0][0] > 0
