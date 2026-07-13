@@ -25,19 +25,20 @@ if opsi_input == "Barang Baru (Belum Terdaftar)":
         tanggal_pilihan = st.date_input("Tanggal Masuk:")
         input_keterangan = st.text_input("Keterangan:").strip()
         
-        if st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True):
-            # --- VALIDASI DATA ---
-            if not nama_barang: # Mengecek apakah nama_barang kosong
-                st.error("Nama barang tidak boleh kosong!")
-            elif jumlah_masuk <= 0: # Mengecek apakah jumlah valid
-                st.error("Jumlah barang harus lebih besar dari 0!")
-        else:
-            # Jika lolos validasi, baru jalankan query database
-            jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", 
-                       (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
-            # ... kode insert riwayat lainnya ...
-            st.success("Barang baru berhasil didaftarkan!")
-            st.rerun()
+        if st.form_submit_button("Simpan Transaksi Masuk"):
+    # 1. Validasi input kosong (yang sudah kita bahas sebelumnya)
+    if not nama_barang:
+        st.error("Nama barang tidak boleh kosong!")
+    
+    # 2. Validasi duplikasi
+    elif cek_barang_ada(nama_barang):
+        st.error(f"Gagal! Barang dengan nama '{nama_barang}' sudah terdaftar di sistem.")
+    
+    else:
+        # Jika lolos semua validasi, baru jalankan insert
+        jalankan_query("INSERT INTO barang ...", (kode_otomatis, nama_barang, ...), commit=True)
+        st.success("Barang baru berhasil didaftarkan!")
+        st.rerun()
 else:
     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
     daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
