@@ -50,6 +50,18 @@ with tab1:
     st.markdown("### Laporan Stock Opname & Analisis")
     data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY kode_barang ASC")
 
+            query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
+
+            if st.button("Generate Laporan Excel"):
+                excel_data = export_to_excel(query_laporan)
+    
+                st.download_button(
+                    label="📥 Download Data Riwayat (Excel)",
+                    data=excel_data,
+                    file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            
     if not data_db:
         st.info("Belum ada data barang.")
     else:
@@ -71,19 +83,7 @@ with tab1:
                 st.success(f"Berhasil sinkronisasi {len(data_to_sync)} item!")
                 st.rerun()
             else:
-                st.warning("Tidak ada perubahan stok.")
-
-            query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
-
-            if st.button("Generate Laporan Excel"):
-                excel_data = export_to_excel(query_laporan)
-    
-                st.download_button(
-                    label="📥 Download Data Riwayat (Excel)",
-                    data=excel_data,
-                    file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )   
+                st.warning("Tidak ada perubahan stok.")   
 
 with tab2:
     st.markdown("### 📜 Riwayat Perubahan Stok")
