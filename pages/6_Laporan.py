@@ -32,6 +32,42 @@ kolom_dipilih = st.multiselect(
     default=["nama_barang", "jumlah"] # Kolom yang terpilih otomatis
 )
 
+# 1. Pastikan data diambil dari database
+data = jalankan_query(query_laporan) # Mengambil data mentah
+
+# 2. Definisikan nama kolom (HARUS sesuai urutan tabel di DB)
+nama_kolom = [
+    "id", "kode_barang", "nama_barang", "jenis_transaksi", 
+    "jumlah", "satuan", "tanggal", "keterangan"
+]
+
+# 3. BUAT VARIABEL 'df' DI SINI agar tidak error
+df = pd.DataFrame(data, columns=nama_kolom)
+
+# 4. Filter 'df' berdasarkan pilihan kolom dari multiselect (jika ada)
+if kolom_dipilih:
+    df = df[kolom_dipilih]
+
+# 5. Sekarang kita bisa mengecek if not df.empty
+if not df.empty:
+    st.subheader("Preview Data Laporan")
+    st.dataframe(
+        df,
+        use_container_width=True,
+        column_config={
+            "id": st.column_config.NumberColumn("ID", format="%d"),
+            "kode_barang": st.column_config.TextColumn("Kode Barang"),
+            "nama_barang": st.column_config.TextColumn("Nama Barang"),
+            "jenis_transaksi": st.column_config.TextColumn("Jenis"),
+            "jumlah": st.column_config.NumberColumn("Jumlah", format="%d"),
+            "satuan": st.column_config.TextColumn("Satuan"),
+            "tanggal": st.column_config.DateColumn("Tanggal"),
+            "keterangan": st.column_config.TextColumn("Keterangan"),
+        },
+        hide_index=True,
+    )
+else:
+    st.info("Data tidak ditemukan atau kolom belum dipilih.")
 
 
 # Modifikasi sedikit di bagian fungsi ekspor jika ingin fleksibel:
