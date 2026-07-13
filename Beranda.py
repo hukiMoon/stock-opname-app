@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import init_login_state, show_login
+from utils import init_login_state, show_login, tampilkan_sidebar
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
@@ -15,6 +15,7 @@ else:
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
+tampilkan_sidebar()
 # 2. Definisikan fungsi login
 #def show_login():
     #st.subheader("🔐 Silakan Login")
