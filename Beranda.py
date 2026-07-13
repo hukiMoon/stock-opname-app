@@ -21,8 +21,6 @@ def show_login():
             if username == "98010786" and password == "1P@ny001":
                 st.session_state["logged_in"] = True
                 st.success("Login Berhasil!")
-                st.title("💻 Halo! Selamat datang Admin.")
-                st.write("---")
                 st.rerun() 
             else:
                 st.error("Username atau Password salah!")
@@ -33,6 +31,8 @@ if not st.session_state["logged_in"]:
     show_login()
 else:
     # Jika sudah login, tampilkan menu utama/sidebar
+    st.title("💻 Halo! Selamat datang Admin.")
+    st.write("---")
     st.sidebar.title("Navigasi Menu")
     st.sidebar.success("Anda berhasil login!")
     
