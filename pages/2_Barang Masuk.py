@@ -25,23 +25,26 @@ if opsi_input == "Barang Baru (Belum Terdaftar)":
         tanggal_pilihan = st.date_input("Tanggal Masuk:")
         input_keterangan = st.text_input("Keterangan:").strip()
         
-        if st.form_submit_button("Simpan Transaksi Masuk"):
-            # 1. Validasi awal: Memastikan nama barang tidak kosong setelah dibersihkan
+        if st.form_submit_button("Simpan Transaksi Masuk", use_container_width=True):
+            # 1. Definisikan variabel terlebih dahulu dengan membersihkan input
             nama_barang_bersih = nama_barang.strip()
-    
+            
+            # 2. Validasi: Apakah setelah dibersihkan, namanya kosong?
             if not nama_barang_bersih:
                 st.error("Nama barang tidak boleh kosong!")
-    
-        # 2. Validasi duplikasi: Hanya berjalan jika nama_barang_bersih tidak kosong
+            
+        # 3. Validasi: Apakah barang sudah ada di database?
         elif cek_barang_ada(nama_barang_bersih):
-            st.error(f"Gagal! Barang dengan nama '{nama_barang_bersih}' sudah terdaftar.")
-    
-        # 3. Proses simpan
+                st.error(f"Gagal! Barang dengan nama '{nama_barang_bersih}' sudah terdaftar di sistem.")
+            
+        # 4. Jika lolos validasi, lakukan simpan
         else:
-            # Lanjutkan ke proses jalankan_query
-            jalankan_query("INSERT INTO barang ...", (...), commit=True)
-            st.success("Barang berhasil ditambahkan!")
-            st.rerun()
+                jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", 
+                               (kode_otomatis, nama_barang_bersih, jumlah_masuk, satuan_barang), commit=True)
+                jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
+                               (kode_otomatis, nama_barang_bersih, jumlah_masuk, satuan_barang, tanggal_pilihan.strftime("%Y-%m-%d"), input_keterangan if input_keterangan else "-"), commit=True)
+                st.success("Barang baru berhasil didaftarkan!")
+                st.rerun()
 else:
     daftar_db = jalankan_query("SELECT kode_barang, nama_barang FROM barang ORDER BY LENGTH(kode_barang) ASC, kode_barang ASC")
     daftar_barang = [f"{b[0]} - {b[1]}" for b in daftar_db] if daftar_db else []
