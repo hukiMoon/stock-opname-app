@@ -37,17 +37,12 @@ if opsi_input == "Barang Baru (Belum Terdaftar)":
             # 2. Validasi: Apakah setelah dibersihkan, namanya kosong?
             if not nama_barang_bersih:
                 st.error("Nama barang tidak boleh kosong!")
-            
-        # 3. Validasi: Apakah barang sudah ada di database?
-        elif cek_barang_ada(nama_barang_bersih):
-                st.error(f"Gagal! Barang dengan nama '{nama_barang_bersih}' sudah terdaftar di sistem.")
-            
-        # 4. Jika lolos validasi, lakukan simpan
-        else:
+            elif cek_barang_ada(nama_barang_bersih):
+                st.error(f"Gagal! Barang '{nama_barang_bersih}' sudah terdaftar.")
+            else:
+                # Jalankan query simpan ke database jika validasi lolos
                 jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", 
-                               (kode_otomatis, nama_barang_bersih, jumlah_masuk, satuan_barang), commit=True)
-                jalankan_query("INSERT INTO riwayat (kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan) VALUES (%s, %s, 'MASUK', %s, %s, %s, %s)", 
-                               (kode_otomatis, nama_barang_bersih, jumlah_masuk, satuan_barang, tanggal_pilihan.strftime("%Y-%m-%d"), input_keterangan if input_keterangan else "-"), commit=True)
+                           (kode_otomatis, nama_barang_bersih, jumlah_masuk, satuan_barang), commit=True)
                 st.success("Barang baru berhasil didaftarkan!")
                 st.rerun()
 else:
