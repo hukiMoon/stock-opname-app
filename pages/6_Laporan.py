@@ -41,7 +41,7 @@ if st.button("Generate Laporan Excel"):
     data_mentah = jalankan_query(query_laporan)
     
     if data_mentah:
-        excel_data = export_to_excel(query_laporan, kolom_pilihan=["ID", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
+        excel_data = export_to_excel(query_laporan, kolom_pilihan=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
         
         if excel_data: # Pastikan data tidak None
             st.download_button(
