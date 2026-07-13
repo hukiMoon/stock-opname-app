@@ -5,6 +5,7 @@ from datetime import datetime   # Untuk tanggal/waktu
 import init_path                # Untuk manajemen folder
 from db_utils import jalankan_query, get_stok_rendah, export_to_excel # Untuk koneksi database
 from utils import check_login, tampilkan_sidebar, card_container
+from pdf_utils import export_to_pdf
 
 check_login()
 tampilkan_sidebar()
@@ -15,8 +16,15 @@ st.write("Selamat datang di sistem manajemen stok.")
 query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
 
 if st.button("Generate Laporan Excel"):
-    excel_data = export_to_pdf(query_laporan)
-)
+    # Pastikan fungsi export_to_pdf sudah tersedia dan diimpor
+    excel_data = export_to_pdf(pd.DataFrame(jalankan_query(query_laporan)))
+    
+    st.download_button(
+        label="📥 Download Laporan (PDF)",
+        data=excel_data,
+        file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf",
+        mime="application/pdf"
+    )
 
 def jalankan_audit_dan_update(data_list):
     conn = psycopg2.connect(DB_URL)
