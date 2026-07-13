@@ -30,12 +30,12 @@ if opsi_input == "Barang Baru (Belum Terdaftar)":
             if not nama_barang:
                 st.error("Nama barang tidak boleh kosong!")
     
-            # 2. Validasi duplikasi
-            elif cek_barang_ada(nama_barang):
+        # 2. Validasi duplikasi
+        elif cek_barang_ada(nama_barang):
                 st.error(f"Gagal! Barang dengan nama '{nama_barang}' sudah terdaftar di sistem.")
     
-            # 3. Jika lolos semua validasi
-            else:
+        # 3. Jika lolos semua validasi
+        else:
             # Perhatikan indentasi di bawah ini, harus masuk ke dalam blok else
             jalankan_query("INSERT INTO barang (kode_barang, nama_barang, stok_sistem, satuan) VALUES (%s, %s, %s, %s)", 
                        (kode_otomatis, nama_barang, jumlah_masuk, satuan_barang), commit=True)
