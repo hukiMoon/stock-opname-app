@@ -18,7 +18,7 @@ def show_login():
         
         if submit_button:
             # Ganti dengan logika verifikasi database Anda di masa depan
-            if username == "admingudang" and password == "1P@ny001":
+            if username == "98010786" and password == "1P@ny001":
                 st.session_state["logged_in"] = True
                 st.success("Login Berhasil!")
                 st.rerun() 
