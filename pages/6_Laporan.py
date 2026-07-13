@@ -14,14 +14,8 @@ st.write("Selamat datang di sistem manajemen stok.")
 
 query_laporan = "SELECT * FROM riwayat ORDER BY tanggal DESC"
 
-     if st.button("Generate Laporan Excel"):
-          excel_data = export_to_excel(query_laporan)
-    
-          st.download_button(
-              label="📥 Download Data Riwayat (Excel)",
-              data=excel_data,
-              file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.xlsx",
-              mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+if st.button("Generate Laporan Excel"):
+    excel_data = export_to_pdf(query_laporan)
           )
 
 def jalankan_audit_dan_update(data_list):
