@@ -24,7 +24,15 @@ tab1, tab2 = st.tabs(["📥 Input Opname", "📜 Riwayat Opname"])
 # --- TAB 1: INPUT & PREVIEW LAPORAN ---
 with tab1:
     st.markdown("### Input Stok Opname")
-    data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY kode_barang ASC")
+    
+    # Tambahkan ORDER BY kode_barang ASC di akhir kueri SQL
+    query_barang = """
+    SELECT kode_barang, nama_barang, stok_sistem, satuan 
+    FROM barang 
+    ORDER BY kode_barang ASC
+    """
+    
+    data_db = jalankan_query(query_barang)
             
     if data_db:
         df = pd.DataFrame(data_db, columns=["Kode Barang", "Nama Barang", "Stok Sistem", "Satuan"])
