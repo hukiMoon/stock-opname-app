@@ -89,10 +89,10 @@ with tab2:
 
     if not df_log.empty:
         st.dataframe(df_log, use_container_width=True)
-        # (Kode Anda untuk Riwayat Log tetap di sini)
-        if st.button("🗑️ Hapus Semua Log", type="primary"):
-            jalankan_perintah_db("DELETE FROM log_opname")
-            st.rerun()
     else:
         st.info("Belum ada riwayat perubahan stok.")
 
+# (Kode Anda untuk Riwayat Log tetap di sini)
+if st.button("🗑️ Hapus Semua Log", type="primary"):
+    jalankan_perintah_db("DELETE FROM log_opname")
+    st.rerun()
