@@ -5,9 +5,10 @@ from datetime import datetime
 from db_utils import (
     jalankan_query, 
     get_stok_rendah, 
+    export_to_excel, 
     update_stok_opname, 
     jalankan_perintah_db,
-    export_to_excel
+    ambil_data_log
 )
 from utils import check_login, tampilkan_sidebar
 
@@ -83,7 +84,15 @@ with tab1:
 # --- TAB 2: RIWAYAT DETAIL ---
 with tab2:
     st.markdown("### 📜 Riwayat Perubahan Stok (Log)")
-    # (Kode Anda untuk Riwayat Log tetap di sini)
-    if st.button("🗑️ Hapus Semua Log", type="primary"):
-        jalankan_perintah_db("DELETE FROM log_opname")
-        st.rerun()
+
+    df_log = ambil_data_log() # Memanggil fungsi dari db_utils
+
+    if not df_log.empty:
+        st.dataframe(df_log, use_container_width=True)
+        # (Kode Anda untuk Riwayat Log tetap di sini)
+        if st.button("🗑️ Hapus Semua Log", type="primary"):
+            jalankan_perintah_db("DELETE FROM log_opname")
+            st.rerun()
+    else:
+        st.info("Belum ada riwayat perubahan stok.")
+
