@@ -22,7 +22,7 @@ tab1, tab2 = st.tabs(["📥 Input Opname", "📜 Riwayat Opname"])
 
 # --- TAB 1: INPUT & PREVIEW LAPORAN ---
 with tab1:
-    st.markdown("### 1. Input Stok Opname")
+    st.markdown("### Input Stok Opname")
     data_db = jalankan_query("SELECT kode_barang, nama_barang, stok_sistem, satuan FROM barang ORDER BY kode_barang ASC")
             
     if data_db:
@@ -47,7 +47,7 @@ with tab1:
     st.divider()
 
     # --- BAGIAN PREVIEW LAPORAN (YANG DITAMBAHKAN) ---
-    st.markdown("### 2. Preview Laporan Transaksi")
+    st.markdown("### Preview Laporan Transaksi")
     col_f1, col_f2 = st.columns(2)
     with col_f1:
         tgl_awal = st.date_input("Dari Tanggal", datetime.now())
