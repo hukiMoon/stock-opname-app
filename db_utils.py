@@ -96,3 +96,20 @@ def update_stok_opname(data_list):
                 psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
     finally:
         conn.close()
+
+def ambil_data_log():
+    """
+    Mengambil data log dari tabel log_opname.
+    Fungsi ini diletakkan di db_utils agar bisa digunakan di banyak halaman.
+    """
+    # Menggunakan fungsi jalankan_query yang sudah ada di file ini
+    query = "SELECT id, kode_barang, stok_sebelum, stok_sesudah, tanggal FROM log_opname ORDER BY id DESC LIMIT 50"
+    
+    data = jalankan_query(query)
+    
+    # Memproses data menjadi DataFrame
+    if not data:
+        return pd.DataFrame(columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal"])
+    
+    df = pd.DataFrame(data, columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal"])
+    return df
