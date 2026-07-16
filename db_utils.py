@@ -103,7 +103,7 @@ def ambil_data_log():
     Fungsi ini diletakkan di db_utils agar bisa digunakan di banyak halaman.
     """
     # Menggunakan fungsi jalankan_query yang sudah ada di file ini
-    query = "SELECT id, kode_barang, stok_sebelum, stok_sesudah, tanggal FROM log_opname ORDER BY id DESC LIMIT 50"
+    query = "SELECT id, kode_barang, stok_sebelum, stok_sesudah, waktu_opname, petugas FROM log_opname ORDER BY id DESC LIMIT 50"
     
     data = jalankan_query(query)
     
