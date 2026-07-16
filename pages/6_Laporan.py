@@ -29,7 +29,9 @@ with tab1:
     query_barang = """
     SELECT kode_barang, nama_barang, stok_sistem, satuan 
     FROM barang 
-    ORDER BY kode_barang ASC
+    ORDER BY 
+       substring(kode_barang from '^[a-zA-Z]+')::text ASC,  -- Mengurutkan berdasarkan bagian huruf
+       (substring(kode_barang from '[0-9]+'))::int ASC      -- Mengurutkan berdasarkan bagian angka secara numerik
     """
     
     data_db = jalankan_query(query_barang)
