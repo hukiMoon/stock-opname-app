@@ -55,10 +55,11 @@ with tab1:
         tgl_akhir = st.date_input("Sampai Tanggal", datetime.now())
 
     # Kueri untuk mengambil data riwayat berdasarkan tanggal
+    # Perubahan pada bagian WHERE: menambahkan ::date setelah nama kolom tanggal
     sql_laporan = """
     SELECT id, kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan 
     FROM riwayat 
-    WHERE tanggal BETWEEN %s AND %s 
+    WHERE tanggal::date BETWEEN %s::date AND %s::date 
     ORDER BY tanggal DESC
     """
     
