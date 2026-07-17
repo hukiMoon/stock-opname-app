@@ -1,6 +1,7 @@
 import streamlit as st
 import bcrypt
 from db_utils import jalankan_query
+from utils import tampilkan_sidebar
 
 def init_login_state():
     """Memastikan variabel sesi login selalu terinisialisasi."""
@@ -19,6 +20,7 @@ def check_role(required_role):
     # Jika role pengguna saat ini bukan admin DAN bukan role yang diminta, maka akses ditolak
     if st.session_state.get("role") != required_role and st.session_state.get("role") != "admin":
         st.error("⛔ Anda tidak memiliki akses untuk membuka halaman manajemen ini.")
+        tampilkan_sidebar()
         st.stop()
 
 def show_login():
