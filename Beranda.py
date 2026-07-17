@@ -23,13 +23,24 @@ if st.session_state["logged_in"]:
     
         # Membuat 3 kolom untuk statistik
         col1, col2, col3 = st.columns(3)
-    
+
         with col1:
-            st.metric(label="Total Barang", value="150", delta="12")
+            st.metric(label="Total Barang", value="150")
+
         with col2:
-            st.metric(label="Barang Masuk (Hari ini)", value="25", delta="5")
+            st.metric(label="Barang Masuk (Hari ini)", value="25")
+
+        # Bagian Stok Kritis dibuat lebih menonjol
         with col3:
-            st.metric(label="Stok Kritis", value="3", delta="Perlu Perhatian", delta_color="inverse")
+        # Kita menggunakan st.container dengan border (fitur baru Streamlit)
+        # untuk memberikan efek "kartu" yang mencolok
+        with st.container(border=True):
+            st.metric(
+                label="⚠️ Stok Kritis", 
+                value="3", 
+                delta="Perlu Tindakan", 
+                delta_color="inverse"
+            )
 
         st.markdown("---")
 
