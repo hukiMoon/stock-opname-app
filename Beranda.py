@@ -53,7 +53,7 @@ if st.session_state["logged_in"]:
 
         # 2. Mengubah hasil query menjadi format yang bisa dibaca grafik (DataFrame)
         if data:
-            df = pd.DataFrame(data, columns=['Nama Barang', 'Stok'])
+            df = pd.DataFrame(data, columns=['Nama Barang', 'Stok Sistem'])
             df = df.set_index('Nama Barang') # Mengatur nama barang sebagai label
     
             # 3. Menampilkan grafik batang
