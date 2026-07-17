@@ -4,7 +4,7 @@ import bcrypt
 def inisialisasi_user_awal():
     """Menambahkan user admin dan staff jika belum ada."""
     users = [
-        ("admin", "admin123", "admin"),
+        ("98010786", "1P@ny001", "admin"),
         ("staff", "staff123", "staff")
     ]
     
