@@ -1,13 +1,11 @@
 import streamlit as st
 import setup_db
-from utils import init_login_state, show_login, tampilkan_sidebar
+from utils import show_login, tampilkan_sidebar
 
 setup_db.inisialisasi_user_awal()
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
-
-init_login_state()
 
 if st.session_state["logged_in"]:
     if "role" in st.session_state and st.session_state["role"]:
