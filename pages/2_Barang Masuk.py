@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from db_utils import jalankan_query, get_data_barang, cek_barang_ada
+from db_utils import jalankan_query, get_data_barang, cek_barang_ada, sinkronisasi_riwayat_masuk
 from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
@@ -96,23 +96,11 @@ else:
         set_id_sekarang = set(edited_df["ID Transaksi"].tolist())
         id_terlihat = df_riwayat["ID Transaksi"].tolist()
         
-        for baris in raw_riwayat:
-            id_asal = baris[0]
-            if id_asal in id_terlihat and id_asal not in set_id_sekarang:
-                nm_b, jml_lama = baris[2], baris[3]
-                stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (nm_b,))[0][0]
-                jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (max(0, stok_skrg - jml_lama), nm_b), commit=True)
-                jalankan_query("DELETE FROM riwayat WHERE id = %s", (id_asal,), commit=True)
+        # Panggil fungsi aman dari db_utils
+        sukses, pesan = sinkronisasi_riwayat_masuk(raw_riwayat, id_terlihat, set_id_sekarang, edited_df)
         
-        for _, row in edited_df.iterrows():
-            id_cek = row["ID Transaksi"]
-            jml_baru = int(row["Jumlah"])
-            ket_baru = str(row["Keterangan"])
-            data_lama = [b for b in raw_riwayat if b[0] == id_cek][0]
-            if jml_baru != data_lama[3] or ket_baru != data_lama[5]:
-                selisih = jml_baru - data_lama[3]
-                stok_skrg = jalankan_query("SELECT stok_sistem FROM barang WHERE nama_barang = %s", (data_lama[2],))[0][0]
-                jalankan_query("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg + selisih, data_lama[2]), commit=True)
-                jalankan_query("UPDATE riwayat SET jumlah = %s, keterangan = %s WHERE id = %s", (jml_baru, ket_baru, id_cek), commit=True)
-        st.success("Perubahan riwayat berhasil!")
-        st.rerun()
+        if sukses:
+            st.success(pesan)
+            st.rerun()
+        else:
+            st.error(pesan)
