@@ -69,9 +69,9 @@ def tampilkan_sidebar():
         
         # 3. Tambahkan menu berdasarkan Role
         if role == "admin":
-            menu_opsi.extend(["Input Barang", "Laporan", "Manajemen User"])
+            menu_opsi.extend(["Barang Masuk", "Laporan", "Manajemen User"])
         elif role == "staff":
-            menu_opsi.extend(["Input Barang", "Laporan"])
+            menu_opsi.extend(["Barang Masuk", "Laporan"])
 
         # 4. Tampilkan menu radio
         pilihan = st.radio("Pilih Menu:", menu_opsi)
