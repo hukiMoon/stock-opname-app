@@ -4,21 +4,13 @@ import pandas as pd
 from utils import init_login_state, show_login, tampilkan_sidebar
 from db_utils import jalankan_query
 
-pilihan = tampilkan_sidebar()
-
-if pilihan == "Beranda":
-    # Kode halaman beranda
-    pass Beranda.py
-elif pilihan == "Statistik":
-    # Kode halaman statistik
-    pass Statistik.py
-
 setup_db.inisialisasi_user_awal()
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
 
 init_login_state()
+pilihan = tampilkan_sidebar()
 
 if st.session_state["logged_in"]:
     if "role" in st.session_state and st.session_state["role"]:
@@ -85,5 +77,14 @@ if st.session_state["logged_in"]:
             st.button("Laporan Stok")
     else:
         st.title("Sistem Inventaris Gudang")
+    if pilihan == "Beranda":
+        st.write("Ini adalah halaman utama.")
+    elif pilihan == "Statistik":
+        # Di sini kita bisa memanggil fungsi atau kode untuk halaman statistik
+        st.write("Menampilkan halaman statistik...")
+    elif pilihan == "Barang Masuk":
+        st.write("Halaman untuk input barang.")
+    elif pilihan == "Laporan":
+        st.write("Halaman laporan stok.")
 else:
     show_login()
