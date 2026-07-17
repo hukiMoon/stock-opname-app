@@ -32,15 +32,15 @@ if st.session_state["logged_in"]:
 
         # Bagian Stok Kritis dibuat lebih menonjol
         with col3:
-        # Kita menggunakan st.container dengan border (fitur baru Streamlit)
-        # untuk memberikan efek "kartu" yang mencolok
-        with st.container(border=True):
-            st.metric(
-                label="⚠️ Stok Kritis", 
-                value="3", 
-                delta="Perlu Tindakan", 
-                delta_color="inverse"
-            )
+            # Kita menggunakan st.container dengan border (fitur baru Streamlit)
+            # untuk memberikan efek "kartu" yang mencolok
+            with st.container(border=True):
+                st.metric(
+                    label="⚠️ Stok Kritis", 
+                    value="3", 
+                    delta="Perlu Tindakan", 
+                    delta_color="inverse"
+                )
 
         st.markdown("---")
 
