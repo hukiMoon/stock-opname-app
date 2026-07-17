@@ -5,11 +5,11 @@ import psycopg2.extras
 import streamlit as st
 import bcrypt
 
-# Gunakan secrets untuk keamanan (opsional tapi sangat disarankan)
-# Jika tidak ingin pakai secrets, masukkan URL di sini
-DB_URL = "postgresql://postgres.krckbruwpxgiziujgqiy:1P%40ny001%2E%2E%2E@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+# Mengambil URL dari file .streamlit/secrets.toml
+DB_URL = st.secrets["DB_URL"]
 
 def get_connection():
+    # Menghubungkan ke database menggunakan variabel yang sudah aman
     return psycopg2.connect(DB_URL)
 
 @st.cache_data(ttl=600)
