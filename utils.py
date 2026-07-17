@@ -52,12 +52,39 @@ def logout():
     st.rerun()
 
 def tampilkan_sidebar():
-    st.sidebar.title("Navigasi Menu")
-    st.sidebar.success("Anda berhasil login!")
-    
-    if st.sidebar.button("Logout"):
-        st.session_state["logged_in"] = False
-        st.rerun() # Refresh halaman untuk kembali ke layar login
+    with st.sidebar:
+        st.title("📦 Menu Gudang")
+        
+        # 1. Pastikan user sudah login
+        if "role" not in st.session_state or not st.session_state.get("role"):
+            st.warning("Silakan login terlebih dahulu.")
+            return
+
+        role = st.session_state["role"]
+        st.write(f"Login sebagai: **{role.upper()}**")
+        st.markdown("---")
+
+        # 2. Definisikan navigasi dasar yang bisa dilihat semua orang
+        menu_opsi = ["Beranda", "Statistik"]
+        
+        # 3. Tambahkan menu berdasarkan Role
+        if role == "admin":
+            menu_opsi.extend(["Input Barang", "Laporan", "Manajemen User"])
+        elif role == "staff":
+            menu_opsi.extend(["Input Barang", "Laporan"])
+
+        # 4. Tampilkan menu radio
+        pilihan = st.radio("Pilih Menu:", menu_opsi)
+        
+        st.markdown("---")
+        
+        # 5. Tombol Logout
+        if st.button("Logout"):
+            st.session_state["logged_in"] = False
+            st.session_state["role"] = None
+            st.rerun()
+
+    return pilihan
 
 # 1. Fungsi untuk membuat tampilan kartu (card) yang Anda butuhkan
 def card_container(title):
