@@ -11,7 +11,7 @@ if pilihan == "Beranda":
     pass Beranda.py
 elif pilihan == "Statistik":
     # Kode halaman statistik
-    pass pages/1_Statistik.py
+    pass 1_Statistik.py
 
 setup_db.inisialisasi_user_awal()
 
