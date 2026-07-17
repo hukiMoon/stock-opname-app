@@ -68,22 +68,33 @@ def cek_barang_ada(nama_barang):
     return hasil[0][0] > 0
 
 def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian):
-    """
-    Mengambil data terfilter lalu mengonversinya ke format Excel (Bytes).
-    """
-    # Gunakan fungsi yang sudah kita buat sebelumnya untuk mendapatkan data
+    # Mengambil data
     data = ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian)
     
+    # 1. Definisi kolom untuk data (teknis)
     nama_kolom = ["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
     df = pd.DataFrame(data, columns=nama_kolom)
     
-    # Simpan ke buffer Excel
+    # 2. Menyesuaikan nama kolom agar lebih ramah dibaca (Renaming)
+    df = df.rename(columns={
+        "Kode Barang": "Kode",
+        "Nama Barang": "Nama Produk",
+        "Jenis Transaksi": "Kategori",
+        "Keterangan": "Tujuan / Sub-Bagian"
+    })
+    
+    # 3. Membuat buffer dan menulis ke Excel
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Laporan')
+        # Menulis judul (header khusus) di baris pertama
+        judul = pd.DataFrame([["Laporan Inventaris Gudang", "", "", "", "", "", ""]])
+        judul.to_excel(writer, index=False, header=False, startrow=0)
+        
+        # Menulis tabel di bawah judul (mulai baris ke-3)
+        df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
+        
     buffer.seek(0)
     return buffer.getvalue()
-
 
 def jalankan_perintah_db(sql, params=()):
     """Fungsi untuk perintah INSERT, UPDATE, atau DELETE yang butuh commit"""
