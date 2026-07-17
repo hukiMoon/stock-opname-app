@@ -25,11 +25,20 @@ with st.expander("🔍 Filter Pencarian Canggih", expanded=True):
         tgl_akhir = st.date_input("Sampai Tanggal")
 
 if st.button("Cari Data"):
-    # Memanggil fungsi dengan parameter tambahan
     data = ambil_riwayat_terfilter(nama_cari, jenis_pilih, tgl_awal, tgl_akhir, sub_pilih)
     
     if data:
         df = pd.DataFrame(data, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"])
         st.dataframe(df, use_container_width=True)
+        
+        # --- TAMBAHKAN TOMBOL EKSPOR DI SINI ---
+        from db_utils import export_to_excel_filter
+        
+        st.download_button(
+            label="📥 Download Hasil Filter (Excel)",
+            data=export_to_excel_filter(nama_cari, jenis_pilih, tgl_awal, tgl_akhir, sub_pilih),
+            file_name=f"Laporan_Gudang_{tgl_awal}_sd_{tgl_akhir}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
     else:
         st.info("Data tidak ditemukan.")
