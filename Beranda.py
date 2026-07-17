@@ -11,6 +11,7 @@ init_login_state()
 
 if st.session_state["logged_in"]:
     st.title("💻 Halo! Selamat datang Admin.")
+    st.write("Silakan pilih menu di sidebar untuk mulai bekerja.")
     st.write("---")
     tampilkan_sidebar()
 else:
