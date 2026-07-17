@@ -12,7 +12,7 @@ init_login_state()
 if st.session_state["logged_in"]:
     if "role" in st.session_state and st.session_state["role"]:
         role = st.session_state["role"].capitalize()
-        st.title(f"Hallo, selamat datang {role}!")
+        st.title(f"Hallo, Selamat datang {role}!")
         tampilkan_sidebar()
     else:
         st.title("Selamat Datang di Sistem Inventaris Gudang")
