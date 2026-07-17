@@ -49,7 +49,7 @@ if st.session_state["logged_in"]:
 
         # 1. Mengambil data untuk grafik dari database
         # Asumsi tabelmu bernama 'barang' dan memiliki kolom 'nama_barang' dan 'stok'
-        query_grafik = "SELECT nama_barang, stok FROM barang LIMIT 10"
+        query_grafik = "SELECT nama_barang, stok_sistem FROM barang LIMIT 10"
         data = jalankan_query(query_grafik)
 
         # 2. Mengubah hasil query menjadi format yang bisa dibaca grafik (DataFrame)
