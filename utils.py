@@ -5,6 +5,20 @@ def init_login_state():
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
 
+def check_login():
+    """Fungsi proteksi untuk memastikan pengguna sudah login."""
+    init_login_state() # Pastikan state ada
+    if not st.session_state["logged_in"]:
+        st.warning("Silakan login terlebih dahulu.")
+        st.stop()
+
+def check_role(required_role):
+    """Fungsi proteksi tambahan untuk memeriksa peran (role) pengguna."""
+    # Jika role pengguna saat ini bukan admin DAN bukan role yang diminta, maka akses ditolak
+    if st.session_state.get("role") != required_role and st.session_state.get("role") != "admin":
+        st.error("⛔ Anda tidak memiliki akses untuk membuka halaman manajemen ini.")
+        st.stop()
+
 def show_login():
     """Tampilan form login."""
     st.subheader("🔐 Silakan Login")
@@ -19,13 +33,6 @@ def show_login():
                 st.rerun()
             else:
                 st.error("Username atau Password salah!")
-
-def check_login():
-    """Fungsi proteksi untuk halaman di folder pages/."""
-    init_login_state() # Pastikan state ada
-    if not st.session_state["logged_in"]:
-        st.warning("Silakan login terlebih dahulu.")
-        st.stop()
 
 def logout():
     """Fungsi untuk keluar dari sistem."""
