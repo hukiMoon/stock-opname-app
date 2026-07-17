@@ -78,13 +78,12 @@ if st.session_state["logged_in"]:
     else:
         st.title("Sistem Inventaris Gudang")
     if pilihan == "Beranda":
-        st.write("Ini adalah halaman utama.")
+        st.switch_page("Beranda.py")
     elif pilihan == "Statistik":
-        # Di sini kita bisa memanggil fungsi atau kode untuk halaman statistik
-        st.write("Menampilkan halaman statistik...")
+        st.switch_page("pages/1_Statistik.py")
     elif pilihan == "Barang Masuk":
-        st.write("Halaman untuk input barang.")
+        st.switch_page("pages/2_Barang_Masuk.py")
     elif pilihan == "Laporan":
-        st.write("Halaman laporan stok.")
+        st.switch_page("pages/6_Laporan.py")
 else:
     show_login()
