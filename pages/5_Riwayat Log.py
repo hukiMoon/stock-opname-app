@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import init_path # Pastikan ini ada
-from db_utils import jalankan_query
+from db_utils import jalankan_query, ambil_riwayat_terfilter
 from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
@@ -10,33 +10,23 @@ tampilkan_sidebar()
 st.title("📜 Log Aktivitas Gudang")
 st.write("---")
 
-# 2. Mengambil data untuk statistik (opsional, tapi memperbagus tampilan)
-data_riwayat = jalankan_query("SELECT kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan FROM riwayat ORDER BY id DESC")
+# Filter UI
+with st.expander("🔍 Filter Pencarian Canggih", expanded=True):
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        nama_cari = st.text_input("Cari Nama Barang")
+    with col2:
+        jenis_pilih = st.multiselect("Jenis Transaksi", ["MASUK", "KELUAR"])
+    with col3:
+        tgl_awal = st.date_input("Dari Tanggal", value=pd.to_datetime("2026-01-01"))
+        tgl_akhir = st.date_input("Sampai Tanggal")
 
-if not data_riwayat:
-    st.info("Belum ada riwayat transaksi.")
-else:
-    df = pd.DataFrame(data_riwayat, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal Transaksi", "Keterangan"])
+# Ambil data langsung dari DB dengan filter
+if st.button("Cari Data"):
+    data = ambil_riwayat_terfilter(nama_cari, jenis_pilih, tgl_awal, tgl_akhir)
     
-    # Menambahkan ringkasan ringkas di atas tabel
-    col1, col2 = st.columns(2)
-    col1.metric("Total Transaksi", len(df))
-    col2.metric("Barang Terakhir Keluar", df[df["Jenis Transaksi"] == "KELUAR"].shape[0])
-
-    # 3. Tampilan Data Modern
-    st.subheader("📋 Detail Log")
-    st.dataframe(
-        df, 
-        hide_index=True, 
-        use_container_width=True,
-        column_config={
-            "Jenis Transaksi": st.column_config.TextColumn(
-                "Jenis", 
-                help="Masuk atau Keluar"
-            ),
-            "Tanggal Transaksi": st.column_config.DateColumn(
-                "Tanggal",
-                format="DD/MM/YYYY"
-            )
-        }
-    )
+    if data:
+        df = pd.DataFrame(data, columns=["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"])
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.info("Data tidak ditemukan.")
