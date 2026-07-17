@@ -8,10 +8,10 @@ pilihan = tampilkan_sidebar()
 
 if pilihan == "Beranda":
     # Kode halaman beranda
-    pass
+    pass Beranda.py
 elif pilihan == "Statistik":
     # Kode halaman statistik
-    pass
+    pass pages/1_Statistik.py
 
 setup_db.inisialisasi_user_awal()
 
