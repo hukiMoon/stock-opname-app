@@ -1,5 +1,6 @@
 import streamlit as st
 import setup_db
+import pandas as pd
 from utils import init_login_state, show_login, tampilkan_sidebar
 from db_utils import jalankan_query
 
