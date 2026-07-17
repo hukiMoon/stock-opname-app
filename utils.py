@@ -1,4 +1,6 @@
 import streamlit as st
+import bcrypt
+from db_utils import jalankan_query
 
 def init_login_state():
     """Memastikan variabel sesi login selalu terinisialisasi."""
@@ -20,7 +22,6 @@ def check_role(required_role):
         st.stop()
 
 def show_login():
-    """Tampilan form login."""
     st.subheader("🔐 Silakan Login")
     with st.form("login_form"):
         username = st.text_input("Username")
@@ -28,11 +29,22 @@ def show_login():
         submit_button = st.form_submit_button("Masuk")
         
         if submit_button:
-            if username == "98010786" and password == "1P@ny001":
-                st.session_state["logged_in"] = True
-                st.rerun()
+            # Ambil data user dari DB
+            data = jalankan_query("SELECT password_hash, role FROM users WHERE username = %s", (username,))
+            
+            if data:
+                hashed_db = data[0][0].encode('utf-8')
+                role_db = data[0][1]
+                
+                # Cek apakah password cocok
+                if bcrypt.checkpw(password.encode('utf-8'), hashed_db):
+                    st.session_state["logged_in"] = True
+                    st.session_state["role"] = role_db
+                    st.rerun()
+                else:
+                    st.error("Password salah!")
             else:
-                st.error("Username atau Password salah!")
+                st.error("Username tidak ditemukan!")
 
 def logout():
     """Fungsi untuk keluar dari sistem."""
