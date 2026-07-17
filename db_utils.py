@@ -67,20 +67,23 @@ def cek_barang_ada(nama_barang):
     # hasil akan berupa list berisi tuple, misal: [(1,)]
     return hasil[0][0] > 0
 
-def export_to_excel(query, params=(), kolom_pilihan=None):
-    data = jalankan_query(query, params)
-    nama_kolom = ["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"]
+def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian):
+    """
+    Mengambil data terfilter lalu mengonversinya ke format Excel (Bytes).
+    """
+    # Gunakan fungsi yang sudah kita buat sebelumnya untuk mendapatkan data
+    data = ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian)
+    
+    nama_kolom = ["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
     df = pd.DataFrame(data, columns=nama_kolom)
     
-    # Filter hanya kolom yang dipilih di multiselect
-    if kolom_pilihan:
-        df = df[kolom_pilihan]
-        
+    # Simpan ke buffer Excel
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Data')
+        df.to_excel(writer, index=False, sheet_name='Laporan')
     buffer.seek(0)
     return buffer.getvalue()
+
 
 def jalankan_perintah_db(sql, params=()):
     """Fungsi untuk perintah INSERT, UPDATE, atau DELETE yang butuh commit"""
