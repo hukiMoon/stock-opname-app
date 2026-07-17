@@ -10,10 +10,11 @@ from db_utils import (
     jalankan_perintah_db,
     ambil_data_log
 )
-from utils import check_login, tampilkan_sidebar
+from utils import check_login, check_role, tampilkan_sidebar
 
 # Konfigurasi Halaman
 check_login()
+check_role("admin")
 tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
