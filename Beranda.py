@@ -7,14 +7,15 @@ setup_db.inisialisasi_user_awal()
 # Konfigurasi halaman
 st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
 
-show_login()
-
-if "role" in st.session_state and st.session_state["role"]:
-    role = st.session_state["role"].capitalize()
-    st.title(f"Hallo, Selamat datang {role}!👋")
-    tampilkan_sidebar()
+if st.session_state["logged_in"]:
+    if "role" in st.session_state and st.session_state["role"]:
+        role = st.session_state["role"].capitalize()
+        st.title(f"Hallo, Selamat datang {role}!👋")
+        tampilkan_sidebar()
+    else:
+        st.title("Sistem Inventaris Gudang")
 else:
-    st.title("Sistem Inventaris Gudang")
+    show_login()
     
 st.markdown("---")
 
