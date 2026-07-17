@@ -10,10 +10,12 @@ st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
 init_login_state()
 
 if st.session_state["logged_in"]:
-    st.title("💻 Halo! Selamat datang Admin.")
-    st.write("Silakan pilih menu di sidebar untuk mulai bekerja.")
-    st.write("---")
-    tampilkan_sidebar()
+    if "role" in st.session_state and st.session_state["role"]:
+        role = st.session_state["role"].capitalize()
+        st.title(f"Hallo, selamat datang {role}!")
+    else:
+        st.title("Selamat Datang di Sistem Inventaris Gudang")
+        st.info("Silakan login untuk mengakses fitur penuh.")
 else:
     show_login()
 
