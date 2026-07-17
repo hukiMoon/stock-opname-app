@@ -71,11 +71,16 @@ def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, su
     # Mengambil data
     data = ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian)
     
-    # 1. Definisi kolom untuk data (teknis)
     nama_kolom = ["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
     df = pd.DataFrame(data, columns=nama_kolom)
     
-    # 2. Menyesuaikan nama kolom agar lebih ramah dibaca (Renaming)
+    # --- MENAMBAHKAN FORMAT TANGGAL ---
+    # 1. Pastikan kolom tanggal bertipe datetime
+    df["Tanggal"] = pd.to_datetime(df["Tanggal"])
+    # 2. Ubah format menjadi teks DD/MM/YYYY agar rapi di Excel
+    df["Tanggal"] = df["Tanggal"].dt.strftime("%d/%m/%Y")
+    
+    # Renaming kolom
     df = df.rename(columns={
         "Kode Barang": "Kode",
         "Nama Barang": "Nama Produk",
@@ -83,14 +88,11 @@ def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, su
         "Keterangan": "Tujuan / Sub-Bagian"
     })
     
-    # 3. Membuat buffer dan menulis ke Excel
     buffer = io.BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        # Menulis judul (header khusus) di baris pertama
         judul = pd.DataFrame([["Laporan Inventaris Gudang", "", "", "", "", "", ""]])
         judul.to_excel(writer, index=False, header=False, startrow=0)
         
-        # Menulis tabel di bawah judul (mulai baris ke-3)
         df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
         
     buffer.seek(0)
