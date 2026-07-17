@@ -220,9 +220,9 @@ def sinkronisasi_riwayat_keluar(raw_riwayat, id_terlihat, set_id_sekarang, edite
     except Exception as e:
         return False, f"Gagal menyinkronkan data: {str(e)}"
 
-def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir):
+def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian=None):
     """
-    Mengambil riwayat berdasarkan filter langsung dari database.
+    Mengambil riwayat dengan filter tambahan untuk sub-bagian (keterangan).
     """
     query = "SELECT kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan FROM riwayat WHERE 1=1"
     params = []
@@ -232,10 +232,14 @@ def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir):
         params.append(f"%{nama_barang}%")
     
     if jenis_transaksi:
-        # Menangani daftar (list) jenis transaksi
         format_strings = ','.join(['%s'] * len(jenis_transaksi))
         query += f" AND jenis_transaksi IN ({format_strings})"
         params.extend(jenis_transaksi)
+        
+    # Filter tambahan untuk sub-bagian (mencari di kolom keterangan)
+    if sub_bagian:
+        query += " AND keterangan ILIKE %s"
+        params.append(f"%{sub_bagian}%")
         
     query += " AND tanggal::date BETWEEN %s AND %s"
     params.extend([tgl_awal, tgl_akhir])
