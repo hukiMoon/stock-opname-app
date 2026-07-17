@@ -82,7 +82,7 @@ if st.session_state["logged_in"]:
     elif pilihan == "Statistik":
         st.switch_page("pages/1_Statistik.py")
     elif pilihan == "Barang Masuk":
-        st.switch_page("pages/2_Barang_Masuk.py")
+        st.switch_page("pages/2_Barang Masuk.py")
     elif pilihan == "Laporan":
         st.switch_page("pages/6_Laporan.py")
 else:
