@@ -6,8 +6,6 @@ setup_db.inisialisasi_user_awal()
 
 # Konfigurasi halaman
 st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
-st.title("Selamat Datang di Sistem Inventaris Gudang")
-st.write("Silakan pilih menu di sidebar untuk mulai bekerja.")
 
 init_login_state()
 
