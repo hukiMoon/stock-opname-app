@@ -4,6 +4,15 @@ import pandas as pd
 from utils import init_login_state, show_login, tampilkan_sidebar
 from db_utils import jalankan_query
 
+pilihan = tampilkan_sidebar()
+
+if pilihan == "Beranda":
+    # Kode halaman beranda
+    pass
+elif pilihan == "Statistik":
+    # Kode halaman statistik
+    pass
+
 setup_db.inisialisasi_user_awal()
 
 # Konfigurasi halaman
@@ -15,7 +24,6 @@ if st.session_state["logged_in"]:
     if "role" in st.session_state and st.session_state["role"]:
         role = st.session_state["role"].capitalize()
         st.title(f"Hallo, Selamat datang {role}!👋")
-        tampilkan_sidebar()
 
         st.markdown("---")
 
