@@ -8,26 +8,36 @@ import bcrypt
 # Mengambil URL dari file .streamlit/secrets.toml
 DB_URL = st.secrets["DB_URL"]
 
-def get_connection():
-    # Menghubungkan ke database menggunakan variabel yang sudah aman
-    return psycopg2.connect(DB_URL)
+@contextmanager
+def get_db_connection():
+    """
+    Context manager untuk koneksi database.
+    Otomatis membuka koneksi dan menjamin penutupan koneksi.
+    """
+    conn = psycopg2.connect(DB_URL)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 @st.cache_data(ttl=600)
 def jalankan_query(sql, param=(), commit=False):
-    conn = get_connection()
-    cursor = conn.cursor()
+    """
+    Menjalankan query dengan context manager yang aman.
+    """
     data = None
     try:
-        cursor.execute(sql, param)
-        if not commit:
-            data = cursor.fetchall()
-        else:
-            conn.commit()
+        # Menggunakan 'with' agar koneksi otomatis tertutup
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, param)
+                if not commit:
+                    data = cursor.fetchall()
+                else:
+                    conn.commit()
     except Exception as e:
         st.error(f"Error Database: {e}")
-    finally:
-        cursor.close()
-        conn.close()
+    
     return data
 
 def get_stok_rendah(batas):
