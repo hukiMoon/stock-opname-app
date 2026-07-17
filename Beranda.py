@@ -1,6 +1,7 @@
 import streamlit as st
 import setup_db
 from utils import init_login_state, show_login, tampilkan_sidebar
+from db_utils import jalankan_query
 
 setup_db.inisialisasi_user_awal()
 
@@ -41,6 +42,24 @@ if st.session_state["logged_in"]:
                     delta="Perlu Tindakan", 
                     delta_color="inverse"
                 )
+
+        st.markdown("---")
+        st.subheader("📊 Visualisasi Stok Barang")
+
+        # 1. Mengambil data untuk grafik dari database
+        # Asumsi tabelmu bernama 'barang' dan memiliki kolom 'nama_barang' dan 'stok'
+        query_grafik = "SELECT nama_barang, stok FROM barang LIMIT 10"
+        data = jalankan_query(query_grafik)
+
+        # 2. Mengubah hasil query menjadi format yang bisa dibaca grafik (DataFrame)
+        if data:
+            df = pd.DataFrame(data, columns=['Nama Barang', 'Stok'])
+            df = df.set_index('Nama Barang') # Mengatur nama barang sebagai label
+    
+            # 3. Menampilkan grafik batang
+            st.bar_chart(df)
+        else:
+            st.info("Belum ada data barang untuk ditampilkan di grafik.")
 
         st.markdown("---")
 
