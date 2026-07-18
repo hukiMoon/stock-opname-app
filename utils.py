@@ -31,7 +31,7 @@ def show_login():
 
         if submit_button:
             # Pengecekan kredensial (asumsi fungsi autentikasi kamu ada di sini)
-            if autentikasi_berhasil(username, password):
+            if inisialisasi_user_awal(username, password):
                 st.session_state["logged_in"] = True
                 # Langsung jalankan rerun agar tidak ada jeda tampilan
                 st.rerun() 
