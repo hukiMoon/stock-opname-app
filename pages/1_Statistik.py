@@ -18,23 +18,15 @@ data_riwayat = jalankan_query("SELECT jenis_transaksi, jumlah, tanggal, nama_bar
 if not data_riwayat:
     st.info("Belum ada data untuk ditampilkan.")
 else:
-    # Sesuaikan nama kolom di sini agar cocok dengan pdf_utils
-    df = pd.DataFrame(data_riwayat, columns=["Nama Barang", "Jumlah", "Tanggal", "Jenis Transaksi"])
-    
-    # Tambahkan kolom Satuan yang mungkin kosong atau sesuaikan dengan datamu
-    df["Satuan"] = "PCS" 
-    
+    # Pastikan nama kolom di sini SAMA PERSIS dengan apa yang ada di database atau hasil query
+    df = pd.DataFrame(data_riwayat, columns=["Jenis Transaksi", "Jumlah", "Tanggal", "Nama Barang"])
     df["Tanggal"] = pd.to_datetime(df["Tanggal"])
+
+    # --- PERBAIKAN DI SINI ---
+    # Ganti 'Jenis' menjadi 'Jenis Transaksi' sesuai nama kolom yang baru
+    total_masuk = df[df["Jenis Transaksi"] == "MASUK"]["Jumlah"].sum()
+    total_keluar = df[df["Jenis Transaksi"] == "KELUAR"]["Jumlah"].sum()
     
-    # Sekarang panggil fungsi ekspor
-    from pdf_utils import export_to_pdf
-    pdf_data = export_to_pdf(df)
-    st.download_button(label="📥 Unduh Laporan sebagai PDF", data=pdf_data, file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf", mime="application/pdf")
-
-    # 2. Ringkasan (Metrics)
-    total_masuk = df[df["Jenis"] == "MASUK"]["Jumlah"].sum()
-    total_keluar = df[df["Jenis"] == "KELUAR"]["Jumlah"].sum()
-
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Barang Masuk", total_masuk)
     col2.metric("Total Barang Keluar", total_keluar)
