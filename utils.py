@@ -1,6 +1,6 @@
 import streamlit as st
 import bcrypt
-from db_utils import jalankan_query
+from db_utils import jalankan_query, autentikasi_user
 from setup_db import inisialisasi_user_awal
 
 def init_login_state():
