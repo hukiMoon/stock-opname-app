@@ -12,9 +12,10 @@ def init_login_state():
 
 def check_login():
     """Fungsi proteksi untuk memastikan pengguna sudah login."""
-    init_login_state() # Pastikan state ada
-    if not st.session_state["logged_in"]:
+    init_login_state()
+    if not st.session_state.get("logged_in") or not st.session_state.get("role"):
         st.warning("Silakan login terlebih dahulu.")
+        # Opsi: arahkan ke beranda atau tampilkan form login
         st.stop()
 
 def check_role(required_role):
