@@ -7,6 +7,8 @@ def init_login_state():
     """Memastikan variabel sesi login selalu terinisialisasi."""
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
+    if "role" not in st.session_state:
+        st.session_state["role"] = None
 
 def check_login():
     """Fungsi proteksi untuk memastikan pengguna sudah login."""
