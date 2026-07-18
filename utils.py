@@ -23,7 +23,6 @@ def check_role(required_role):
         st.stop()
 
 def show_login():
-    # Gunakan form agar input lebih stabil
     with st.form("login_form"):
         st.subheader("Login Sistem")
         username = st.text_input("Username")
@@ -31,10 +30,11 @@ def show_login():
         submit_button = st.form_submit_button("Masuk")
 
         if submit_button:
-            # Pengecekan kredensial (asumsi fungsi autentikasi kamu ada di sini)
-            if inisialisasi_user_awal(username, password):
+            # Panggil fungsi autentikasi baru
+            role = autentikasi_user(username, password)
+            if role:
                 st.session_state["logged_in"] = True
-                # Langsung jalankan rerun agar tidak ada jeda tampilan
+                st.session_state["role"] = role # Simpan role ke session
                 st.rerun() 
             else:
                 st.error("Username atau password salah!")
