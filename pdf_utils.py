@@ -2,34 +2,43 @@ import io
 from fpdf import FPDF
 from datetime import datetime
 
-# Pastikan kelas PDF sudah didefinisikan sebelumnya
 class PDF(FPDF):
     def header(self):
-        self.set_font("Arial", "B", 12)
+        # Judul Laporan
+        self.set_font("Arial", "B", 15)
         self.cell(0, 10, "Laporan Inventaris Gudang", 0, 1, "C")
+        # Timestamp
+        self.set_font("Arial", "I", 10)
+        self.cell(0, 10, f"Dicetak pada: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}", 0, 1, "C")
         self.ln(5)
 
+    def footer(self):
+        # Nomor Halaman
+        self.set_y(-15)
+        self.set_font("Arial", "I", 8)
+        self.cell(0, 10, f"Halaman {self.page_no()}", 0, 0, "C")
+
 def export_to_pdf(df):
-    pdf = PDF()
+    pdf = PDF(orientation='L') # Menggunakan orientasi Landscape untuk tabel lebih luas
     pdf.add_page()
     pdf.set_font("Arial", size=10)
 
+    # Menentukan lebar kolom otomatis berdasarkan panjang data
+    col_width = 260 / len(df.columns) 
+
     # Header Tabel
-    col_width = 190 / len(df.columns)
+    pdf.set_fill_color(200, 220, 255) # Warna latar belakang header
     for col in df.columns:
-        pdf.cell(col_width, 10, str(col), border=1, align="C")
+        pdf.cell(col_width, 10, str(col), border=1, align="C", fill=True)
     pdf.ln()
 
     # Isi Tabel
+    pdf.set_fill_color(255, 255, 255)
     for row in df.itertuples(index=False):
         for item in row:
             pdf.cell(col_width, 10, str(item), border=1, align="C")
         pdf.ln()
 
-    # KONVERSI KE BYTES YANG BENAR:
-    # 1. Simpan output ke dalam buffer bytes
     buffer = io.BytesIO()
-    # 2. Gunakan output() untuk menulis ke buffer (fpdf2 mendukung ini)
     pdf.output(buffer)
-    # 3. Ambil nilai bytes dari buffer
     return buffer.getvalue()
