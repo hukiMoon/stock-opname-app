@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-from db_utils import jalankan_query, get_data_barang, cek_barang_ada, sinkronisasi_riwayat_masuk
+from db_utils import jalankan_query, get_data_barang, cek_barang_ada
 from utils import check_login, tampilkan_sidebar, card_container
+from services import sinkronisasi_riwayat_masuk
 
 check_login()
 tampilkan_sidebar()
