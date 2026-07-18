@@ -18,10 +18,15 @@ data_riwayat = jalankan_query("SELECT jenis_transaksi, jumlah, tanggal, nama_bar
 if not data_riwayat:
     st.info("Belum ada data untuk ditampilkan.")
 else:
-    df = pd.DataFrame(data_riwayat, columns=["Jenis", "Jumlah", "Tanggal", "Nama"])
+    # Sesuaikan nama kolom di sini agar cocok dengan pdf_utils
+    df = pd.DataFrame(data_riwayat, columns=["Nama Barang", "Jumlah", "Tanggal", "Jenis Transaksi"])
+    
+    # Tambahkan kolom Satuan yang mungkin kosong atau sesuaikan dengan datamu
+    df["Satuan"] = "PCS" 
+    
     df["Tanggal"] = pd.to_datetime(df["Tanggal"])
     
-    # Fitur Unduh PDF (yang sudah ada sebelumnya)
+    # Sekarang panggil fungsi ekspor
     from pdf_utils import export_to_pdf
     pdf_data = export_to_pdf(df)
     st.download_button(label="📥 Unduh Laporan sebagai PDF", data=pdf_data, file_name=f"Laporan_Gudang_{datetime.now().strftime('%Y%m%d')}.pdf", mime="application/pdf")
