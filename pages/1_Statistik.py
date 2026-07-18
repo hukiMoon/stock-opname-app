@@ -37,7 +37,7 @@ else:
     st.subheader("📊 Visualisasi Data")
     
     # Grafik Tren
-    df_trend = df.groupby([df["Tanggal"].dt.to_period("M"), "Jenis"])["Jumlah"].sum().reset_index()
+    df_trend = df.groupby([df["Tanggal"].dt.to_period("M"), "Jenis Transaksi"])["Jumlah"].sum().reset_index()
     df_trend["Tanggal"] = df_trend["Tanggal"].dt.to_timestamp()
     fig1 = px.line(df_trend, x="Tanggal", y="Jumlah", color="Jenis", title="Tren Aktivitas Bulanan", markers=True)
     st.plotly_chart(fig1, use_container_width=True)
