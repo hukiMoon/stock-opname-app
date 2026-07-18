@@ -27,7 +27,7 @@ def check_role(required_role):
 
 def show_login():
     with st.form("login_form"):
-        st.subheader("Login Sistem")
+        st.subheader("Login")
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         submit_button = st.form_submit_button("Masuk")
