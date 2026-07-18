@@ -51,6 +51,6 @@ else:
     st.plotly_chart(fig1, use_container_width=True)
 
     # Grafik Top 5 Barang Keluar
-    df_top = df[df["Jenis"] == "KELUAR"].groupby("Nama")["Jumlah"].sum().nlargest(5).reset_index()
+    df_top = df[df["Jenis Transaksi"] == "KELUAR"].groupby("Nama Barang")["Jumlah"].sum().nlargest(5).reset_index()
     fig2 = px.bar(df_top, x="Jumlah", y="Nama", orientation='h', title="Top 5 Barang Keluar", color="Jumlah")
     st.plotly_chart(fig2, use_container_width=True)
