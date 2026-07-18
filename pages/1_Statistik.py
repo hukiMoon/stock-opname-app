@@ -5,6 +5,7 @@ import init_path
 from datetime import datetime
 from db_utils import jalankan_query
 from utils import check_login, tampilkan_sidebar, card_container
+from pdf_utils import export_to_pdf
 
 check_login()
 tampilkan_sidebar()
@@ -31,6 +32,13 @@ else:
     col1.metric("Total Barang Masuk", total_masuk)
     col2.metric("Total Barang Keluar", total_keluar)
     col3.metric("Sisa Stok (Estimasi)", total_masuk - total_keluar)
+
+    st.download_button(
+    label="📥 Download Statistik (PDF)",
+    data=export_to_pdf(df), # Menggunakan fungsi dari pdf_utils[span_4](start_span)[span_4](end_span)
+    file_name="Laporan_Statistik.pdf",
+    mime="application/pdf"
+    )
 
     # 3. Dashboard Visual
     st.write("---")
