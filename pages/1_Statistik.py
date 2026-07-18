@@ -38,14 +38,15 @@ else:
     
     # Grafik Tren
     df_trend = df.groupby([df["Tanggal"].dt.to_period("M"), "Jenis Transaksi"])["Jumlah"].sum().reset_index()
-    df_trend["Tanggal"] = df_trend["Tanggal"].dt.to_timestamp()
+    df_trend["Tanggal_Str"] = df_trend["Tanggal"].astype(str)
+    
     fig1 = px.line(
-    df_trend["Tanggal"] = df_trend["Tanggal"].astype(str), 
-    x="Tanggal", 
-    y="Jumlah", 
-    color="Jenis Transaksi", 
-    title="Tren Aktivitas Bulanan", 
-    markers=True
+        df_trend, # Gunakan dataframe-nya di sini
+        x="Tanggal_Str", # Gunakan kolom yang sudah diubah
+        y="Jumlah", 
+        color="Jenis Transaksi", 
+        title="Tren Aktivitas Bulanan", 
+        markers=True
     )
     st.plotly_chart(fig1, use_container_width=True)
 
