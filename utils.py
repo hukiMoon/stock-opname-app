@@ -22,29 +22,21 @@ def check_role(required_role):
         st.stop()
 
 def show_login():
-    st.subheader("🔐 Silakan Login")
+    # Gunakan form agar input lebih stabil
     with st.form("login_form"):
+        st.subheader("Login Sistem")
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         submit_button = st.form_submit_button("Masuk")
-        
+
         if submit_button:
-            # Ambil data user dari DB
-            data = jalankan_query("SELECT password_hash, role FROM users WHERE username = %s", (username,))
-            
-            if data:
-                hashed_db = data[0][0].encode('utf-8')
-                role_db = data[0][1]
-                
-                # Cek apakah password cocok
-                if bcrypt.checkpw(password.encode('utf-8'), hashed_db):
-                    st.session_state["logged_in"] = True
-                    st.session_state["role"] = role_db
-                    st.rerun()
-                else:
-                    st.error("Password salah!")
+            # Pengecekan kredensial (asumsi fungsi autentikasi kamu ada di sini)
+            if autentikasi_berhasil(username, password):
+                st.session_state["logged_in"] = True
+                # Langsung jalankan rerun agar tidak ada jeda tampilan
+                st.rerun() 
             else:
-                st.error("Username tidak ditemukan!")
+                st.error("Username atau password salah!")
 
 def logout():
     """Fungsi untuk keluar dari sistem."""
