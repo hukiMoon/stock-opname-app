@@ -263,3 +263,14 @@ def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, s
     query += " ORDER BY id DESC"
     
     return jalankan_query(query, tuple(params))
+
+def autentikasi_user(username, password):
+    """Mengecek apakah username dan password cocok di database."""
+    query = "SELECT password_hash, role FROM users WHERE username = %s"
+    hasil = jalankan_query(query, (username,))
+    
+    if hasil:
+        hashed_db = hasil[0][0].encode('utf-8')
+        if bcrypt.checkpw(password.encode('utf-8'), hashed_db):
+            return hasil[0][1] # Mengembalikan role jika benar
+    return None
