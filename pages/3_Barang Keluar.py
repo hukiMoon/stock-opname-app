@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from db_utils import jalankan_query, sinkronisasi_riwayat_keluar  # <--- Tambahkan baris ini
+from db_utils import jalankan_query
 from utils import check_login, tampilkan_sidebar, card_container
+from services import sinkronisasi_riwayat_keluar
 
 check_login()
 tampilkan_sidebar()
