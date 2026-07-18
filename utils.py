@@ -43,8 +43,10 @@ def show_login():
                 st.error("Username atau password salah!")
 
 def logout():
-    """Fungsi untuk keluar dari sistem."""
+    """Fungsi untuk keluar dari sistem dengan membersihkan seluruh state."""
     st.session_state["logged_in"] = False
+    st.session_state["role"] = None
+    # Bersihkan state lain jika ada
     st.rerun()
 
 def tampilkan_sidebar():
