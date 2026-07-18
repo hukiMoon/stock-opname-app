@@ -2,6 +2,7 @@ import pandas as pd
 import io
 import psycopg2
 import psycopg2.extras
+import functools
 import streamlit as st
 import bcrypt
 from contextlib import contextmanager
@@ -274,3 +275,15 @@ def autentikasi_user(username, password):
         if bcrypt.checkpw(password.encode('utf-8'), hasil[0].encode('utf-8')):
             return hasil[1]
     return None
+
+def handle_db_errors(func):
+    """Decorator untuk menangani error database secara terpusat."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            st.error(f"Terjadi kesalahan sistem: {e}")
+            # Kamu juga bisa menambahkan logging di sini jika perlu
+            return None
+    return wrapper
