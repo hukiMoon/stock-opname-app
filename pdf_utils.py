@@ -1,4 +1,5 @@
 import io
+import pandas as pd
 from fpdf import FPDF
 from datetime import datetime
 
