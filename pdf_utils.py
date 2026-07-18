@@ -19,15 +19,21 @@ class PDF(FPDF):
         self.cell(0, 10, f"Halaman {self.page_no()}", 0, 0, "C")
 
 def export_to_pdf(df):
-    pdf = PDF(orientation='L') # Menggunakan orientasi Landscape untuk tabel lebih luas
+    # Urutan kolom yang diminta
+    kolom_diinginkan = ["Nama Barang", "Jumlah", "Satuan", "Jenis Transaksi", "Tanggal"]
+    df = df[kolom_diinginkan].copy()
+    
+    # Pastikan format tanggal hanya menampilkan tanggal (YYYY-MM-DD atau DD-MM-YYYY)
+    df["Tanggal"] = pd.to_datetime(df["Tanggal"]).dt.strftime('%d-%m-%Y')
+    
+    pdf = PDF(orientation='L')
     pdf.add_page()
     pdf.set_font("Arial", size=10)
 
-    # Menentukan lebar kolom otomatis berdasarkan panjang data
-    col_width = 260 / len(df.columns) 
+    col_width = 260 / len(df.columns)
 
     # Header Tabel
-    pdf.set_fill_color(200, 220, 255) # Warna latar belakang header
+    pdf.set_fill_color(200, 220, 255)
     for col in df.columns:
         pdf.cell(col_width, 10, str(col), border=1, align="C", fill=True)
     pdf.ln()
