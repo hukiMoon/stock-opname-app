@@ -266,11 +266,13 @@ def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, s
 
 def autentikasi_user(username, password):
     """Mengecek apakah username dan password cocok di database."""
+    # Query untuk mengambil hash dan role
     query = "SELECT password_hash, role FROM users WHERE username = %s"
     hasil = jalankan_query(query, (username,))
     
     if hasil:
+        # hasil[0][0] adalah password_hash, hasil[0][1] adalah role
         hashed_db = hasil[0][0].encode('utf-8')
         if bcrypt.checkpw(password.encode('utf-8'), hashed_db):
-            return hasil[0][1] # Mengembalikan role jika benar
+            return hasil[0][1] # Mengembalikan role jika cocok
     return None
