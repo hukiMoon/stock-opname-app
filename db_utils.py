@@ -192,27 +192,23 @@ def sinkronisasi_riwayat_masuk(raw_riwayat, id_terlihat, set_id_sekarang, edited
         return False, f"Gagal menyinkronkan data: {str(e)}"
 
 def sinkronisasi_riwayat_keluar(raw_riwayat, id_terlihat, set_id_sekarang, edited_df):
-    """
-    Menjalankan transaksi sinkronisasi barang keluar dengan aman.
-    Termasuk validasi agar stok tidak menjadi negatif akibat pengeditan.
-    """
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cursor:
-                # 1. Proses Penghapusan Baris
+                # 1. Ambil semua data barang terkait sekaligus
+                cursor.execute("SELECT nama_barang, stok_sistem FROM barang FOR UPDATE")
+                stok_map = {row[0]: row[1] for row in cursor.fetchall()}
+                
+                # 2. Proses Penghapusan Baris
                 for baris in raw_riwayat:
                     id_asal = baris[0]
                     if id_asal in id_terlihat and id_asal not in set_id_sekarang:
                         nm_b, jml_lama = baris[2], baris[3]
-                        
-                        cursor.execute("SELECT stok_sistem FROM barang WHERE nama_barang = %s FOR UPDATE", (nm_b,))
-                        stok_skrg = cursor.fetchone()[0]
-                        
                         # Tambah stok kembali karena riwayat KELUAR-nya dihapus
-                        cursor.execute("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg + jml_lama, nm_b))
+                        stok_map[nm_b] += jml_lama
                         cursor.execute("DELETE FROM riwayat WHERE id = %s", (id_asal,))
                 
-                # 2. Proses Perubahan/Edit Data
+                # 3. Proses Perubahan/Edit Data
                 for _, row in edited_df.iterrows():
                     id_cek = row["ID Transaksi"]
                     jml_baru = int(row["Jumlah"])
@@ -225,17 +221,19 @@ def sinkronisasi_riwayat_keluar(raw_riwayat, id_terlihat, set_id_sekarang, edite
                     if jml_baru != jml_lama or ket_baru != data_lama[5]:
                         selisih = jml_baru - jml_lama
                         
-                        cursor.execute("SELECT stok_sistem FROM barang WHERE nama_barang = %s FOR UPDATE", (nm_b,))
-                        stok_skrg = cursor.fetchone()[0]
-                        
-                        # VALIDASI ERROR: Cek apakah stok cukup jika jumlah keluar diperbesar
-                        if stok_skrg - selisih < 0:
-                            raise ValueError(f"Stok untuk '{nm_b}' tidak mencukupi jika jumlah keluar diubah menjadi {jml_baru} (Sisa stok saat ini: {stok_skrg}).")
+                        # VALIDASI: Cek apakah stok cukup di memori
+                        if stok_map[nm_b] - selisih < 0:
+                            raise ValueError(f"Stok untuk '{nm_b}' tidak mencukupi.")
                             
-                        cursor.execute("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", (stok_skrg - selisih, nm_b))
-                        cursor.execute("UPDATE riwayat SET jumlah = %s, keterangan = %s WHERE id = %s", (jml_baru, ket_baru, id_cek))
+                        stok_map[nm_b] -= selisih
+                        cursor.execute("UPDATE riwayat SET jumlah = %s, keterangan = %s WHERE id = %s", 
+                                       (jml_baru, ket_baru, id_cek))
                 
-                # Jika semua lancar, simpan permanen
+                # 4. Update stok ke database secara batch di akhir
+                for nama_barang, stok_baru in stok_map.items():
+                    cursor.execute("UPDATE barang SET stok_sistem = %s WHERE nama_barang = %s", 
+                                   (stok_baru, nama_barang))
+                
                 conn.commit()
         return True, "Perubahan riwayat keluar berhasil disimpan!"
     except Exception as e:
