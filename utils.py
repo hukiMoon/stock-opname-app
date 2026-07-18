@@ -33,12 +33,11 @@ def show_login():
         submit_button = st.form_submit_button("Masuk")
 
         if submit_button:
-            # Panggil fungsi autentikasi baru
-            role = autentikasi_user(username, password)
+            role = autentikasi_user(username, password) # Fungsi dari db_utils[span_4](start_span)[span_4](end_span)
             if role:
                 st.session_state["logged_in"] = True
-                st.session_state["role"] = role # Simpan role ke session
-                st.rerun() 
+                st.session_state["role"] = role
+                st.rerun() # Hanya rerun sekali setelah state diperbarui
             else:
                 st.error("Username atau password salah!")
 
