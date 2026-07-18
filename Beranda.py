@@ -12,6 +12,15 @@ st.set_page_config(page_title="Aplikasi Stock Opname", layout="wide")
 init_login_state()
 pilihan = tampilkan_sidebar()
 
+if pilihan == "Beranda":
+    st.switch_page("Beranda.py")
+elif pilihan == "Statistik":
+    st.switch_page("pages/1_Statistik.py")
+elif pilihan == "Barang Masuk":
+    st.switch_page("pages/2_Barang Masuk.py")
+elif pilihan == "Laporan":
+    st.switch_page("pages/6_Laporan.py")
+
 if st.session_state["logged_in"]:
     if "role" in st.session_state and st.session_state["role"]:
         role = st.session_state["role"].capitalize()
@@ -77,13 +86,5 @@ if st.session_state["logged_in"]:
             st.button("Laporan Stok")
     else:
         st.title("Sistem Inventaris Gudang")
-    if pilihan == "Beranda":
-        st.switch_page("Beranda.py")
-    elif pilihan == "Statistik":
-        st.switch_page("pages/1_Statistik.py")
-    elif pilihan == "Barang Masuk":
-        st.switch_page("pages/2_Barang Masuk.py")
-    elif pilihan == "Laporan":
-        st.switch_page("pages/6_Laporan.py")
 else:
     show_login()
