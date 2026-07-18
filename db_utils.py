@@ -41,6 +41,17 @@ def jalankan_query(sql, param=(), commit=False):
     
     return data
 
+def jalankan_query_satu(sql, param=()):
+    """Mengambil hanya satu baris data, lebih efisien untuk pencarian tunggal."""
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, param)
+                return cursor.fetchone()
+    except Exception as e:
+        st.error(f"Error Database: {e}")
+        return None
+
 def get_stok_rendah(batas):
     # Gunakan string biasa tanpa spasi aneh
     query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= %s"
@@ -265,14 +276,9 @@ def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, s
     return jalankan_query(query, tuple(params))
 
 def autentikasi_user(username, password):
-    """Mengecek apakah username dan password cocok di database."""
-    # Query untuk mengambil hash dan role
-    query = "SELECT password_hash, role FROM users WHERE username = %s"
-    hasil = jalankan_query(query, (username,))
-    
+    # Sekarang menggunakan jalankan_query_satu
+    hasil = jalankan_query_satu("SELECT password_hash, role FROM users WHERE username = %s", (username,))
     if hasil:
-        # hasil[0][0] adalah password_hash, hasil[0][1] adalah role
-        hashed_db = hasil[0][0].encode('utf-8')
-        if bcrypt.checkpw(password.encode('utf-8'), hashed_db):
-            return hasil[0][1] # Mengembalikan role jika cocok
+        if bcrypt.checkpw(password.encode('utf-8'), hasil[0].encode('utf-8')):
+            return hasil[1]
     return None
