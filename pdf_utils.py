@@ -19,9 +19,12 @@ class PDF(FPDF):
         self.cell(0, 10, f"Halaman {self.page_no()}", 0, 0, "C")
 
 def export_to_pdf(df):
-    # Urutan kolom yang diminta
+    # Sesuaikan dengan nama kolom yang baru saja kita buat di Statistik.py
     kolom_diinginkan = ["Nama Barang", "Jumlah", "Satuan", "Jenis Transaksi", "Tanggal"]
-    df = df[kolom_diinginkan].copy()
+    
+    # Kita cek dulu apakah kolom ada, untuk mencegah error di masa depan
+    kolom_yang_ada = [k for k in kolom_diinginkan if k in df.columns]
+    df = df[kolom_yang_ada].copy()
     
     # Pastikan format tanggal hanya menampilkan tanggal (YYYY-MM-DD atau DD-MM-YYYY)
     df["Tanggal"] = pd.to_datetime(df["Tanggal"]).dt.strftime('%d-%m-%Y')
