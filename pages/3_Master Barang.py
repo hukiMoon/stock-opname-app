@@ -1,10 +1,9 @@
 import streamlit as st
 import init_path # Pastikan ini ada
 from db_utils import jalankan_query
-from utils import check_login, check_role, tampilkan_sidebar, card_container
+from utils import check_login, tampilkan_sidebar, card_container
 
 check_login()
-check_role("admin")
 tampilkan_sidebar()
 
 st.title("⚙️ Manajemen Master Data")
