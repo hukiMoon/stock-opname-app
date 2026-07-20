@@ -69,12 +69,15 @@ def tampilkan_sidebar():
 
         # 3. Tambahkan menu berdasarkan Role pengguna
         if role == "admin":
-            st.page_link("pages/2_Barang Masuk.py", label="Barang Masuk", icon="📥")
-            st.page_link("pages/6_Laporan.py", label="Laporan", icon="📜")
+            st.page_link("pages/1_Barang Masuk.py", label="Barang Masuk", icon="📥")
+            st.page_link("pages/2_Barang Keluar.py", label="Barang Keluar", icon="📥")
+            st.page_link("pages/3_Master Barang.py", label="Master Barang", icon="📥")
+            st.page_link("pages/4_Riwayat Log.py", label="Riwayat Log", icon="📥")
+            st.page_link("pages/5_Laporan.py", label="Laporan", icon="📜")
             
         elif role == "staff":
-            st.page_link("pages/2_Barang Masuk.py", label="Barang Masuk", icon="📥")
-            st.page_link("pages/6_Laporan.py", label="Laporan", icon="📜")
+            st.page_link("pages/1_Barang Masuk.py", label="Barang Masuk", icon="📥")
+            st.page_link("pages/5_Laporan.py", label="Laporan", icon="📜")
 
         st.markdown("---")
         
