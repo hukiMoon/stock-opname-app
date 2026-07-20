@@ -157,10 +157,12 @@ def ambil_data_log():
     data = jalankan_query(query)
     
     # Memproses data menjadi DataFrame
+    # KITA PERBAIKI DI SINI: Menambahkan kolom "Petugas" agar pas menjadi 6 kolom
     if not data:
-        return pd.DataFrame(columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal"])
+        return pd.DataFrame(columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
     
-    df = pd.DataFrame(data, columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal"])
+    # KITA PERBAIKI DI SINI JUGA: Menambahkan kolom "Petugas"
+    df = pd.DataFrame(data, columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
     return df
 
 def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian=None):
