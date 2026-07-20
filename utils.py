@@ -66,8 +66,6 @@ def tampilkan_sidebar():
         # 2. Tampilkan navigasi menggunakan st.page_link
         # Beranda.py tetap tanpa folder karena berada di luar
         st.page_link("Beranda.py", label="Beranda", icon="🏠")
-        # Tambahkan awalan "pages/" untuk file yang sudah dipindahkan
-        st.page_link("pages/1_Statistik.py", label="Statistik", icon="📈")
 
         # 3. Tambahkan menu berdasarkan Role pengguna
         if role == "admin":
