@@ -15,7 +15,7 @@ from utils import check_login, check_role, tampilkan_sidebar
 
 # Konfigurasi Halaman
 check_login()
-check_role("admin")
+#check_role("admin")
 tampilkan_sidebar()
             
 st.title("📊 Sistem Stock Opname")
