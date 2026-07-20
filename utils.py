@@ -70,16 +70,27 @@ def logout():
 
 def tampilkan_sidebar():
     with st.sidebar:
-        # --- 1. CSS UNTUK MENYEMBUNYIKAN MENU OTOMATIS BAWAAN STREAMLIT ---
-        sembunyikan_menu_bawaan = """
+        # --- 1. CSS UNTUK TAMPILAN SIDEBAR ---
+        pengaturan_tampilan = """
             <style>
-                /* Menghilangkan daftar halaman (Login, 0_Beranda, dll) yang dibuat otomatis oleh Streamlit */
+                /* Menghilangkan daftar halaman (Login, 0_Beranda, dll) otomatis */
                 [data-testid="stSidebarNav"] {
                     display: none !important;
                 }
+                
+                /* Mengurangi jarak kosong di bagian paling atas sidebar */
+                [data-testid="stSidebarHeader"] {
+                    padding-top: 1rem !important;
+                    padding-bottom: 0rem !important;
+                }
+                
+                /* Memastikan pembungkus konten utama sidebar juga naik */
+                [data-testid="stSidebar"] > div:first-child {
+                    padding-top: 2rem !important; 
+                }
             </style>
         """
-        st.markdown(sembunyikan_menu_bawaan, unsafe_allow_html=True)
+        st.markdown(pengaturan_tampilan, unsafe_allow_html=True)
         # -------------------------------------------------------------------
 
         st.title("📦 Menu Gudang")
