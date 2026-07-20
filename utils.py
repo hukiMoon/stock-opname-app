@@ -98,7 +98,7 @@ def tampilkan_sidebar():
                 
                 /* 5. Menurunkan tombol panah (collapse control) sedikit ke bawah */
                 [data-testid="collapsedControl"] {
-                    margin-top: 1.5rem !important; /* Jarak dorong ke bawah */
+                    margin-top: 2rem !important; /* Jarak dorong ke bawah */
                 }
             </style>
         """
