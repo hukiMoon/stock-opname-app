@@ -87,7 +87,7 @@ def tampilkan_sidebar():
                 
                 /* 3. Memaksa pembungkus utama sidebar untuk menempel ke atas */
                 [data-testid="stSidebar"] > div:first-child {
-                    padding-top: 1rem !important; 
+                    padding-top: 1.5rem !important; 
                 }
                 
                 /* 4. Menghilangkan jarak (margin) bawaan dari st.title di dalam sidebar */
@@ -98,7 +98,7 @@ def tampilkan_sidebar():
                 
                 /* 5. Menurunkan tombol panah (collapse control) sedikit ke bawah */
                 [data-testid="collapsedControl"] {
-                    margin-top: 2.5rem !important; /* Jarak dorong ke bawah */
+                    margin-top: 0rem !important; /* Jarak dorong ke bawah */
                 }
             </style>
         """
