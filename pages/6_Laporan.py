@@ -5,7 +5,8 @@ from datetime import datetime
 from db_utils import (
     jalankan_query, 
     get_stok_rendah, 
-    export_to_excel_filter, 
+    export_to_excel_filter,
+    export_to_excel,
     update_stok_opname, 
     jalankan_perintah_db,
     ambil_data_log
