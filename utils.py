@@ -44,7 +44,7 @@ def show_login():
     kolom_kiri, kolom_tengah, kolom_kanan = st.columns([1, 2, 1])
     
     with kolom_tengah:
-        st.markdown("<h2 style='text-align: center;'>Masuk ke Sistem</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>Login</h2>", unsafe_allow_html=True)
         st.write("---")
         
         with st.form("login_form"):
