@@ -80,7 +80,18 @@ with tab1:
     data_lap = jalankan_query(sql_laporan, (tgl_awal, tgl_akhir))
     
     if data_lap:
-        df_laporan = pd.DataFrame(data_lap, columns=["id", "kode_barang", "nama_barang", "jenis_transaksi", "jumlah", "satuan", "tanggal", "keterangan"])
+        # KITA PERBAIKI DI SINI: Mengubah teks di dalam array columns menjadi rapi
+        df_laporan = pd.DataFrame(data_lap, columns=[
+            "ID Transaksi", 
+            "Kode Barang", 
+            "Nama Barang", 
+            "Jenis Transaksi", 
+            "Jumlah", 
+            "Satuan", 
+            "Tanggal", 
+            "Keterangan"
+        ])
+        
         st.dataframe(df_laporan, use_container_width=True)
         
         # Tombol Download menggunakan fungsi export_to_excel yang sudah ada di db_utils
