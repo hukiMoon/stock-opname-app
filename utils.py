@@ -87,7 +87,7 @@ def tampilkan_sidebar():
                 
                 /* 3. Memaksa pembungkus utama sidebar untuk menempel ke atas */
                 [data-testid="stSidebar"] > div:first-child {
-                    padding-top: 0rem !important; 
+                    padding-top: 1rem !important; 
                 }
                 
                 /* 4. Menghilangkan jarak (margin) bawaan dari st.title di dalam sidebar */
