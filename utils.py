@@ -92,8 +92,13 @@ def tampilkan_sidebar():
                 
                 /* 4. Menghilangkan jarak (margin) bawaan dari st.title di dalam sidebar */
                 [data-testid="stSidebar"] h1 {
-                    padding-top: 1rem !important; /* Ubah ke 0rem jika masih kurang naik */
+                    padding-top: 1rem !important; 
                     margin-top: 0rem !important;
+                }
+                
+                /* 5. Menurunkan tombol panah (collapse control) sedikit ke bawah */
+                [data-testid="collapsedControl"] {
+                    margin-top: 1.5rem !important; /* Jarak dorong ke bawah */
                 }
             </style>
         """
