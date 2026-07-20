@@ -140,9 +140,7 @@ def tampilkan_sidebar():
         
         # 5. Tombol Logout
         if st.button("Logout"):
-            st.session_state["logged_in"] = False
-            st.session_state["role"] = None
-            st.rerun()
+            logout() # Memanggil fungsi logout yang baru saja kita update
 
 # 1. Fungsi untuk membuat tampilan kartu (card) yang Anda butuhkan
 def card_container(title):
