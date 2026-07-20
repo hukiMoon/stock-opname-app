@@ -26,20 +26,40 @@ def check_role(required_role):
         st.stop()
 
 def show_login():
-    with st.form("login_form"):
-        st.subheader("Login")
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submit_button = st.form_submit_button("Masuk")
+    # 1. CSS untuk menyembunyikan sidebar dan tombol panah (collapse) bawaan Streamlit
+    sembunyikan_sidebar = """
+        <style>
+            [data-testid="stSidebar"] {
+                display: none;
+            }
+            [data-testid="collapsedControl"] {
+                display: none;
+            }
+        </style>
+    """
+    # Menyisipkan CSS ke dalam aplikasi
+    st.markdown(sembunyikan_sidebar, unsafe_allow_html=True)
+    
+    # 2. Desain form login dibuat ke tengah agar lebih rapi (Opsional, tapi direkomendasikan)
+    kolom_kiri, kolom_tengah, kolom_kanan = st.columns([1, 2, 1])
+    
+    with kolom_tengah:
+        st.markdown("<h2 style='text-align: center;'>Masuk ke Sistem</h2>", unsafe_allow_html=True)
+        st.write("---")
+        
+        with st.form("login_form"):
+            username = st.text_input("Username")
+            password = st.text_input("Password", type="password")
+            submit_button = st.form_submit_button("Masuk", use_container_width=True)
 
-        if submit_button:
-            role = autentikasi_user(username, password) # Fungsi dari db_utils[span_4](start_span)[span_4](end_span)
-            if role:
-                st.session_state["logged_in"] = True
-                st.session_state["role"] = role
-                st.rerun() # Hanya rerun sekali setelah state diperbarui
-            else:
-                st.error("Username atau password salah!")
+            if submit_button:
+                role = autentikasi_user(username, password) # Fungsi dari db_utils
+                if role:
+                    st.session_state["logged_in"] = True
+                    st.session_state["role"] = role
+                    st.rerun() # Muat ulang halaman agar sidebar muncul kembali
+                else:
+                    st.error("Username atau password salah!")
 
 def logout():
     """Fungsi untuk keluar dari sistem dengan membersihkan seluruh state."""
