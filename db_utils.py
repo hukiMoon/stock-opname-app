@@ -152,17 +152,17 @@ def ambil_data_log():
     Fungsi ini diletakkan di db_utils agar bisa digunakan di banyak halaman.
     """
     # Menggunakan fungsi jalankan_query yang sudah ada di file ini
-    query = "SELECT id, kode_barang, nama_barang, stok_sebelum, stok_sesudah, waktu_opname, petugas FROM log_opname ORDER BY id DESC LIMIT 50"
+    query = "SELECT id, kode_barang, stok_sebelum, stok_sesudah, waktu_opname, petugas FROM log_opname ORDER BY id DESC LIMIT 50"
     
     data = jalankan_query(query)
     
     # Memproses data menjadi DataFrame
     # KITA PERBAIKI DI SINI: Menambahkan kolom "Petugas" agar pas menjadi 6 kolom
     if not data:
-        return pd.DataFrame(columns=["ID", "Kode Barang", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
+        return pd.DataFrame(columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
     
     # KITA PERBAIKI DI SINI JUGA: Menambahkan kolom "Petugas"
-    df = pd.DataFrame(data, columns=["ID", "Kode Barang", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
+    df = pd.DataFrame(data, columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
     return df
 
 def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian=None):
