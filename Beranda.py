@@ -89,5 +89,5 @@ else:
         st.write("Aplikasi ini digunakan untuk memantau arus barang keluar-masuk gudang secara real-time.")
     with right_col:
         st.subheader("Akses Cepat")
-        st.page_link("pages/2_Barang Masuk.py", label="Input Barang Masuk", icon="📥")
-        st.page_link("pages/6_Laporan.py", label="Lihat Laporan Stok", icon="📜")
+        st.page_link("pages/1_Barang Masuk.py", label="Input Barang Masuk", icon="📥")
+        st.page_link("pages/5_Laporan.py", label="Lihat Laporan Stok", icon="📜")
