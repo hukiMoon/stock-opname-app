@@ -63,26 +63,24 @@ def tampilkan_sidebar():
 
         st.write("**Pilih Menu:**")
         
-        # 2. Tampilkan navigasi menggunakan st.page_link agar bisa diklik
-        # Pastikan nama file (misal: "Beranda.py") sama persis dengan nama file aslimu
+        # 2. Tampilkan navigasi menggunakan st.page_link
+        # Beranda.py tetap tanpa folder karena berada di luar
         st.page_link("Beranda.py", label="Beranda", icon="🏠")
-        st.page_link("1_Statistik.py", label="Statistik", icon="📈")
+        # Tambahkan awalan "pages/" untuk file yang sudah dipindahkan
+        st.page_link("pages/1_Statistik.py", label="Statistik", icon="📈")
 
         # 3. Tambahkan menu berdasarkan Role pengguna
         if role == "admin":
-            st.page_link("2_Barang Masuk.py", label="Barang Masuk", icon="📥")
-            st.page_link("6_Laporan.py", label="Laporan", icon="📜")
-            # Catatan: Jika kamu memiliki file untuk "Manajemen User", ganti nama file di bawah ini
-            # lalu hapus tanda pagar (#) untuk mengaktifkannya.
-            # st.page_link("7_Manajemen_User.py", label="Manajemen User", icon="⚙️")
+            st.page_link("pages/2_Barang Masuk.py", label="Barang Masuk", icon="📥")
+            st.page_link("pages/6_Laporan.py", label="Laporan", icon="📜")
             
         elif role == "staff":
-            st.page_link("2_Barang Masuk.py", label="Barang Masuk", icon="📥")
-            st.page_link("6_Laporan.py", label="Laporan", icon="📜")
+            st.page_link("pages/2_Barang Masuk.py", label="Barang Masuk", icon="📥")
+            st.page_link("pages/6_Laporan.py", label="Laporan", icon="📜")
 
         st.markdown("---")
         
-        # 4. Tombol Logout (Logikanya tetap sama)
+        # 4. Tombol Logout
         if st.button("Logout"):
             st.session_state["logged_in"] = False
             st.session_state["role"] = None
