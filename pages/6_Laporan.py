@@ -73,7 +73,7 @@ with tab1:
     SELECT id, kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan 
     FROM riwayat 
     WHERE tanggal::date BETWEEN %s::date AND %s::date 
-    ORDER BY tanggal DESC
+    ORDER BY tanggal DESC, id DESC
     """
     
     # Menjalankan query dengan parameter tuple
