@@ -62,11 +62,14 @@ def show_login():
                     st.error("Username atau password salah!")
 
 def logout():
-    """Fungsi untuk keluar dari sistem dengan membersihkan seluruh state."""
+    """Fungsi untuk keluar dari sistem dan kembali ke halaman Login."""
+    # 1. Reset state login dan role
     st.session_state["logged_in"] = False
     st.session_state["role"] = None
-    # Bersihkan state lain jika ada
-    st.rerun()
+    
+    # 2. Arahkan pengguna ke halaman Login.py
+    # Pastikan nama file sesuai dengan nama file login di folder root-mu
+    st.switch_page("Login.py")
 
 def tampilkan_sidebar():
     with st.sidebar:
