@@ -148,21 +148,29 @@ def update_stok_opname(data_list):
 
 def ambil_data_log():
     """
-    Mengambil data log dari tabel log_opname.
-    Fungsi ini diletakkan di db_utils agar bisa digunakan di banyak halaman.
+    Mengambil data log dari tabel log_opname beserta nama barangnya.
+    Fungsi ini menggunakan metode JOIN untuk menghubungkan tabel log dan tabel barang.
     """
-    # Menggunakan fungsi jalankan_query yang sudah ada di file ini
-    query = "SELECT id, kode_barang, stok_sebelum, stok_sesudah, waktu_opname, petugas FROM log_opname ORDER BY id DESC LIMIT 50"
+    # 1. Memperbarui Kueri SQL dengan menambahkan LEFT JOIN
+    # 'l' adalah singkatan untuk tabel log_opname, 'b' untuk tabel barang
+    query = """
+    SELECT l.id, l.kode_barang, b.nama_barang, l.stok_sebelum, l.stok_sesudah, l.waktu_opname, l.petugas 
+    FROM log_opname l
+    LEFT JOIN barang b ON l.kode_barang = b.kode_barang
+    ORDER BY l.id DESC LIMIT 50
+    """
     
     data = jalankan_query(query)
     
-    # Memproses data menjadi DataFrame
-    # KITA PERBAIKI DI SINI: Menambahkan kolom "Petugas" agar pas menjadi 6 kolom
-    if not data:
-        return pd.DataFrame(columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
+    # 2. Menyiapkan daftar nama kolom yang baru (sekarang ada 7 kolom)
+    nama_kolom = ["ID", "Kode Barang", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"]
     
-    # KITA PERBAIKI DI SINI JUGA: Menambahkan kolom "Petugas"
-    df = pd.DataFrame(data, columns=["ID", "Kode Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"])
+    # 3. Memproses data menjadi DataFrame
+    if not data:
+        # Jika belum ada data, tampilkan tabel kosong dengan header yang rapi
+        return pd.DataFrame(columns=nama_kolom)
+    
+    df = pd.DataFrame(data, columns=nama_kolom)
     return df
 
 def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian=None):
