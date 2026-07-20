@@ -33,7 +33,6 @@ def get_db_connection():
     finally:
         conn.close()
 
-@st.cache_data(ttl=600)
 def jalankan_query(sql, param=(), commit=False):
     """
     Menjalankan query dengan context manager yang aman.
