@@ -70,9 +70,21 @@ def logout():
 
 def tampilkan_sidebar():
     with st.sidebar:
+        # --- 1. CSS UNTUK MENYEMBUNYIKAN MENU OTOMATIS BAWAAN STREAMLIT ---
+        sembunyikan_menu_bawaan = """
+            <style>
+                /* Menghilangkan daftar halaman (Login, 0_Beranda, dll) yang dibuat otomatis oleh Streamlit */
+                [data-testid="stSidebarNav"] {
+                    display: none !important;
+                }
+            </style>
+        """
+        st.markdown(sembunyikan_menu_bawaan, unsafe_allow_html=True)
+        # -------------------------------------------------------------------
+
         st.title("📦 Menu Gudang")
         
-        # 1. Pastikan user sudah login
+        # 2. Pastikan user sudah login
         if "role" not in st.session_state or not st.session_state.get("role"):
             st.warning("Silakan login terlebih dahulu.")
             return
@@ -83,11 +95,10 @@ def tampilkan_sidebar():
 
         st.write("**Pilih Menu:**")
         
-        # 2. Tampilkan navigasi menggunakan st.page_link
-        # Beranda.py tetap tanpa folder karena berada di luar
+        # 3. Tampilkan navigasi buatan kita menggunakan st.page_link
         st.page_link("pages/0_Beranda.py", label="Beranda", icon="🏠")
 
-        # 3. Tambahkan menu berdasarkan Role pengguna
+        # 4. Tambahkan menu berdasarkan Role pengguna
         if role == "admin":
             st.page_link("pages/1_Barang Masuk.py", label="Barang Masuk", icon="📥")
             st.page_link("pages/2_Barang Keluar.py", label="Barang Keluar", icon="📤")
@@ -101,7 +112,7 @@ def tampilkan_sidebar():
 
         st.markdown("---")
         
-        # 4. Tombol Logout
+        # 5. Tombol Logout
         if st.button("Logout"):
             st.session_state["logged_in"] = False
             st.session_state["role"] = None
