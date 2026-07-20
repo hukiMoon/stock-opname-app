@@ -198,3 +198,29 @@ def autentikasi_user(username, password):
         if bcrypt.checkpw(password.encode('utf-8'), hasil[0].encode('utf-8')):
             return hasil[1]
     return None
+
+def export_to_excel(sql, params=()):
+    """Mengekspor hasil query laporan langsung ke format Excel."""
+    # 1. Ambil data dari database
+    data = jalankan_query(sql, params)
+    
+    # 2. Masukkan ke dalam tabel (DataFrame)
+    nama_kolom = ["ID", "Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
+    df = pd.DataFrame(data, columns=nama_kolom)
+    
+    # 3. Rapikan format tanggal agar terlihat cantik di Excel
+    if not df.empty:
+        df["Tanggal"] = pd.to_datetime(df["Tanggal"]).dt.strftime("%d/%m/%Y")
+    
+    # 4. Buat file Excel di dalam memori
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        # Tambahkan judul laporan di baris paling atas
+        judul = pd.DataFrame([["Laporan Transaksi Gudang", "", "", "", "", "", "", ""]])
+        judul.to_excel(writer, index=False, header=False, startrow=0)
+        
+        # Masukkan data utama
+        df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
+        
+    buffer.seek(0)
+    return buffer.getvalue()
