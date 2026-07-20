@@ -18,13 +18,6 @@ def check_login():
         # Opsi: arahkan ke beranda atau tampilkan form login
         st.stop()
 
-#def check_role(required_role):
-    #"""Fungsi proteksi tambahan untuk memeriksa peran (role) pengguna."""
-    # Jika role pengguna saat ini bukan admin DAN bukan role yang diminta, maka akses ditolak
-    #if st.session_state.get("role") != required_role and st.session_state.get("role") != "admin":
-        #st.error("⛔ Anda tidak memiliki akses untuk membuka halaman manajemen ini.")
-        #st.stop()
-
 def show_login():
     # 1. CSS untuk menyembunyikan sidebar dan tombol panah (collapse) bawaan Streamlit
     sembunyikan_sidebar = """
