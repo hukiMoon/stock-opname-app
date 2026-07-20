@@ -73,20 +73,27 @@ def tampilkan_sidebar():
         # --- 1. CSS UNTUK TAMPILAN SIDEBAR ---
         pengaturan_tampilan = """
             <style>
-                /* Menghilangkan daftar halaman (Login, 0_Beranda, dll) otomatis */
+                /* 1. Menghilangkan daftar halaman (Login, 0_Beranda, dll) otomatis */
                 [data-testid="stSidebarNav"] {
                     display: none !important;
                 }
                 
-                /* Mengurangi jarak kosong di bagian paling atas sidebar */
+                /* 2. Menghapus ruang kosong di area header sidebar bawaan Streamlit */
                 [data-testid="stSidebarHeader"] {
-                    padding-top: 1rem !important;
-                    padding-bottom: 0rem !important;
+                    padding: 0rem !important;
+                    height: 0rem !important;
+                    min-height: 0rem !important;
                 }
                 
-                /* Memastikan pembungkus konten utama sidebar juga naik */
+                /* 3. Memaksa pembungkus utama sidebar untuk menempel ke atas */
                 [data-testid="stSidebar"] > div:first-child {
-                    padding-top: 2rem !important; 
+                    padding-top: 0rem !important; 
+                }
+                
+                /* 4. Menghilangkan jarak (margin) bawaan dari st.title di dalam sidebar */
+                [data-testid="stSidebar"] h1 {
+                    padding-top: 1rem !important; /* Ubah ke 0rem jika masih kurang naik */
+                    margin-top: 0rem !important;
                 }
             </style>
         """
