@@ -109,10 +109,12 @@ def tampilkan_sidebar():
             st.page_link("pages/4_Riwayat Log.py", label="Riwayat Log", icon="📜")
             st.page_link("pages/5_Laporan.py", label="Laporan", icon="📊")
             st.page_link("pages/6_Manajemen User.py", label="Manajemen User", icon="👥")
+            st.page_link("pages/7_Ubah Password.py", label="Ubah Password", icon="🔑")
             
         elif role == "staff":
             st.page_link("pages/1_Barang Masuk.py", label="Barang Masuk", icon="📥")
             st.page_link("pages/5_Laporan.py", label="Laporan", icon="📜")
+            st.page_link("pages/7_Ubah Password.py", label="Ubah Password", icon="🔑")
 
         st.markdown("---")
         
