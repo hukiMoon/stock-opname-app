@@ -95,9 +95,12 @@ def tampilkan_sidebar():
                     margin-top: 0rem !important;
                 }
                 
-                /* 6. TAMBAHAN BARU: Menyembunyikan menu Manage App / Header atas */
+                /* 6. PERBAIKAN: Menyembunyikan HANYA menu Manage App di kanan */
                 [data-testid="stHeader"] {
-                    display: none !important;
+                    background-color: transparent !important; /* Membuat latar bilah atas transparan */
+                }
+                [data-testid="stToolbar"] {
+                    display: none !important; /* Menghilangkan menu titik tiga / Manage App */
                 }
             </style>
         """
