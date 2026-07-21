@@ -34,7 +34,6 @@ def show_login():
     
     with kolom_tengah:
         st.markdown("<h2 style='text-align: center;'>Login</h2>", unsafe_allow_html=True)
-        st.write("---")
         
         with st.form("login_form"):
             username = st.text_input("Username")
