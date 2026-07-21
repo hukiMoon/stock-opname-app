@@ -50,12 +50,25 @@ def show_login():
                 else:
                     st.error("Username atau password salah!")
 
-def logout():
-    """Fungsi untuk keluar dari sistem dan kembali ke halaman Login."""
-    st.session_state["logged_in"] = False
-    st.session_state["role"] = None
-    st.switch_page("Login.py")
-
+# 1. Buat fungsi dialog konfirmasi logout
+@st.dialog("Konfirmasi Logout")
+def dialog_konfirmasi_logout():
+    st.write("Apakah Anda yakin ingin keluar dari sistem?")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Ya, Logout", use_container_width=True, type="primary"):
+            # Proses pembersihan sesi
+            st.session_state["logged_in"] = False
+            st.session_state["role"] = None
+            st.session_state.pop("username", None) # Bersihkan username jika ada
+            st.rerun()
+            st.switch_page("Login.py")
+            
+    with col2:
+        if st.button("Batal", use_container_width=True):
+            st.rerun() # Menutup dialog dan kembali normal
+            
 def tampilkan_sidebar():
     with st.sidebar:
         # --- 1. CSS UNTUK TAMPILAN SIDEBAR ---
