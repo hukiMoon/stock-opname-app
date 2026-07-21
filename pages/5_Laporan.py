@@ -13,7 +13,7 @@ from db_utils import (
 )
 from utils import check_login, tampilkan_sidebar
 
-st.set_page_config(page_title="Laporan - Stock Opname Setum Polri", page_icon="📜", layout="wide")
+st.set_page_config(page_title="Laporan - Stock Opname Setum Polri", page_icon="📊", layout="wide")
 
 # Konfigurasi Halaman
 check_login()
