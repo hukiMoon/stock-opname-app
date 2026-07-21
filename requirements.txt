@@ -4,4 +4,3 @@ openpyxl
 fpdf2
 bcrypt
 plotly
-extra-streamlit-components
