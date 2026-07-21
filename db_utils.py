@@ -231,6 +231,30 @@ def export_to_excel(sql, params=()):
         
         # Masukkan data utama
         df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
+
+    def update_password_user(username, password_lama, password_baru):
+    """Memverifikasi password lama dan memperbarui dengan password baru yang di-enkripsi."""
+    # 1. Ambil data user berdasarkan username
+    query = "SELECT password FROM users WHERE username = %s" # Sesuaikan dengan format database kamu (SQLite/PostgreSQL)
+    hasil = jalankan_query(query, (username,), fetch=True)
+    
+    if not hasil:
+        return False, "User tidak ditemukan."
+    
+    hashed_password_lama_db = hasil[0][0]
+    
+    # 2. Verifikasi password lama menggunakan bcrypt
+    if not bcrypt.checkpw(password_lama.encode('utf-8'), hashed_password_lama_db.encode('utf-8')):
+        return False, "Password lama salah!"
         
+    # 3. Enkripsi password baru
+    salt = bcrypt.gensalt()
+    hashed_password_baru = bcrypt.hashpw(password_baru.encode('utf-8'), salt).decode('utf-8')
+    
+    # 4. Simpan ke database
+    query_update = "UPDATE users SET password = %s WHERE username = %s"
+    jalankan_query(query_update, (hashed_password_baru, username))
+    
+    return True, "Password berhasil diubah!"
     buffer.seek(0)
     return buffer.getvalue()
