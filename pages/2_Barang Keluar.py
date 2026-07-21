@@ -5,7 +5,7 @@ from db_utils import jalankan_query
 from utils import check_login, tampilkan_sidebar, card_container
 from services import sinkronisasi_riwayat_keluar
 
-st.set_page_config(page_title="Barang Keluar - Stock Opname Setum Polri", page_icon="📥", layout="wide")
+st.set_page_config(page_title="Barang Keluar - Stock Opname Setum Polri", page_icon="📤", layout="wide")
 
 check_login()
 tampilkan_sidebar()
