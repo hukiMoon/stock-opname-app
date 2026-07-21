@@ -1,25 +1,49 @@
 import streamlit as st
 import bcrypt
-import streamlit.components.v1 as components
+import extra_streamlit_components as stx
 from db_utils import jalankan_query, autentikasi_user
 from setup_db import inisialisasi_user_awal
 
+# Inisialisasi manajer cookie
+@st.cache_resource
+def get_manager():
+    return stx.CookieManager()
+
+cookie_manager = get_manager()
+
 def init_login_state():
-    """Memastikan variabel sesi login selalu terinisialisasi."""
+    """Memastikan variabel sesi login selalu terinisialisasi dan tersinkronisasi dengan cookie."""
     if "logged_in" not in st.session_state:
         st.session_state["logged_in"] = False
     if "role" not in st.session_state:
         st.session_state["role"] = None
 
+    # Cek apakah session kosong tapi cookie tersimpan (artinya baru di-refresh)
+    if not st.session_state["logged_in"]:
+        cookie_login = cookie_manager.get(cookie="gudang_logged_in")
+        cookie_role = cookie_manager.get(cookie="gudang_role")
+        
+        if cookie_login == "True" and cookie_role:
+            st.session_state["logged_in"] = True
+            st.session_state["role"] = cookie_role
+
 def check_login():
-    """Fungsi proteksi untuk memastikan pengguna sudah login."""
+    """Fungsi proteksi untuk memastikan pengguna sudah login (mendukung cookie)."""
     init_login_state()
-    
-    # Mengecek apakah variabel 'logged_in' bernilai False atau role kosong
     if not st.session_state.get("logged_in") or not st.session_state.get("role"):
-        # Jika belum login (atau memori login terhapus karena reboot),
-        # langsung arahkan kembali ke halaman Login.
         st.switch_page("Login.py")
+
+def logout():
+    """Fungsi untuk keluar dari sistem, menghapus cookie, dan kembali ke halaman Login."""
+    # Hapus cookie yang tersimpan di browser
+    cookie_manager.delete("gudang_logged_in")
+    cookie_manager.delete("gudang_role")
+    
+    # Reset state
+    st.session_state["logged_in"] = False
+    st.session_state["role"] = None
+    
+    st.switch_page("Login.py")
         
 def show_login():
     # 1. CSS untuk menyembunyikan sidebar dan tombol panah (collapse) bawaan Streamlit
@@ -56,12 +80,6 @@ def show_login():
                     st.rerun() # Muat ulang halaman agar sidebar muncul kembali
                 else:
                     st.error("Username atau password salah!")
-
-def logout():
-    """Fungsi untuk keluar dari sistem dan kembali ke halaman Login."""
-    st.session_state["logged_in"] = False
-    st.session_state["role"] = None
-    st.switch_page("Login.py")
 
 def tampilkan_sidebar():
     with st.sidebar:
