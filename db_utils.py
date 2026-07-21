@@ -64,7 +64,8 @@ def jalankan_query_satu(sql, param=()):
 
 @handle_db_errors
 def get_stok_rendah(batas):
-    query = "SELECT nama_barang, stok_sistem FROM barang WHERE stok_sistem <= %s"
+    # PERBAIKAN: Menambahkan kolom 'satuan' ke dalam perintah SELECT
+    query = "SELECT nama_barang, stok_sistem, satuan FROM barang WHERE stok_sistem <= %s"
     return jalankan_query(query, (batas,))
 
 def get_data_barang(role):
