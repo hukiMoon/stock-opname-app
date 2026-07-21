@@ -1,5 +1,6 @@
 import streamlit as st
 import bcrypt
+import streamlit.components.v1 as components
 from db_utils import jalankan_query, autentikasi_user
 from setup_db import inisialisasi_user_awal
 
@@ -64,7 +65,7 @@ def logout():
 
 def tampilkan_sidebar():
     with st.sidebar:
-        # --- 1. CSS UNTUK TAMPILAN SIDEBAR & HEADER (VERSI SUPER KUAT) ---
+        # --- 1. CSS & JAVASCRIPT UNTUK MEMAKSA TOMBOL PANAH MUNCUL ---
         pengaturan_tampilan = """
             <style>
                 /* 1. Menghilangkan daftar halaman otomatis */
@@ -90,9 +91,8 @@ def tampilkan_sidebar():
                     margin-top: 0rem !important;
                 }
                 
-                /* 5. PENAWAR CSS LOGIN: Tampilkan kembali header dengan spesifisitas tinggi */
+                /* 5. Membuat header transparan */
                 header[data-testid="stHeader"] {
-                    display: block !important;
                     background-color: transparent !important;
                     z-index: 99998 !important;
                 }
@@ -102,7 +102,7 @@ def tampilkan_sidebar():
                     display: none !important;
                 }
                 
-                /* 7. Memastikan tombol panah terlihat jelas (Mengalahkan CSS Login) */
+                /* 7. Memaksa tombol panah muncul dengan gaya absolut */
                 div[data-testid="collapsedControl"] {
                     display: flex !important;
                     visibility: visible !important;
@@ -110,6 +110,19 @@ def tampilkan_sidebar():
                     z-index: 99999 !important;
                 }
             </style>
+            
+            <script>
+                // Skrip tambahan untuk memastikan tombol panah tidak disembunyikan oleh sistem
+                const observer = new MutationObserver(() => {
+                    const arrowBtn = window.parent.document.querySelector('[data-testid="collapsedControl"]');
+                    if (arrowBtn) {
+                        arrowBtn.style.display = 'flex';
+                        arrowBtn.style.visibility = 'visible';
+                        arrowBtn.style.opacity = '1';
+                    }
+                });
+                observer.observe(window.parent.document.body, { childList: true, subtree: true });
+            </script>
         """
         st.markdown(pengaturan_tampilan, unsafe_allow_html=True)
         # -------------------------------------------------------------------
@@ -147,7 +160,7 @@ def tampilkan_sidebar():
         
         # 5. Tombol Logout
         if st.button("Logout"):
-            from utils import logout # Pastikan fungsi logout dipanggil dengan benar
+            from utils import logout
             logout()
 
 # 1. Fungsi untuk membuat tampilan kartu (card) yang Anda butuhkan
