@@ -59,8 +59,15 @@ else:
     stok_rendah = get_stok_rendah(batas_minimum)
 
     if stok_rendah:
+        # 1. Membuat tabel data
         df_stok_rendah = pd.DataFrame(stok_rendah, columns=["Nama Barang", "Sisa Stok"])
+        
+        # 2. KODE BARU: Mengubah nomor urut (index) agar dimulai dari 1
+        df_stok_rendah.index = df_stok_rendah.index + 1
+        
+        # 3. Menampilkan tabel ke layar
         st.dataframe(df_stok_rendah, use_container_width=True)
+        
         st.warning(f"Terdapat {len(stok_rendah)} barang dengan stok di bawah atau sama dengan {batas_minimum}!")
     else:
         st.success(f"Semua stok barang dalam kondisi aman (Di atas {batas_minimum} unit).")
