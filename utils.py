@@ -13,11 +13,13 @@ def init_login_state():
 def check_login():
     """Fungsi proteksi untuk memastikan pengguna sudah login."""
     init_login_state()
+    
+    # Mengecek apakah variabel 'logged_in' bernilai False atau role kosong
     if not st.session_state.get("logged_in") or not st.session_state.get("role"):
-        st.warning("Silakan login terlebih dahulu.")
-        # Opsi: arahkan ke beranda atau tampilkan form login
-        st.stop()
-
+        # Jika belum login (atau memori login terhapus karena reboot),
+        # langsung arahkan kembali ke halaman Login.
+        st.switch_page("Login.py")
+        
 def show_login():
     # 1. CSS untuk menyembunyikan sidebar dan tombol panah (collapse) bawaan Streamlit
     sembunyikan_sidebar = """
