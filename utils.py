@@ -64,47 +64,50 @@ def logout():
 
 def tampilkan_sidebar():
     with st.sidebar:
-        # --- 1. CSS UNTUK TAMPILAN SIDEBAR & HEADER ---
+        # --- 1. CSS UNTUK TAMPILAN SIDEBAR & HEADER (VERSI SUPER KUAT) ---
         pengaturan_tampilan = """
             <style>
                 /* 1. Menghilangkan daftar halaman otomatis */
-                [data-testid="stSidebarNav"] {
+                div[data-testid="stSidebarNav"] {
                     display: none !important;
                 }
                 
                 /* 2. Menghapus ruang kosong di area header sidebar */
-                [data-testid="stSidebarHeader"] {
+                div[data-testid="stSidebarHeader"] {
                     padding: 0rem !important;
                     height: 0rem !important;
                     min-height: 0rem !important;
                 }
                 
                 /* 3. Memaksa pembungkus utama sidebar untuk menempel ke atas */
-                [data-testid="stSidebar"] > div:first-child {
+                section[data-testid="stSidebar"] > div:first-child {
                     padding-top: 1.5rem !important; 
                 }
                 
                 /* 4. Menghilangkan jarak (margin) bawaan dari st.title */
-                [data-testid="stSidebar"] h1 {
+                section[data-testid="stSidebar"] h1 {
                     padding-top: 1rem !important; 
                     margin-top: 0rem !important;
                 }
                 
-                /* 5. PENAWAR CSS LOGIN: Tampilkan kembali header secara paksa */
-                [data-testid="stHeader"] {
+                /* 5. PENAWAR CSS LOGIN: Tampilkan kembali header dengan spesifisitas tinggi */
+                header[data-testid="stHeader"] {
                     display: block !important;
                     background-color: transparent !important;
+                    z-index: 99998 !important;
                 }
                 
                 /* 6. Menyembunyikan HANYA menu Manage App di kanan */
-                [data-testid="stToolbar"] {
+                div[data-testid="stToolbar"] {
                     display: none !important;
                 }
                 
-                /* 7. Memastikan tombol panah terlihat jelas */
-                [data-testid="collapsedControl"] {
+                /* 7. Memastikan tombol panah terlihat jelas (Mengalahkan CSS Login) */
+                div[data-testid="collapsedControl"] {
                     display: flex !important;
                     visibility: visible !important;
+                    opacity: 1 !important;
+                    z-index: 99999 !important;
                 }
             </style>
         """
