@@ -1,6 +1,6 @@
 import streamlit as st
-from db_utils import jalankan_query, jalankan_perintah_db
 import bcrypt
+from db_utils import jalankan_query, jalankan_perintah_db
 
 def inisialisasi_tabel():
     query_users = """
