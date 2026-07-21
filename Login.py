@@ -10,11 +10,15 @@ st.set_page_config(
 )
 
 # 2. EKSEKUSI CSS PALING AWAL: 
-# Memaksa sidebar hilang tanpa menunggu elemen form login dimuat
+# Memaksa sidebar dan header hilang
 st.markdown("""
     <style>
+        /* Menyembunyikan sidebar */
         [data-testid="stSidebar"] { display: none !important; }
         [data-testid="collapsedControl"] { display: none !important; }
+        
+        /* TAMBAHAN BARU: Menyembunyikan menu Manage App / Header atas */
+        [data-testid="stHeader"] { display: none !important; }
     </style>
 """, unsafe_allow_html=True)
 
