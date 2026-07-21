@@ -4,7 +4,7 @@ import init_path # Pastikan ini ada
 from db_utils import jalankan_query, ambil_riwayat_terfilter
 from utils import check_login, tampilkan_sidebar, card_container
 
-st.set_page_config(page_title="Riwayat Log - Stock Opname Setum Polri", page_icon="⚙️", layout="wide")
+st.set_page_config(page_title="Riwayat Log - Stock Opname Setum Polri", page_icon="📜", layout="wide")
 
 check_login()
 tampilkan_sidebar()
