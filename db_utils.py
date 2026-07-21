@@ -224,26 +224,24 @@ def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, su
 
 def get_ringkasan_kpi():
     """Mengambil data total barang, barang masuk, dan barang keluar bulan ini."""
-    # Mengambil total jenis barang di master
     total_barang = jalankan_query_satu("SELECT COUNT(*) FROM barang")
     
-    # Mengambil jumlah total barang masuk pada bulan dan tahun ini
+    # PERBAIKAN: Menambahkan ::date pada kolom tanggal agar dibaca sebagai format waktu
+    # Serta menggunakan UPPER() agar kata 'Masuk', 'MASUK', atau 'masuk' terbaca semua
     masuk_bulan_ini = jalankan_query_satu("""
         SELECT SUM(jumlah) FROM riwayat 
-        WHERE jenis_transaksi = 'Masuk' 
-        AND EXTRACT(MONTH FROM tanggal) = EXTRACT(MONTH FROM CURRENT_DATE)
-        AND EXTRACT(YEAR FROM tanggal) = EXTRACT(YEAR FROM CURRENT_DATE)
+        WHERE UPPER(jenis_transaksi) = 'MASUK' 
+        AND EXTRACT(MONTH FROM tanggal::date) = EXTRACT(MONTH FROM CURRENT_DATE)
+        AND EXTRACT(YEAR FROM tanggal::date) = EXTRACT(YEAR FROM CURRENT_DATE)
     """)
     
-    # Mengambil jumlah total barang keluar pada bulan dan tahun ini
     keluar_bulan_ini = jalankan_query_satu("""
         SELECT SUM(jumlah) FROM riwayat 
-        WHERE jenis_transaksi = 'Keluar' 
-        AND EXTRACT(MONTH FROM tanggal) = EXTRACT(MONTH FROM CURRENT_DATE)
-        AND EXTRACT(YEAR FROM tanggal) = EXTRACT(YEAR FROM CURRENT_DATE)
+        WHERE UPPER(jenis_transaksi) = 'KELUAR' 
+        AND EXTRACT(MONTH FROM tanggal::date) = EXTRACT(MONTH FROM CURRENT_DATE)
+        AND EXTRACT(YEAR FROM tanggal::date) = EXTRACT(YEAR FROM CURRENT_DATE)
     """)
     
-    # Mengembalikan data dalam bentuk Dictionary agar mudah dipanggil
     return {
         "total_barang": total_barang[0] if total_barang and total_barang[0] else 0,
         "masuk": masuk_bulan_ini[0] if masuk_bulan_ini and masuk_bulan_ini[0] else 0,
