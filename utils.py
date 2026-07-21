@@ -55,13 +55,26 @@ def show_login():
                     st.error("Username atau password salah!")
 
 def logout():
-    """Fungsi untuk keluar dari sistem dan kembali ke halaman Login."""
-    # 1. Reset state login dan role
+    """Fungsi untuk keluar dari sistem dan kembali ke halaman Login dengan transisi mulus."""
+    
+    # 1. Suntikkan CSS untuk menghilangkan sidebar secara instan sebelum proses pindah halaman
+    sembunyikan_sidebar_instan = """
+        <style>
+            [data-testid="stSidebar"] {
+                display: none !important;
+            }
+            [data-testid="collapsedControl"] {
+                display: none !important;
+            }
+        </style>
+    """
+    st.markdown(sembunyikan_sidebar_instan, unsafe_allow_html=True)
+    
+    # 2. Reset state login dan role pengguna
     st.session_state["logged_in"] = False
     st.session_state["role"] = None
     
-    # 2. Arahkan pengguna ke halaman Login.py
-    # Pastikan nama file sesuai dengan nama file login di folder root-mu
+    # 3. Arahkan pengguna ke halaman Login.py
     st.switch_page("Login.py")
 
 def tampilkan_sidebar():
