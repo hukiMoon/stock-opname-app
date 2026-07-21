@@ -221,3 +221,42 @@ def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, su
         
     buffer.seek(0)
     return buffer.getvalue()
+
+def get_ringkasan_kpi():
+    """Mengambil data total barang, barang masuk, dan barang keluar bulan ini."""
+    # Mengambil total jenis barang di master
+    total_barang = jalankan_query_satu("SELECT COUNT(*) FROM barang")
+    
+    # Mengambil jumlah total barang masuk pada bulan dan tahun ini
+    masuk_bulan_ini = jalankan_query_satu("""
+        SELECT SUM(jumlah) FROM riwayat 
+        WHERE jenis_transaksi = 'Masuk' 
+        AND EXTRACT(MONTH FROM tanggal) = EXTRACT(MONTH FROM CURRENT_DATE)
+        AND EXTRACT(YEAR FROM tanggal) = EXTRACT(YEAR FROM CURRENT_DATE)
+    """)
+    
+    # Mengambil jumlah total barang keluar pada bulan dan tahun ini
+    keluar_bulan_ini = jalankan_query_satu("""
+        SELECT SUM(jumlah) FROM riwayat 
+        WHERE jenis_transaksi = 'Keluar' 
+        AND EXTRACT(MONTH FROM tanggal) = EXTRACT(MONTH FROM CURRENT_DATE)
+        AND EXTRACT(YEAR FROM tanggal) = EXTRACT(YEAR FROM CURRENT_DATE)
+    """)
+    
+    # Mengembalikan data dalam bentuk Dictionary agar mudah dipanggil
+    return {
+        "total_barang": total_barang[0] if total_barang and total_barang[0] else 0,
+        "masuk": masuk_bulan_ini[0] if masuk_bulan_ini and masuk_bulan_ini[0] else 0,
+        "keluar": keluar_bulan_ini[0] if keluar_bulan_ini and keluar_bulan_ini[0] else 0
+    }
+
+def get_data_grafik_riwayat():
+    """Mengambil data total barang masuk dan keluar per hari untuk 30 hari terakhir."""
+    query = """
+        SELECT tanggal::date as tgl, jenis_transaksi, SUM(jumlah) as total
+        FROM riwayat
+        WHERE tanggal >= CURRENT_DATE - INTERVAL '30 days'
+        GROUP BY tanggal::date, jenis_transaksi
+        ORDER BY tgl
+    """
+    return jalankan_query(query)
