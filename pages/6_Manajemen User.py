@@ -4,6 +4,8 @@ import bcrypt
 from db_utils import jalankan_query, jalankan_perintah_db
 from utils import check_login, tampilkan_sidebar, card_container
 
+st.set_page_config(page_title="Manajemen User - Stock Opname Setum Polri", page_icon="📊", layout="wide")
+
 # 1. Proteksi Halaman & Tampilkan Sidebar
 check_login()
 tampilkan_sidebar()
