@@ -50,21 +50,15 @@ def logout():
     st.switch_page("Login.py")
         
 def show_login():
-    # 1. CSS untuk menyembunyikan sidebar dan tombol panah (collapse) bawaan Streamlit
+    # 1. CSS untuk menyembunyikan sidebar
     sembunyikan_sidebar = """
         <style>
-            [data-testid="stSidebar"] {
-                display: none;
-            }
-            [data-testid="collapsedControl"] {
-                display: none;
-            }
+            [data-testid="stSidebar"] { display: none; }
+            [data-testid="collapsedControl"] { display: none; }
         </style>
     """
-    # Menyisipkan CSS ke dalam aplikasi
     st.markdown(sembunyikan_sidebar, unsafe_allow_html=True)
     
-    # 2. Desain form login dibuat ke tengah agar lebih rapi (Opsional, tapi direkomendasikan)
     kolom_kiri, kolom_tengah, kolom_kanan = st.columns([1, 2, 1])
     
     with kolom_tengah:
@@ -82,9 +76,12 @@ def show_login():
                     st.session_state["logged_in"] = True
                     st.session_state["role"] = role
                     
-                    # SIMPAN KE COOKIE (berlaku selama 1 hari / 24 jam)
-                    cookie_manager.set("gudang_logged_in", "True", max_age=86400)
-                    cookie_manager.set("gudang_role", role, max_age=86400)
+                    # PERBAIKAN: Menggunakan blok try-except untuk mencegah error crash pada cookie manager
+                    try:
+                        cookie_manager.set("gudang_logged_in", "True", max_age=86400)
+                        cookie_manager.set("gudang_role", role, max_age=86400)
+                    except Exception:
+                        pass
                     
                     st.rerun()
                 else:
