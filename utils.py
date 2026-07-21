@@ -53,7 +53,7 @@ def show_login():
 # 1. Buat fungsi dialog konfirmasi logout
 @st.dialog("Konfirmasi Logout")
 def dialog_konfirmasi_logout():
-    st.write("Apakah Anda yakin ingin keluar dari sistem?")
+    st.write("Apakah Anda yakin ingin keluar?")
     
     col1, col2 = st.columns(2)
     with col1:
