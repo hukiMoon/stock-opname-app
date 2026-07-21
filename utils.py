@@ -90,17 +90,20 @@ def tampilkan_sidebar():
                     margin-top: 0rem !important;
                 }
                 
-                /* 5. Menurunkan tombol panah (collapse control) */
-                [data-testid="collapsedControl"] {
-                    margin-top: 0rem !important;
+                /* 5. Menyembunyikan HANYA menu Manage App di kanan */
+                [data-testid="stToolbar"] {
+                    display: none !important;
                 }
                 
-                /* 6. PERBAIKAN: Menyembunyikan HANYA menu Manage App di kanan */
+                /* 6. Membuat bilah atas transparan */
                 [data-testid="stHeader"] {
-                    background-color: transparent !important; /* Membuat latar bilah atas transparan */
+                    background-color: transparent !important;
                 }
-                [data-testid="stToolbar"] {
-                    display: none !important; /* Menghilangkan menu titik tiga / Manage App */
+                
+                /* 7. PERBAIKAN FINAL: Memaksa tombol panah SELALU TAMPIL */
+                [data-testid="collapsedControl"] {
+                    display: flex !important;
+                    visibility: visible !important;
                 }
             </style>
         """
@@ -140,7 +143,8 @@ def tampilkan_sidebar():
         
         # 5. Tombol Logout
         if st.button("Logout"):
-            logout() # Memanggil fungsi logout yang baru saja kita update
+            from utils import logout # Pastikan fungsi logout dipanggil dengan benar
+            logout()
 
 # 1. Fungsi untuk membuat tampilan kartu (card) yang Anda butuhkan
 def card_container(title):
