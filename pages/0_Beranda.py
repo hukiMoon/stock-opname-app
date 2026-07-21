@@ -6,7 +6,7 @@ from db_utils import jalankan_query
 from pdf_utils import export_to_pdf
 
 # 1. Konfigurasi halaman
-st.set_page_config(page_title="Beranda - Dashboard Stock Opname", page_icon="Setum_Polri.png", layout="wide")
+st.set_page_config(page_title="Beranda - Dashboard Stock Opname", page_icon="🏠", layout="wide")
 
 # 2. Proteksi Halaman & Tampilkan Sidebar
 # check_login() akan memaksa user kembali/berhenti jika belum login
