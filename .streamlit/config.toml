@@ -1,0 +1,3 @@
+[client]
+# Mematikan daftar halaman otomatis (navigasi) bawaan Streamlit
+showSidebarNavigation = false
