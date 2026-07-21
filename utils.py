@@ -90,17 +90,18 @@ def tampilkan_sidebar():
                     margin-top: 0rem !important;
                 }
                 
-                /* 5. Menyembunyikan HANYA menu Manage App di kanan */
+                /* 5. PENAWAR CSS LOGIN: Tampilkan kembali header secara paksa */
+                [data-testid="stHeader"] {
+                    display: block !important;
+                    background-color: transparent !important;
+                }
+                
+                /* 6. Menyembunyikan HANYA menu Manage App di kanan */
                 [data-testid="stToolbar"] {
                     display: none !important;
                 }
                 
-                /* 6. Membuat bilah atas transparan */
-                [data-testid="stHeader"] {
-                    background-color: transparent !important;
-                }
-                
-                /* 7. PERBAIKAN FINAL: Memaksa tombol panah SELALU TAMPIL */
+                /* 7. Memastikan tombol panah terlihat jelas */
                 [data-testid="collapsedControl"] {
                     display: flex !important;
                     visibility: visible !important;
