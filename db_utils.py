@@ -71,10 +71,14 @@ def get_data_barang(role):
     """
     Mengambil data barang berdasarkan peran pengguna.
     """
+    # PERBAIKAN: Mengubah nama tabel dari 'inventory' menjadi 'barang'
     if role == "admin":
-        query = "SELECT * FROM inventory"
+        # Admin bisa melihat seluruh data barang
+        query = "SELECT * FROM barang"
     else:
-        query = "SELECT * FROM inventory WHERE status = 'tersedia'"
+        # User biasa juga melihat dari tabel barang (sesuaikan kondisi jika ada kolom status)
+        query = "SELECT * FROM barang"
+        
     return jalankan_query(query)
 
 def cek_barang_ada(nama_barang):
