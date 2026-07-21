@@ -39,7 +39,6 @@ def jalankan_query(sql, param=(), commit=False):
     """
     data = None
     try:
-        # Menggunakan 'with' agar koneksi otomatis tertutup
         with get_db_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(sql, param)
@@ -72,111 +71,53 @@ def get_data_barang(role):
     """
     Mengambil data barang berdasarkan peran pengguna.
     """
-    # Contoh koneksi database (sesuaikan dengan kode Anda saat ini)
-    # conn = connect_db() 
-    
     if role == "admin":
-        # Admin bisa melihat seluruh data
         query = "SELECT * FROM inventory"
     else:
-        # User biasa hanya melihat barang yang statusnya 'tersedia'
         query = "SELECT * FROM inventory WHERE status = 'tersedia'"
+    return jalankan_query(query)
 
 def cek_barang_ada(nama_barang):
-    # Mengecek apakah nama barang sudah ada (case-insensitive)
     query = "SELECT COUNT(*) FROM barang WHERE LOWER(nama_barang) = LOWER(%s)"
     hasil = jalankan_query(query, (nama_barang,))
-    # hasil akan berupa list berisi tuple, misal: [(1,)]
-    return hasil[0][0] > 0
-
-def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian):
-    # Mengambil data
-    data = ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian)
-    
-    nama_kolom = ["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
-    df = pd.DataFrame(data, columns=nama_kolom)
-    
-    # --- MENAMBAHKAN FORMAT TANGGAL ---
-    # 1. Pastikan kolom tanggal bertipe datetime
-    df["Tanggal"] = pd.to_datetime(df["Tanggal"])
-    # 2. Ubah format menjadi teks DD/MM/YYYY agar rapi di Excel
-    df["Tanggal"] = df["Tanggal"].dt.strftime("%d/%m/%Y")
-    
-    # Renaming kolom
-    df = df.rename(columns={
-        "Kode Barang": "Kode",
-        "Nama Barang": "Nama Produk",
-        "Jenis Transaksi": "Kategori",
-        "Keterangan": "Tujuan / Sub-Bagian"
-    })
-    
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        judul = pd.DataFrame([["Laporan Inventaris Gudang", "", "", "", "", "", ""]])
-        judul.to_excel(writer, index=False, header=False, startrow=0)
-        
-        df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
-        
-    buffer.seek(0)
-    return buffer.getvalue()
+    if hasil:
+        return hasil[0][0] > 0
+    return False
 
 def jalankan_perintah_db(sql, params=()):
     """Fungsi untuk perintah INSERT, UPDATE, atau DELETE yang butuh commit"""
-    conn = psycopg2.connect(DB_URL) # Sesuaikan dengan variabel koneksi Anda
-    try:
-        with conn:
-            with conn.cursor() as cursor:
-                cursor.execute(sql, params)
-    finally:
-        conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(sql, params)
+            conn.commit()
 
 def update_stok_opname(data_list):
     """Logika untuk update stok dan insert log secara batch"""
-    conn = psycopg2.connect(DB_URL)
-    try:
-        with conn:
-            with conn.cursor() as cursor:
-                # Update stok
-                sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
-                psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
-                
-                # Insert log
-                sql_log = "INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) VALUES (%s, %s, %s)"
-                psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
-    finally:
-        conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cursor:
+            sql_update = "UPDATE barang SET stok_sistem = %s WHERE kode_barang = %s"
+            psycopg2.extras.execute_batch(cursor, sql_update, [(d[0], d[2]) for d in data_list])
+            
+            sql_log = "INSERT INTO log_opname (kode_barang, stok_sebelum, stok_sesudah) VALUES (%s, %s, %s)"
+            psycopg2.extras.execute_batch(cursor, sql_log, [(d[2], d[1], d[0]) for d in data_list])
+            conn.commit()
 
 def ambil_data_log():
-    """
-    Mengambil data log dari tabel log_opname beserta nama barangnya.
-    Fungsi ini menggunakan metode JOIN untuk menghubungkan tabel log dan tabel barang.
-    """
-    # 1. Memperbarui Kueri SQL dengan menambahkan LEFT JOIN
-    # 'l' adalah singkatan untuk tabel log_opname, 'b' untuk tabel barang
     query = """
     SELECT l.id, l.kode_barang, b.nama_barang, l.stok_sebelum, l.stok_sesudah, l.waktu_opname, l.petugas 
     FROM log_opname l
     LEFT JOIN barang b ON l.kode_barang = b.kode_barang
     ORDER BY l.id DESC LIMIT 50
     """
-    
     data = jalankan_query(query)
-    
-    # 2. Menyiapkan daftar nama kolom yang baru (sekarang ada 7 kolom)
     nama_kolom = ["ID", "Kode Barang", "Nama Barang", "Stok Sebelum", "Stok Sesudah", "Tanggal", "Petugas"]
     
-    # 3. Memproses data menjadi DataFrame
     if not data:
-        # Jika belum ada data, tampilkan tabel kosong dengan header yang rapi
         return pd.DataFrame(columns=nama_kolom)
     
-    df = pd.DataFrame(data, columns=nama_kolom)
-    return df
+    return pd.DataFrame(data, columns=nama_kolom)
 
 def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian=None):
-    """
-    Mengambil riwayat dengan filter tambahan untuk sub-bagian (keterangan).
-    """
     query = "SELECT kode_barang, nama_barang, jenis_transaksi, jumlah, satuan, tanggal, keterangan FROM riwayat WHERE 1=1"
     params = []
 
@@ -189,72 +130,90 @@ def ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, s
         query += f" AND jenis_transaksi IN ({format_strings})"
         params.extend(jenis_transaksi)
         
-    # Filter tambahan untuk sub-bagian (mencari di kolom keterangan)
     if sub_bagian:
         query += " AND keterangan ILIKE %s"
         params.append(f"%{sub_bagian}%")
         
     query += " AND tanggal::date BETWEEN %s AND %s"
     params.extend([tgl_awal, tgl_akhir])
-    
     query += " ORDER BY id DESC"
     
     return jalankan_query(query, tuple(params))
 
 def autentikasi_user(username, password):
-    # Sekarang menggunakan jalankan_query_satu
     hasil = jalankan_query_satu("SELECT password_hash, role FROM users WHERE username = %s", (username,))
     if hasil:
+        # Menyesuaikan dengan kolom password_hash di database PostgreSQL
         if bcrypt.checkpw(password.encode('utf-8'), hasil[0].encode('utf-8')):
             return hasil[1]
     return None
 
-def export_to_excel(sql, params=()):
-    """Mengekspor hasil query laporan langsung ke format Excel."""
-    # 1. Ambil data dari database
-    data = jalankan_query(sql, params)
-    
-    # 2. Masukkan ke dalam tabel (DataFrame)
-    nama_kolom = ["ID", "Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
-    df = pd.DataFrame(data, columns=nama_kolom)
-    
-    # 3. Rapikan format tanggal agar terlihat cantik di Excel
-    if not df.empty:
-        df["Tanggal"] = pd.to_datetime(df["Tanggal"]).dt.strftime("%d/%m/%Y")
-    
-    # 4. Buat file Excel di dalam memori
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        # Tambahkan judul laporan di baris paling atas
-        judul = pd.DataFrame([["Laporan Transaksi Gudang", "", "", "", "", "", "", ""]])
-        judul.to_excel(writer, index=False, header=False, startrow=0)
-        
-        # Masukkan data utama
-        df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
-
-    def update_password_user(username, password_lama, password_baru):
+def update_password_user(username, password_lama, password_baru):
     """Memverifikasi password lama dan memperbarui dengan password baru yang di-enkripsi."""
-    # 1. Ambil data user berdasarkan username
-    query = "SELECT password FROM users WHERE username = %s" # Sesuaikan dengan format database kamu (SQLite/PostgreSQL)
-    hasil = jalankan_query(query, (username,), fetch=True)
+    hasil = jalankan_query_satu("SELECT password_hash FROM users WHERE username = %s", (username,))
     
     if not hasil:
         return False, "User tidak ditemukan."
     
-    hashed_password_lama_db = hasil[0][0]
+    hashed_password_lama_db = hasil[0]
     
-    # 2. Verifikasi password lama menggunakan bcrypt
     if not bcrypt.checkpw(password_lama.encode('utf-8'), hashed_password_lama_db.encode('utf-8')):
         return False, "Password lama salah!"
         
-    # 3. Enkripsi password baru
     salt = bcrypt.gensalt()
     hashed_password_baru = bcrypt.hashpw(password_baru.encode('utf-8'), salt).decode('utf-8')
     
-    # 4. Simpan ke database
-    query_update = "UPDATE users SET password = %s WHERE username = %s"
-    jalankan_query(query_update, (hashed_password_baru, username))
+    query_update = "UPDATE users SET password_hash = %s WHERE username = %s"
+    jalankan_perintah_db(query_update, (hashed_password_baru, username))
     
     return True, "Password berhasil diubah!"
+
+def export_to_excel(sql, params=()):
+    """Mengekspor hasil query laporan langsung ke format Excel."""
+    data = jalankan_query(sql, params)
+    nama_kolom = ["ID", "Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
+    
+    if data:
+        df = pd.DataFrame(data, columns=nama_kolom)
+    else:
+        df = pd.DataFrame(columns=nama_kolom)
+        
+    if not df.empty:
+        df["Tanggal"] = pd.to_datetime(df["Tanggal"]).dt.strftime("%d/%m/%Y")
+    
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        judul = pd.DataFrame([["Laporan Transaksi Gudang", "", "", "", "", "", "", ""]])
+        judul.to_excel(writer, index=False, header=False, startrow=0)
+        df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
+        
+    buffer.seek(0)
+    return buffer.getvalue()
+
+def export_to_excel_filter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian):
+    data = ambil_riwayat_terfilter(nama_barang, jenis_transaksi, tgl_awal, tgl_akhir, sub_bagian)
+    nama_kolom = ["Kode Barang", "Nama Barang", "Jenis Transaksi", "Jumlah", "Satuan", "Tanggal", "Keterangan"]
+    
+    if data:
+        df = pd.DataFrame(data, columns=nama_kolom)
+    else:
+        df = pd.DataFrame(columns=nama_kolom)
+        
+    if not df.empty:
+        df["Tanggal"] = pd.to_datetime(df["Tanggal"]).dt.strftime("%d/%m/%Y")
+    
+    df = df.rename(columns={
+        "Kode Barang": "Kode",
+        "Nama Barang": "Nama Produk",
+        "Jenis Transaksi": "Kategori",
+        "Keterangan": "Tujuan / Sub-Bagian"
+    })
+    
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        judul = pd.DataFrame([["Laporan Inventaris Gudang", "", "", "", "", "", ""]])
+        judul.to_excel(writer, index=False, header=False, startrow=0)
+        df.to_excel(writer, index=False, sheet_name='Laporan', startrow=2)
+        
     buffer.seek(0)
     return buffer.getvalue()
