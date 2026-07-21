@@ -131,8 +131,9 @@ def tampilkan_sidebar():
 
         st.markdown("---")
         
-        if st.button("Logout"):
-            logout()
+        # Mengubah tombol logout biasa menjadi pemanggil dialog konfirmasi
+        if st.button("Logout", use_container_width=True):
+            dialog_konfirmasi_logout()
 
 def card_container(title):
     st.subheader(title)
