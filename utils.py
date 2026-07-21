@@ -88,7 +88,7 @@ def tampilkan_sidebar():
         st.markdown(pengaturan_tampilan, unsafe_allow_html=True)
         # -------------------------------------------------------------------
 
-        st.title("📦 Aplikasi Persediaan** Setum Polri")
+        st.title("📦 Aplikasi Persediaan Setum Polri")
         
         if "role" not in st.session_state or not st.session_state.get("role"):
             st.warning("Silakan login terlebih dahulu.")
