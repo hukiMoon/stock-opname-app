@@ -4,7 +4,6 @@ import bcrypt
 
 def inisialisasi_tabel():
     """Membuat tabel-tabel database jika belum ada."""
-    # Contoh pembuatan tabel users
     query_users = """
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -21,7 +20,6 @@ def inisialisasi_user_awal():
     hasil = jalankan_query(cek_user, fetch=True)
     
     if hasil and hasil[0][0] == 0:
-        # Enkripsi password default admin
         password_polos = "admin123"
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password_polos.encode('utf-8'), salt).decode('utf-8')
