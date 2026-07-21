@@ -1,31 +1,30 @@
-import bcrypt
+import streamlit as st
 from db_utils import jalankan_query, jalankan_perintah_db
+import bcrypt
+
+def inisialisasi_tabel():
+    """Membuat tabel-tabel database jika belum ada."""
+    # Contoh pembuatan tabel users
+    query_users = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            role VARCHAR(20) NOT NULL
+        )
+    """
+    jalankan_perintah_db(query_users)
 
 def inisialisasi_user_awal():
-    """Menambahkan user admin dan staff hanya jika belum ada di database."""
-    users = [
-        ("98010786", "1P@ny001", "admin"),
-        ("staff", "staff123", "staff")
-    ]
+    """Membuat akun admin default jika tabel masih kosong."""
+    cek_user = "SELECT COUNT(*) FROM users"
+    hasil = jalankan_query(cek_user, fetch=True)
     
-    for username, raw_password, role in users:
-        # 1. Cek dulu apakah user sudah ada di database
-        # Asumsi: jalankan_query mengembalikan list of tuples
-        cek_user = jalankan_query("SELECT username FROM users WHERE username = %s", (username,))
+    if hasil and hasil[0][0] == 0:
+        # Enkripsi password default admin
+        password_polos = "admin123"
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password_polos.encode('utf-8'), salt).decode('utf-8')
         
-        if not cek_user:
-            # 2. Hanya lakukan hashing jika user memang belum ada
-            salt = bcrypt.gensalt()
-            hashed = bcrypt.hashpw(raw_password.encode('utf-8'), salt).decode('utf-8')
-            
-            sql = """
-            INSERT INTO users (username, password_hash, role) 
-            VALUES (%s, %s, %s)
-            """
-            try:
-                jalankan_perintah_db(sql, (username, hashed, role))
-                print(f"User {username} berhasil ditambahkan.")
-            except Exception as e:
-                print(f"Error saat setup user {username}: {e}")
-        else:
-            print(f"User {username} sudah ada, melewati proses setup.")
+        query_insert = "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)"
+        jalankan_perintah_db(query_insert, ("admin", hashed_password, "admin"))
