@@ -64,15 +64,15 @@ def logout():
 
 def tampilkan_sidebar():
     with st.sidebar:
-        # --- 1. CSS UNTUK TAMPILAN SIDEBAR ---
+        # --- 1. CSS UNTUK TAMPILAN SIDEBAR & HEADER ---
         pengaturan_tampilan = """
             <style>
-                /* 1. Menghilangkan daftar halaman (Login, 0_Beranda, dll) otomatis */
+                /* 1. Menghilangkan daftar halaman otomatis */
                 [data-testid="stSidebarNav"] {
                     display: none !important;
                 }
                 
-                /* 2. Menghapus ruang kosong di area header sidebar bawaan Streamlit */
+                /* 2. Menghapus ruang kosong di area header sidebar */
                 [data-testid="stSidebarHeader"] {
                     padding: 0rem !important;
                     height: 0rem !important;
@@ -84,15 +84,20 @@ def tampilkan_sidebar():
                     padding-top: 1.5rem !important; 
                 }
                 
-                /* 4. Menghilangkan jarak (margin) bawaan dari st.title di dalam sidebar */
+                /* 4. Menghilangkan jarak (margin) bawaan dari st.title */
                 [data-testid="stSidebar"] h1 {
                     padding-top: 1rem !important; 
                     margin-top: 0rem !important;
                 }
                 
-                /* 5. Menurunkan tombol panah (collapse control) sedikit ke bawah */
+                /* 5. Menurunkan tombol panah (collapse control) */
                 [data-testid="collapsedControl"] {
-                    margin-top: 0rem !important; /* Jarak dorong ke bawah */
+                    margin-top: 0rem !important;
+                }
+                
+                /* 6. TAMBAHAN BARU: Menyembunyikan menu Manage App / Header atas */
+                [data-testid="stHeader"] {
+                    display: none !important;
                 }
             </style>
         """
