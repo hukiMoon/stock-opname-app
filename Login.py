@@ -5,6 +5,7 @@ from utils import init_login_state, show_login
 # 1. Konfigurasi halaman dasar
 st.set_page_config(
     page_title="Login - Stock Opname", 
+    page_icon="Setum_Polri.png",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
