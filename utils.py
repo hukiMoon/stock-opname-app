@@ -65,10 +65,10 @@ def logout():
 
 def tampilkan_sidebar():
     with st.sidebar:
-        # --- 1. CSS & JAVASCRIPT UNTUK MEMAKSA TOMBOL PANAH MUNCUL ---
+        # --- 1. CSS BERSIH DAN STABIL ---
         pengaturan_tampilan = """
             <style>
-                /* 1. Menghilangkan daftar halaman otomatis */
+                /* 1. Menghilangkan daftar halaman otomatis bawaan Streamlit */
                 div[data-testid="stSidebarNav"] {
                     display: none !important;
                 }
@@ -90,39 +90,7 @@ def tampilkan_sidebar():
                     padding-top: 1rem !important; 
                     margin-top: 0rem !important;
                 }
-                
-                /* 5. Membuat header transparan */
-                header[data-testid="stHeader"] {
-                    background-color: transparent !important;
-                    z-index: 99998 !important;
-                }
-                
-                /* 6. Menyembunyikan HANYA menu Manage App di kanan */
-                div[data-testid="stToolbar"] {
-                    display: none !important;
-                }
-                
-                /* 7. Memaksa tombol panah muncul dengan gaya absolut */
-                div[data-testid="collapsedControl"] {
-                    display: flex !important;
-                    visibility: visible !important;
-                    opacity: 1 !important;
-                    z-index: 99999 !important;
-                }
             </style>
-            
-            <script>
-                // Skrip tambahan untuk memastikan tombol panah tidak disembunyikan oleh sistem
-                const observer = new MutationObserver(() => {
-                    const arrowBtn = window.parent.document.querySelector('[data-testid="collapsedControl"]');
-                    if (arrowBtn) {
-                        arrowBtn.style.display = 'flex';
-                        arrowBtn.style.visibility = 'visible';
-                        arrowBtn.style.opacity = '1';
-                    }
-                });
-                observer.observe(window.parent.document.body, { childList: true, subtree: true });
-            </script>
         """
         st.markdown(pengaturan_tampilan, unsafe_allow_html=True)
         # -------------------------------------------------------------------
