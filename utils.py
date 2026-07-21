@@ -4,10 +4,10 @@ import extra_streamlit_components as stx
 from db_utils import jalankan_query, autentikasi_user
 from setup_db import inisialisasi_user_awal
 
-# Inisialisasi manajer cookie
+# PERBAIKAN: Berikan key unik pada CookieManager agar tidak terjadi duplikasi elemen
 @st.cache_resource
 def get_manager():
-    return stx.CookieManager()
+    return stx.CookieManager(key="cookie_manager_gudang_app")
 
 cookie_manager = get_manager()
 
@@ -20,12 +20,15 @@ def init_login_state():
 
     # Cek apakah session kosong tapi cookie tersimpan (artinya baru di-refresh)
     if not st.session_state["logged_in"]:
-        cookie_login = cookie_manager.get(cookie="gudang_logged_in")
-        cookie_role = cookie_manager.get(cookie="gudang_role")
-        
-        if cookie_login == "True" and cookie_role:
-            st.session_state["logged_in"] = True
-            st.session_state["role"] = cookie_role
+        try:
+            cookie_login = cookie_manager.get(cookie="gudang_logged_in")
+            cookie_role = cookie_manager.get(cookie="gudang_role")
+            
+            if cookie_login == "True" and cookie_role:
+                st.session_state["logged_in"] = True
+                st.session_state["role"] = cookie_role
+        except Exception:
+            pass # Mencegah error saat cookie belum siap dibaca pada render pertama
 
 def check_login():
     """Fungsi proteksi untuk memastikan pengguna sudah login (mendukung cookie)."""
@@ -35,11 +38,12 @@ def check_login():
 
 def logout():
     """Fungsi untuk keluar dari sistem, menghapus cookie, dan kembali ke halaman Login."""
-    # Hapus cookie yang tersimpan di browser
-    cookie_manager.delete("gudang_logged_in")
-    cookie_manager.delete("gudang_role")
+    try:
+        cookie_manager.delete("gudang_logged_in")
+        cookie_manager.delete("gudang_role")
+    except Exception:
+        pass
     
-    # Reset state
     st.session_state["logged_in"] = False
     st.session_state["role"] = None
     
