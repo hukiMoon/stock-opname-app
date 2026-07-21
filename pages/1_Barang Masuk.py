@@ -4,7 +4,7 @@ from db_utils import jalankan_query, get_data_barang, cek_barang_ada
 from utils import check_login, tampilkan_sidebar, card_container
 from services import sinkronisasi_riwayat_masuk
 
-st.set_page_config(page_title="Barang Masuk - Stock Opname Setum Polri", page_icon="📥")
+st.set_page_config(page_title="Barang Masuk - Stock Opname Setum Polri", page_icon="📥", layout="wide")
 
 check_login()
 tampilkan_sidebar()
