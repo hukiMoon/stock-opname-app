@@ -73,11 +73,16 @@ def show_login():
             submit_button = st.form_submit_button("Masuk", use_container_width=True)
 
             if submit_button:
-                role = autentikasi_user(username, password) # Fungsi dari db_utils
+                role = autentikasi_user(username, password)
                 if role:
                     st.session_state["logged_in"] = True
                     st.session_state["role"] = role
-                    st.rerun() # Muat ulang halaman agar sidebar muncul kembali
+                    
+                    # SIMPAN KE COOKIE (berlaku selama 1 hari / 24 jam)
+                    cookie_manager.set("gudang_logged_in", "True", max_age=86400)
+                    cookie_manager.set("gudang_role", role, max_age=86400)
+                    
+                    st.rerun()
                 else:
                     st.error("Username atau password salah!")
 
