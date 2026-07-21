@@ -3,7 +3,6 @@ from db_utils import jalankan_query, jalankan_perintah_db
 import bcrypt
 
 def inisialisasi_tabel():
-    """Membuat tabel-tabel database jika belum ada."""
     query_users = """
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -15,7 +14,6 @@ def inisialisasi_tabel():
     jalankan_perintah_db(query_users)
 
 def inisialisasi_user_awal():
-    """Membuat akun admin default jika tabel masih kosong."""
     cek_user = "SELECT COUNT(*) FROM users"
     hasil = jalankan_query(cek_user, fetch=True)
     
